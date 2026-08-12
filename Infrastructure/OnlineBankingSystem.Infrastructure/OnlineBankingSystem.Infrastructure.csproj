@@ -10,4 +10,9 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\OnlineBankingSystem.Contract\OnlineBankingSystem.Contract.csproj" />
+    <ProjectReference Include="..\..\Core\OnlineBankingSystem.Domain\OnlineBankingSystem.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
