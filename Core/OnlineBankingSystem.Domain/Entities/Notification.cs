@@ -1,4 +1,6 @@
-﻿namespace OnlineBankingSystem.Domain.Entities;
+﻿using OnlineBankingSystem.Domain.Enums;
+
+namespace OnlineBankingSystem.Domain.Entities;
 
 public class Notification : BaseEntity
 {

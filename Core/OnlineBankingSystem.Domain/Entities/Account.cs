@@ -8,9 +8,9 @@ public class Account : BaseEntity
 
     public AccountType AccountType { get; set; }
 
-    public decimal Balance { get; set; }
+    public decimal Balance { get; set; } = 0;
 
-    public AccountStatus Status { get; set; }
+    public AccountStatus Status { get; set; } = AccountStatus.Active;
 
     public string UserId { get; set; } = string.Empty;
 
