@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineBankingSystem.Domain.Entities;
+using OnlineBankingSystem.Domain.Repositories;
 using OnlineBankingSystem.Persistence.Data;
+using OnlineBankingSystem.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -32,6 +34,13 @@ namespace OnlineBankingSystem.WebApi
                 .AddEntityFrameworkStores<OnlineBankingDbContext>()
                 .AddDefaultTokenProviders();
 
+            // Repositories
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+            builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+            builder.Services.AddScoped<ILoanApplicationRepository, LoanApplicationRepository>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<IBalanceAlertSettingRepository, BalanceAlertSettingRepository>();
+
             // JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");
             builder.Services.AddAuthentication(options =>
@@ -55,8 +64,6 @@ namespace OnlineBankingSystem.WebApi
             });
 
             builder.Services.AddAuthorization();
-
-            // TODO: Repository/Service DI qeydiyyatlar? buraya ?lav? olunacaq
 
             var app = builder.Build();
 
