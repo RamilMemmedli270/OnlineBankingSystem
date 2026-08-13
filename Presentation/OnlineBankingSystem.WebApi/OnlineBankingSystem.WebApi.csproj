@@ -18,7 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\OnlineBankingSystem.Application\OnlineBankingSystem.Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\OnlineBankingSystem.Infrastructure\OnlineBankingSystem.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\OnlineBankingSystem.Perstistence\OnlineBankingSystem.Perstistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\OnlineBankingSystem.Persistence\OnlineBankingSystem.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
