@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using OnlineBankingSystem.Application.Mapper;
 using OnlineBankingSystem.Domain.Entities;
 using OnlineBankingSystem.Domain.Repositories;
 using OnlineBankingSystem.Persistence.Data;
 using OnlineBankingSystem.Persistence.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 namespace OnlineBankingSystem.WebApi
@@ -34,6 +36,8 @@ namespace OnlineBankingSystem.WebApi
                 .AddEntityFrameworkStores<OnlineBankingDbContext>()
                 .AddDefaultTokenProviders();
 
+            // AutoMapper
+            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CustomProfile>());
             // Repositories
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
