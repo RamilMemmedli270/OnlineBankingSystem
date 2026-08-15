@@ -23,12 +23,11 @@ public class BalanceAlertSettingRepository : IBalanceAlertSettingRepository
     public async Task AddAsync(BalanceAlertSetting setting)
     {
         await _context.BalanceAlertSettings.AddAsync(setting);
-        await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(BalanceAlertSetting setting)
+    public Task UpdateAsync(BalanceAlertSetting setting)
     {
         _context.BalanceAlertSettings.Update(setting);
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

@@ -42,12 +42,11 @@ public class LoanApplicationRepository : ILoanApplicationRepository
     public async Task AddAsync(LoanApplication loan)
     {
         await _context.LoanApplications.AddAsync(loan);
-        await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(LoanApplication loan)
+    public Task UpdateAsync(LoanApplication loan)
     {
         _context.LoanApplications.Update(loan);
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

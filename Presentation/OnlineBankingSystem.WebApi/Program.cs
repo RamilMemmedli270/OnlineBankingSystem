@@ -1,13 +1,15 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using OnlineBankingSystem.Application.Mapper;
+using OnlineBankingSystem.Application.Services;
+using OnlineBankingSystem.Contract.Abstractions;
 using OnlineBankingSystem.Domain.Entities;
 using OnlineBankingSystem.Domain.Repositories;
+using OnlineBankingSystem.Infrastructure.Services;
 using OnlineBankingSystem.Persistence.Data;
 using OnlineBankingSystem.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 namespace OnlineBankingSystem.WebApi
@@ -38,12 +40,24 @@ namespace OnlineBankingSystem.WebApi
 
             // AutoMapper
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CustomProfile>());
+
             // Repositories
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
             builder.Services.AddScoped<ILoanApplicationRepository, LoanApplicationRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<IBalanceAlertSettingRepository, BalanceAlertSettingRepository>();
+
+            // Unit of Work
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Services
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<ITransactionService, TransactionService>();
+            builder.Services.AddScoped<ILoanApplicationService, LoanApplicationService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IBalanceAlertSettingService, BalanceAlertSettingService>();
 
             // JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");

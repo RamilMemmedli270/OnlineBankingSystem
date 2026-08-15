@@ -17,17 +17,14 @@ public class AccountRepository : IAccountRepository
     public async Task AddAsync(Account account)
     {
         await _context.Accounts.AddAsync(account);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
         var account = await _context.Accounts.FindAsync(id);
-
         if (account != null)
         {
             _context.Accounts.Remove(account);
-            await _context.SaveChangesAsync();
         }
     }
 
@@ -59,9 +56,9 @@ public class AccountRepository : IAccountRepository
             .ToListAsync();
     }
 
-    public async Task UpdateAsync(Account account)
+    public Task UpdateAsync(Account account)
     {
         _context.Accounts.Update(account);
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }
