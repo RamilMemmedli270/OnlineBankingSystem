@@ -27,10 +27,16 @@ public class AccountService : IAccountService
         return _mapper.Map<IEnumerable<AccountDto>>(accounts);
     }
 
-    public async Task<AccountDto?> GetByIdAsync(int id)
+    public async Task<AccountDto?> GetByIdAsync(string userId, int id, bool isAdmin)
     {
         var account = await _accountRepository.GetByIdAsync(id);
-        return account == null ? null : _mapper.Map<AccountDto>(account);
+        if (account == null)
+            return null;
+
+        if (!isAdmin && account.UserId != userId)
+            throw new Exception("Bu hesabın məlumatlarına baxmaq icazəniz yoxdur");
+
+        return _mapper.Map<AccountDto>(account);
     }
 
     public async Task<IEnumerable<AccountDto>> GetByUserIdAsync(string userId)

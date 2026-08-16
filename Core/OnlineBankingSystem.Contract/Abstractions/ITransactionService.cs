@@ -6,6 +6,6 @@ namespace OnlineBankingSystem.Contract.Abstractions;
 public interface ITransactionService
 {
     Task<TransactionDto> TransferAsync(string userId, TransferDto dto);
-    Task<IEnumerable<TransactionDto>> GetByAccountIdAsync(int accountId);
-    Task<IEnumerable<TransactionDto>> GetStatementAsync(int accountId, DateTime from, DateTime to);
+    Task<IEnumerable<TransactionDto>> GetByAccountIdAsync(string userId, int accountId);
+    Task<IEnumerable<TransactionDto>> GetStatementAsync(string userId, int accountId, DateTime from, DateTime to);
 }

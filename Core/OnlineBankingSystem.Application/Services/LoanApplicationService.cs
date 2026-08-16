@@ -57,6 +57,9 @@ public class LoanApplicationService : ILoanApplicationService
 
     public async Task<LoanApplicationDto> ReviewAsync(int id, string adminId, ReviewLoanDto dto)
     {
+        if (dto.Status != LoanStatus.Approved && dto.Status != LoanStatus.Declined)
+            throw new Exception("Status yalnız Approved və ya Declined ola bilər");
+
         var loan = await _loanRepository.GetByIdAsync(id);
         if (loan == null)
             throw new Exception("Kredit müraciəti tapılmadı");

@@ -13,17 +13,20 @@ public class TransactionService : ITransactionService
     private readonly ITransactionRepository _transactionRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
 
     public TransactionService(
         ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
         IUnitOfWork unitOfWork,
+        INotificationService notificationService,
         IMapper mapper)
     {
         _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
         _mapper = mapper;
     }
 
@@ -75,6 +78,8 @@ public class TransactionService : ITransactionService
 
             await _transactionRepository.AddAsync(transaction);
 
+            await _notificationService.CheckAndSendLowBalanceAlertAsync(fromAccount.UserId, fromAccount.Balance);
+
             await _unitOfWork.SaveChangesAsync();
             await dbTransaction.CommitAsync();
 
@@ -87,14 +92,28 @@ public class TransactionService : ITransactionService
         }
     }
 
-    public async Task<IEnumerable<TransactionDto>> GetByAccountIdAsync(int accountId)
+    public async Task<IEnumerable<TransactionDto>> GetByAccountIdAsync(string userId, int accountId)
     {
+        var account = await _accountRepository.GetByIdAsync(accountId);
+        if (account == null)
+            throw new Exception("Hesab tapılmadı");
+
+        if (account.UserId != userId)
+            throw new Exception("Bu hesabın məlumatlarına baxmaq icazəniz yoxdur");
+
         var transactions = await _transactionRepository.GetByAccountIdAsync(accountId);
         return _mapper.Map<IEnumerable<TransactionDto>>(transactions);
     }
 
-    public async Task<IEnumerable<TransactionDto>> GetStatementAsync(int accountId, DateTime from, DateTime to)
+    public async Task<IEnumerable<TransactionDto>> GetStatementAsync(string userId, int accountId, DateTime from, DateTime to)
     {
+        var account = await _accountRepository.GetByIdAsync(accountId);
+        if (account == null)
+            throw new Exception("Hesab tapılmadı");
+
+        if (account.UserId != userId)
+            throw new Exception("Bu hesabın məlumatlarına baxmaq icazəniz yoxdur");
+
         var transactions = await _transactionRepository.GetByAccountIdAndDateRangeAsync(accountId, from, to);
         return _mapper.Map<IEnumerable<TransactionDto>>(transactions);
     }

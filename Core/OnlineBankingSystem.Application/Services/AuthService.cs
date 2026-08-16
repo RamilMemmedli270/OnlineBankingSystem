@@ -39,7 +39,12 @@ public class AuthService : IAuthService
             throw new Exception(errors);
         }
 
-        await _userManager.AddToRoleAsync(user, "Customer");
+        var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+        if (!roleResult.Succeeded)
+        {
+            var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+            throw new Exception($"İstifadəçi yaradıldı, amma rol təyin edilmədi: {errors}");
+        }
 
         return await GenerateAuthResponseAsync(user, false);
     }

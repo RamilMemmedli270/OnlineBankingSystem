@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineBankingSystem.Application.Mapper;
 using OnlineBankingSystem.Application.Services;
@@ -16,7 +16,7 @@ namespace OnlineBankingSystem.WebApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +27,8 @@ namespace OnlineBankingSystem.WebApi
 
             // DbContext
             builder.Services.AddDbContext<OnlineBankingDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Identity
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -58,9 +59,11 @@ namespace OnlineBankingSystem.WebApi
             builder.Services.AddScoped<ILoanApplicationService, LoanApplicationService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IBalanceAlertSettingService, BalanceAlertSettingService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
 
             // JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -85,6 +88,61 @@ namespace OnlineBankingSystem.WebApi
 
             var app = builder.Build();
 
+            // Role and Admin Seeding
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider
+                    .GetRequiredService<RoleManager<IdentityRole>>();
+
+                var userManager = scope.ServiceProvider
+                    .GetRequiredService<UserManager<AppUser>>();
+
+                string[] roles = { "Customer", "Admin" };
+
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                    }
+                }
+
+                var adminEmail = builder.Configuration["AdminSeed:Email"];
+                var adminPassword = builder.Configuration["AdminSeed:Password"];
+
+                var existingAdmin = await userManager.FindByEmailAsync(adminEmail!);
+
+                if (existingAdmin == null)
+                {
+                    var adminUser = new AppUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        FirstName = "Admin",
+                        LastName = "User",
+                        EmailConfirmed = true
+                    };
+
+                    var result = await userManager.CreateAsync(
+                        adminUser,
+                        adminPassword!);
+
+                    if (!result.Succeeded)
+                    {
+                        var errors = string.Join(
+                            ", ",
+                            result.Errors.Select(e => e.Description));
+
+                        throw new Exception(
+                            $"Admin yaradılmadı: {errors}");
+                    }
+
+                    await userManager.AddToRoleAsync(
+                        adminUser,
+                        "Admin");
+                }
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -99,7 +157,7 @@ namespace OnlineBankingSystem.WebApi
 
             app.MapControllers();
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }

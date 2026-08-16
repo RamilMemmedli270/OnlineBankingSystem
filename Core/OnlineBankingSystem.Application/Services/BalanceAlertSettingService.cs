@@ -28,8 +28,11 @@ public class BalanceAlertSettingService : IBalanceAlertSettingService
         return setting == null ? null : _mapper.Map<BalanceAlertSettingDto>(setting);
     }
 
-    public async Task<BalanceAlertSettingDto> CreateOrUpdateAsync(string userId, decimal threshold, bool isEnabled)
+    public async Task<BalanceAlertSettingDto> CreateOrUpdateAsync(string userId, UpdateBalanceAlertSettingDto dto)
     {
+        if (dto.Threshold < 0)
+            throw new Exception("Threshold 0-dan kiçik ola bilməz");
+
         var existing = await _balanceAlertSettingRepository.GetByUserIdAsync(userId);
 
         if (existing == null)
@@ -37,8 +40,8 @@ public class BalanceAlertSettingService : IBalanceAlertSettingService
             var newSetting = new BalanceAlertSetting
             {
                 UserId = userId,
-                Threshold = threshold,
-                IsEnabled = isEnabled
+                Threshold = dto.Threshold,
+                IsEnabled = dto.IsEnabled
             };
 
             await _balanceAlertSettingRepository.AddAsync(newSetting);
@@ -47,8 +50,8 @@ public class BalanceAlertSettingService : IBalanceAlertSettingService
             return _mapper.Map<BalanceAlertSettingDto>(newSetting);
         }
 
-        existing.Threshold = threshold;
-        existing.IsEnabled = isEnabled;
+        existing.Threshold = dto.Threshold;
+        existing.IsEnabled = dto.IsEnabled;
 
         await _balanceAlertSettingRepository.UpdateAsync(existing);
         await _unitOfWork.SaveChangesAsync();
