@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Əməliyyatlar | Online Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+    <nav class="navbar navbar-expand-lg navbar-dark dashboard-header">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand fw-bold">🏦 Online Banking</span>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3" id="userGreeting">Xoş gəldiniz</span>
+                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Çıxış</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 dashboard-sidebar p-0">
+                <ul class="nav flex-column py-3">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">📊 Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="accounts.html">💳 Hesablarım</a></li>
+                    <li class="nav-item"><a class="nav-link" href="transfer.html">🔄 Köçürmə</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="transactions.html">📜 Əməliyyatlar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="loans.html">💰 Kreditlər</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">🔔 Bildirişlər</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">⚠️ Balans Xəbərdarlığı</a></li>
+                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
+                        <a class="nav-link text-warning" href="#">🛠️ Admin Panel</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Əməliyyatlar</h3>
+                        <p class="text-muted mb-0">Hesablarınız üzrə gələn və gedən əməliyyatların tarixçəsi</p>
+                    </div>
+                </div>
+
+                <!-- Alert box for errors -->
+                <div id="alertBox" class="alert d-none" role="alert"></div>
+
+                <!-- Hidden full name display for dashboard.js compatibility -->
+                <span id="fullNameDisplay" style="display: none;"></span>
+
+                <!-- Accounts Loading State -->
+                <div id="accountsLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2">Hesablar yüklənir...</p>
+                </div>
+
+                <!-- No Account Alert State -->
+                <div id="noAccountState" class="alert alert-warning d-none" role="alert">
+                    Hesabınız yoxdur. Əməliyyatlara baxmaq üçün əvvəlcə hesab yaradın.
+                </div>
+
+                <!-- Main Content Area (Shown when accounts exist) -->
+                <div id="mainContent" class="d-none">
+                    <!-- Dropdown Selection & Filters Card -->
+                    <div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
+                        <div class="row g-3">
+                            <!-- Account Select -->
+                            <div class="col-md-4">
+                                <label for="accountSelect" class="form-label fw-bold">Hesab seçin</label>
+                                <select class="form-select" id="accountSelect">
+                                    <option value="" selected disabled>Hesab seçin...</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Date Range Filters -->
+                            <div class="col-md-3">
+                                <label for="fromDate" class="form-label fw-bold">Başlanğıc tarix</label>
+                                <input type="date" class="form-control" id="fromDate">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="toDate" class="form-label fw-bold">Son tarix</label>
+                                <input type="date" class="form-control" id="toDate">
+                            </div>
+                            
+                            <!-- Filter Buttons -->
+                            <div class="col-md-2 d-flex align-items-end gap-2">
+                                <button type="button" class="btn btn-primary w-100 py-2" id="filterBtn">Filtrlə</button>
+                                <button type="button" class="btn btn-outline-secondary py-2" id="clearFilterBtn" title="Təmizlə">🔄</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Input & Type Filter Section -->
+                    <div id="filterSearchSection" class="row g-3 mb-3 d-none">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Əməliyyat axtar (Əməliyyat növü, Qarşı tərəf ID)...">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="typeFilter">
+                                <option value="all">Bütün əməliyyatlar</option>
+                                <option value="incoming">Gələn (+)</option>
+                                <option value="outgoing">Gedən (-)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Transactions Loading State -->
+                    <div id="transactionsLoading" class="text-center py-5 d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2">Əməliyyatlar yüklənir...</p>
+                    </div>
+
+                    <!-- Transactions Empty State -->
+                    <div id="emptyState" class="text-center text-muted py-5 d-none">
+                        <p class="fs-5">Bu hesab üzrə hələ heç bir əməliyyat yoxdur.</p>
+                    </div>
+
+                    <!-- Transactions Table (Shown when transactions exist) -->
+                    <div id="tableContainer" class="table-responsive d-none">
+                        <table class="table table-hover align-middle bg-white rounded shadow-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Tarix</th>
+                                    <th scope="col">Əməliyyat</th>
+                                    <th scope="col">Qarşı tərəf</th>
+                                    <th scope="col">Məbləğ</th>
+                                    <th scope="col">Balans</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionTableBody">
+                                <!-- Dinamik əməliyyat sətirləri bura əlavə olunacaq -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/transactions.js"></script>
+</body>
+</html>

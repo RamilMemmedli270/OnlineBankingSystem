@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kreditlər | Online Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+    <nav class="navbar navbar-expand-lg navbar-dark dashboard-header">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand fw-bold">🏦 Online Banking</span>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3" id="userGreeting">Xoş gəldiniz</span>
+                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Çıxış</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 dashboard-sidebar p-0">
+                <ul class="nav flex-column py-3">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">📊 Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="accounts.html">💳 Hesablarım</a></li>
+                    <li class="nav-item"><a class="nav-link" href="transfer.html">🔄 Köçürmə</a></li>
+                    <li class="nav-item"><a class="nav-link" href="transactions.html">📜 Əməliyyatlar</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="loans.html">💰 Kreditlər</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">🔔 Bildirişlər</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">⚠️ Balans Xəbərdarlığı</a></li>
+                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
+                        <a class="nav-link text-warning" href="#">🛠️ Admin Panel</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Kreditlər</h3>
+                        <p class="text-muted mb-0">Kredit müraciətlərinizi idarə edin</p>
+                    </div>
+                </div>
+
+                <!-- Yeni Kredit Müraciəti -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">Yeni Kredit Müraciəti</h5>
+                        <div id="formAlertBox" class="alert d-none" role="alert"></div>
+                        <form id="loanApplicationForm">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="amount" class="form-label">Məbləğ (AZN)</label>
+                                    <input type="number" class="form-control" id="amount" min="0.01" step="0.01" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="term" class="form-label">Müddət (ay)</label>
+                                    <input type="number" class="form-control" id="term" min="1" step="1" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="reason" class="form-label">Səbəb</label>
+                                    <input type="text" class="form-control" id="reason" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3" id="submitBtn">Müraciət Göndər</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Müraciətlər siyahısı -->
+                <div class="mb-3">
+                    <h5 class="fw-bold">Müraciətlərim</h5>
+                </div>
+
+                <div id="listAlertBox" class="alert alert-danger d-none" role="alert"></div>
+
+                <div id="loadingState" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2">Müraciətlər yüklənir...</p>
+                </div>
+
+                <div id="loansContainer" class="row g-3 d-none">
+                    <!-- Müraciətlər bura JS ilə əlavə olunacaq -->
+                </div>
+
+                <div id="emptyState" class="text-center text-muted py-5 d-none">
+                    <p class="fs-5">Hələ heç bir kredit müraciətiniz yoxdur.</p>
+                    <p>Yuxarıdakı formu doldurub ilk müraciətinizi göndərin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden full name display for dashboard.js compatibility -->
+    <span id="fullNameDisplay" style="display: none;"></span>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/loans.js"></script>
+</body>
+</html>
