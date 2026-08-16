@@ -1,0 +1,89 @@
+body {
+    background: linear-gradient(135deg, #eef2f9 0%, #dde8f5 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.auth-wrapper {
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    border: none;
+    border-radius: 16px;
+}
+
+.form-control {
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+.form-control:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+}
+
+.btn-primary {
+    background-color: #4361ee;
+    border-color: #4361ee;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: #3651c9;
+    border-color: #3651c9;
+}
+
+a {
+    color: #4361ee;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+.dashboard-body {
+    background: #f4f6f9;
+}
+
+.dashboard-header {
+    background-color: #4361ee;
+    padding: 12px 0;
+}
+
+.dashboard-sidebar {
+    background: white;
+    min-height: calc(100vh - 60px);
+    border-right: 1px solid #e5e7eb;
+}
+
+.dashboard-sidebar .nav-link {
+    color: #444;
+    padding: 12px 20px;
+    border-radius: 0;
+    font-size: 15px;
+}
+
+.dashboard-sidebar .nav-link:hover {
+    background-color: #eef2ff;
+    color: #4361ee;
+}
+
+.dashboard-sidebar .nav-link.active {
+    background-color: #eef2ff;
+    color: #4361ee;
+    font-weight: 600;
+    border-left: 3px solid #4361ee;
+}
+.account-card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+.account-card:hover {
+    transform: translateY(-3px);
+}

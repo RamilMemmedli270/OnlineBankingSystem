@@ -1,0 +1,105 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    loadAccounts();
+
+    document.getElementById("createAccountForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const accountType = parseInt(document.getElementById("accountType").value);
+        const modalErrorBox = document.getElementById("modalErrorBox");
+        modalErrorBox.classList.add("d-none");
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/account`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ accountType })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Hesab yaradılarkən xəta baş verdi");
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById("createAccountModal"));
+            modal.hide();
+            document.getElementById("createAccountForm").reset();
+
+            loadAccounts();
+
+        } catch (error) {
+            modalErrorBox.textContent = error.message;
+            modalErrorBox.classList.remove("d-none");
+        }
+    });
+});
+
+async function loadAccounts() {
+    const token = localStorage.getItem("token");
+    const container = document.getElementById("accountsContainer");
+    const emptyState = document.getElementById("emptyState");
+    const errorBox = document.getElementById("errorBox");
+
+    errorBox.classList.add("d-none");
+    container.innerHTML = "";
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/account`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Hesablar yüklənərkən xəta baş verdi");
+        }
+
+        const accounts = await response.json();
+
+        if (accounts.length === 0) {
+            emptyState.classList.remove("d-none");
+            return;
+        }
+
+        emptyState.classList.add("d-none");
+
+        accounts.forEach(account => {
+            const typeLabel = account.accountType === 0 ? "Əmanət" : "Cari";
+            const statusLabel = account.status === 0 ? "Aktiv" : "Dondurulub";
+            const statusClass = account.status === 0 ? "bg-success" : "bg-danger";
+
+            const card = document.createElement("div");
+            card.className = "col-md-6 col-lg-4";
+            card.innerHTML = `
+                <div class="card account-card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">${typeLabel}</span>
+                            <span class="badge ${statusClass}">${statusLabel}</span>
+                        </div>
+                        <p class="text-muted mb-1 small">Hesab Nömrəsi</p>
+                        <p class="fw-bold mb-3">${account.accountNumber}</p>
+                        <p class="text-muted mb-1 small">Balans</p>
+                        <h4 class="fw-bold text-primary">${account.balance.toFixed(2)} AZN</h4>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        errorBox.textContent = error.message;
+        errorBox.classList.remove("d-none");
+    }
+}
