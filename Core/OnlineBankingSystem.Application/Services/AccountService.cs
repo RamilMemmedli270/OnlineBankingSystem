@@ -5,46 +5,37 @@ using OnlineBankingSystem.Contract.Dtos.Account;
 using OnlineBankingSystem.Domain.Entities;
 using OnlineBankingSystem.Domain.Enums;
 using OnlineBankingSystem.Domain.Repositories;
-
 namespace OnlineBankingSystem.Application.Services;
-
 public class AccountService : IAccountService
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-
     public AccountService(IAccountRepository accountRepository, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
-
     public async Task<IEnumerable<AccountDto>> GetAllAsync()
     {
         var accounts = await _accountRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<AccountDto>>(accounts);
     }
-
-    public async Task<AccountDto?> GetByIdAsync(string userId, int id, bool isAdmin)
+    public async Task<AccountDto?> GetByIdAsync(string userId, int id)
     {
         var account = await _accountRepository.GetByIdAsync(id);
         if (account == null)
             return null;
-
-        if (!isAdmin && account.UserId != userId)
+        if (account.UserId != userId)
             throw new Exception("Bu hesabın məlumatlarına baxmaq icazəniz yoxdur");
-
         return _mapper.Map<AccountDto>(account);
     }
-
     public async Task<IEnumerable<AccountDto>> GetByUserIdAsync(string userId)
     {
         var accounts = await _accountRepository.GetByUserIdAsync(userId);
         return _mapper.Map<IEnumerable<AccountDto>>(accounts);
     }
-
     public async Task<AccountDto> CreateAsync(string userId, CreateAccountDto dto)
     {
         var account = _mapper.Map<Account>(dto);
@@ -52,24 +43,19 @@ public class AccountService : IAccountService
         account.AccountNumber = await GenerateUniqueAccountNumberAsync();
         account.Balance = 0;
         account.Status = AccountStatus.Active;
-
         await _accountRepository.AddAsync(account);
         await _unitOfWork.SaveChangesAsync();
-
         return _mapper.Map<AccountDto>(account);
     }
-
     public async Task UpdateStatusAsync(int id, UpdateAccountStatusDto dto)
     {
         var account = await _accountRepository.GetByIdAsync(id);
         if (account == null)
             throw new Exception("Hesab tapılmadı");
-
         account.Status = dto.Status;
         await _accountRepository.UpdateAsync(account);
         await _unitOfWork.SaveChangesAsync();
     }
-
     private async Task<string> GenerateUniqueAccountNumberAsync()
     {
         string accountNumber;
@@ -80,7 +66,6 @@ public class AccountService : IAccountService
             existing = await _accountRepository.GetByAccountNumberAsync(accountNumber);
         }
         while (existing != null);
-
         return accountNumber;
     }
 }

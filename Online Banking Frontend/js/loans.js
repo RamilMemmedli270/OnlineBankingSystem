@@ -6,6 +6,26 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+    // --- Admin üçün sidebar məhdudiyyəti və direct URL girişindən qorunma ---
+    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+
+    // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
+    if (roles.includes("Admin") && !roles.includes("Customer")) {
+        window.location.href = "dashboard.html";
+        return;
+    }
+
+    if (roles.includes("Admin")) {
+        const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert"];
+        restrictedNavIds.forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.display = "none";
+            }
+        });
+    }
+    // --- /Admin məhdudiyyəti ---
+
     loadLoans();
 
     document.getElementById("loanApplicationForm").addEventListener("submit", handleSubmit);

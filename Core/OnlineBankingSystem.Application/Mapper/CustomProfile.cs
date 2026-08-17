@@ -21,6 +21,7 @@ public class CustomProfile : Profile
 
         CreateMap<Notification, NotificationDto>();
 
+
         CreateMap<BalanceAlertSetting, BalanceAlertSettingDto>();
 
         CreateMap<AppUser, UserDto>()

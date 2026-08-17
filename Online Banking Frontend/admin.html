@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Online Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+    <nav class="navbar navbar-expand-lg navbar-dark dashboard-header">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand fw-bold">🏦 Online Banking</span>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3" id="userGreeting">Xoş gəldiniz</span>
+                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Çıxış</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 dashboard-sidebar p-0">
+                <ul class="nav flex-column py-3">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">📊 Dashboard</a></li>
+                    <li class="nav-item" id="navAccounts"><a class="nav-link" href="accounts.html">💳 Hesablarım</a></li>
+                    <li class="nav-item" id="navTransfer"><a class="nav-link" href="transfer.html">🔄 Köçürmə</a></li>
+                    <li class="nav-item" id="navTransactions"><a class="nav-link" href="transactions.html">📜 Əməliyyatlar</a></li>
+                    <li class="nav-item" id="navLoans"><a class="nav-link" href="loans.html">💰 Kreditlər</a></li>
+                    <li class="nav-item" id="navNotifications"><a class="nav-link" href="notifications.html">🔔 Bildirişlər</a></li>
+                    <li class="nav-item" id="navBalanceAlert"><a class="nav-link" href="balance-alert.html">⚠️ Balans Xəbərdarlığı</a></li>
+                    <li class="nav-item" id="adminLinkWrapper">
+                        <a class="nav-link text-warning active" href="admin.html">🛠️ Admin Panel</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Admin Panel</h3>
+                        <p class="text-muted mb-0">Sistem idarəetmə paneli</p>
+                    </div>
+                </div>
+
+                <div id="globalAlertBox" class="alert d-none" role="alert"></div>
+
+                <ul class="nav nav-tabs mb-4" id="adminTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="tabUsers" data-tab="users">İstifadəçilər</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tabAccounts" data-tab="accounts">Hesablar</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tabLoans" data-tab="loans">Kredit Müraciətləri</button>
+                    </li>
+                </ul>
+
+                <!-- Tab 1: İstifadəçilər -->
+                <div id="usersTab" class="tab-content-panel">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="usersSearch" placeholder="Ad və ya email üzrə axtar...">
+                    </div>
+                    <div id="usersLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2">Yüklənir...</p>
+                    </div>
+                    <div id="usersError" class="alert alert-danger d-none"></div>
+                    <div id="usersTableContainer" class="table-responsive d-none">
+                        <table class="table table-hover bg-white rounded shadow-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ad Soyad</th>
+                                    <th>Email</th>
+                                    <th>Telefon</th>
+                                    <th>Rollər</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Hesablar -->
+                <div id="accountsTab" class="tab-content-panel d-none">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="accountsSearch" placeholder="Hesab nömrəsi üzrə axtar...">
+                    </div>
+                    <div id="accountsLoading" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2">Yüklənir...</p>
+                    </div>
+                    <div id="accountsError" class="alert alert-danger d-none"></div>
+                    <div id="accountsTableContainer" class="table-responsive d-none">
+                        <table class="table table-hover bg-white rounded shadow-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hesab Nömrəsi</th>
+                                    <th>Hesab Növü</th>
+                                    <th>Balans</th>
+                                    <th>Status</th>
+                                    <th>Əməliyyat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Kredit Müraciətləri -->
+                <div id="loansTab" class="tab-content-panel d-none">
+                    <div id="loansLoading" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2">Yüklənir...</p>
+                    </div>
+                    <div id="loansError" class="alert alert-danger d-none"></div>
+                    <div id="loansEmpty" class="text-center text-muted py-5 d-none">
+                        <p class="fs-5">Hazırda gözləyən kredit müraciəti yoxdur.</p>
+                    </div>
+                    <div id="loansTableContainer" class="table-responsive d-none">
+                        <table class="table table-hover bg-white rounded shadow-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Məbləğ</th>
+                                    <th>Müddət</th>
+                                    <th>Səbəb</th>
+                                    <th>Müraciət tarixi</th>
+                                    <th>Əməliyyat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loansTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden full name display for dashboard.js compatibility -->
+    <span id="fullNameDisplay" style="display: none;"></span>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

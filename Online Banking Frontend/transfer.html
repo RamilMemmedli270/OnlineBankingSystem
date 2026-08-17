@@ -23,16 +23,39 @@
         <div class="row">
             <div class="col-md-3 col-lg-2 dashboard-sidebar p-0">
                 <ul class="nav flex-column py-3">
-                    <li class="nav-item"><a class="nav-link" href="dashboard.html">📊 Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="accounts.html">💳 Hesablarım</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="transfer.html">🔄 Köçürmə</a></li>
-                    <li class="nav-item"><a class="nav-link" href="transactions.html">📜 Əməliyyatlar</a></li>
-                    <li class="nav-item"><a class="nav-link" href="loans.html">💰 Kreditlər</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">🔔 Bildirişlər</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">⚠️ Balans Xəbərdarlığı</a></li>
-                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
-                        <a class="nav-link text-warning" href="#">🛠️ Admin Panel</a>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">📊 Dashboard</a>
                     </li>
+
+                    <li class="nav-item" id="navAccounts">
+                        <a class="nav-link" href="accounts.html">💳 Hesablarım</a>
+                    </li>
+
+                    <li class="nav-item" id="navTransfer">
+                        <a class="nav-link active" href="transfer.html">🔄 Köçürmə</a>
+                    </li>
+
+                    <li class="nav-item" id="navTransactions">
+                        <a class="nav-link" href="transactions.html">📜 Əməliyyatlar</a>
+                    </li>
+
+                    <li class="nav-item" id="navLoans">
+                        <a class="nav-link" href="loans.html">💰 Kreditlər</a>
+                    </li>
+
+                    <li class="nav-item" id="navNotifications">
+                        <a class="nav-link" href="notifications.html">🔔 Bildirişlər</a>
+                    </li>
+
+                    <li class="nav-item" id="navBalanceAlert">
+                        <a class="nav-link" href="balance-alert.html">⚠️ Balans Xəbərdarlığı</a>
+                    </li>
+
+                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
+                        <a class="nav-link text-warning" href="admin.html">🛠️ Admin Panel</a>
+                    </li>
+
                 </ul>
             </div>
 
@@ -40,49 +63,87 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1">Köçürmə</h3>
-                        <p class="text-muted mb-0">Hesablarınız arasında və ya digər hesaba pul köçürün</p>
+                        <p class="text-muted mb-0">
+                            Hesablarınız arasında və ya digər hesaba pul köçürün
+                        </p>
                     </div>
                 </div>
 
                 <!-- Alert box for showing success or error messages -->
                 <div id="alertBox" class="alert d-none" role="alert"></div>
 
-                <!-- Hidden full name element to prevent dashboard.js from throwing an error since it is loaded -->
+                <!-- Hidden full name element -->
                 <span id="fullNameDisplay" style="display: none;"></span>
 
                 <div class="card shadow-sm border-0 rounded-3 p-4 col-md-8 col-lg-6">
                     <form id="transferForm" novalidate>
+
                         <!-- Göndərən hesab -->
                         <div class="mb-3">
-                            <label for="fromAccountSelect" class="form-label fw-bold">Göndərən Hesab</label>
+                            <label for="fromAccountSelect" class="form-label fw-bold">
+                                Göndərən Hesab
+                            </label>
+
                             <select class="form-select" id="fromAccountSelect" required>
-                                <option value="" selected disabled>Hesab seçin...</option>
+                                <option value="" selected disabled>
+                                    Hesab seçin...
+                                </option>
                             </select>
                         </div>
 
                         <!-- Alan hesab nömrəsi -->
                         <div class="mb-3">
-                            <label for="toAccountNumber" class="form-label fw-bold">Alan Hesab Nömrəsi</label>
-                            <input type="text" class="form-control" id="toAccountNumber" placeholder="Məsələn: AZF440272624" required>
+                            <label for="toAccountNumber" class="form-label fw-bold">
+                                Alan Hesab Nömrəsi
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="toAccountNumber"
+                                   placeholder="Məsələn: AZF440272624"
+                                   required>
                         </div>
 
                         <!-- Məbləğ -->
                         <div class="mb-3">
-                            <label for="amount" class="form-label fw-bold">Məbləğ (AZN)</label>
-                            <input type="number" step="0.01" min="0.01" class="form-control" id="amount" placeholder="0.00" required>
+                            <label for="amount" class="form-label fw-bold">
+                                Məbləğ (AZN)
+                            </label>
+
+                            <input type="number"
+                                   step="0.01"
+                                   min="0.01"
+                                   class="form-control"
+                                   id="amount"
+                                   placeholder="0.00"
+                                   required>
                         </div>
 
-                        <!-- Qeyd (istəyə bağlı) -->
+                        <!-- Qeyd -->
                         <div class="mb-3">
-                            <label for="description" class="form-label fw-bold">Qeyd (İstəyə bağlı)</label>
-                            <input type="text" class="form-control" id="description" placeholder="Köçürmənin təyinatı">
+                            <label for="description" class="form-label fw-bold">
+                                Qeyd (İstəyə bağlı)
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="description"
+                                   placeholder="Köçürmənin təyinatı">
                         </div>
 
                         <!-- Submit düyməsi -->
-                        <button type="submit" class="btn btn-primary w-100 py-2 fs-5 mt-3" id="submitBtn">
-                            <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true" id="submitSpinner"></span>
+                        <button type="submit"
+                                class="btn btn-primary w-100 py-2 fs-5 mt-3"
+                                id="submitBtn">
+
+                            <span class="spinner-border spinner-border-sm d-none me-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                  id="submitSpinner"></span>
+
                             Köçürmə et
                         </button>
+
                     </form>
                 </div>
             </div>
@@ -93,5 +154,6 @@
     <script src="js/config.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/transfer.js"></script>
+
 </body>
 </html>

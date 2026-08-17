@@ -1,7 +1,9 @@
 ﻿namespace OnlineBankingSystem.Contract.Dtos;
 
-public record UserDto : BaseDto
+public record UserDto 
+
 {
+    public string Id { get; set; } = string.Empty;
     public string FirstName { get; init; } = string.Empty;
     public string LastName { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
