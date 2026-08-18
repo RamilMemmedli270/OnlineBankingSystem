@@ -98,6 +98,9 @@ async function loadAccounts() {
             const typeLabel = account.accountType === 0 ? "Əmanət" : "Cari";
             const statusLabel = account.status === 0 ? "Aktiv" : "Dondurulub";
             const statusClass = account.status === 0 ? "bg-success" : "bg-danger";
+            const depositBtn = account.status === 0
+                ? `<button class="btn btn-sm btn-outline-success mt-2 w-100" onclick="openDepositModal(${account.id}, '${account.accountNumber}')">💳 Pul Yüklə</button>`
+                : '';
 
             const card = document.createElement("div");
             card.className = "col-md-6 col-lg-4";
@@ -112,6 +115,7 @@ async function loadAccounts() {
                         <p class="fw-bold mb-3">${account.accountNumber}</p>
                         <p class="text-muted mb-1 small">Balans</p>
                         <h4 class="fw-bold text-primary">${account.balance.toFixed(2)} AZN</h4>
+                        ${depositBtn}
                     </div>
                 </div>
             `;
@@ -123,3 +127,61 @@ async function loadAccounts() {
         errorBox.classList.remove("d-none");
     }
 }
+
+let depositModalInstance = null;
+
+function openDepositModal(accountId, accountNumber) {
+    document.getElementById("depositAccountId").value = accountId;
+    document.getElementById("depositAccountNumber").value = accountNumber;
+    document.getElementById("depositAmount").value = "";
+    document.getElementById("depositDescription").value = "";
+    document.getElementById("depositModalErrorBox").classList.add("d-none");
+
+    if (!depositModalInstance) {
+        depositModalInstance = new bootstrap.Modal(document.getElementById("depositModal"));
+    }
+    depositModalInstance.show();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const depositForm = document.getElementById("depositForm");
+    if (depositForm) {
+        depositForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const token = localStorage.getItem("token");
+
+            const accountId = parseInt(document.getElementById("depositAccountId").value);
+            const amount = parseFloat(document.getElementById("depositAmount").value);
+            const description = document.getElementById("depositDescription").value;
+            const depositModalErrorBox = document.getElementById("depositModalErrorBox");
+            depositModalErrorBox.classList.add("d-none");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/transaction/deposit`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ accountId, amount, description })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || "Pul yüklənərkən xəta baş verdi");
+                }
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById("depositModal"));
+                modal.hide();
+                depositForm.reset();
+
+                loadAccounts();
+
+            } catch (error) {
+                depositModalErrorBox.textContent = error.message;
+                depositModalErrorBox.classList.remove("d-none");
+            }
+        });
+    }
+});

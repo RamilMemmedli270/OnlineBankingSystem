@@ -92,6 +92,49 @@ public class TransactionService : ITransactionService
         }
     }
 
+    public async Task<TransactionDto> DepositAsync(string userId, DepositDto dto)
+    {
+        var account = await _accountRepository.GetByIdAsync(dto.AccountId);
+        if (account == null)
+            throw new Exception("Hesab tapılmadı");
+
+        if (account.UserId != userId)
+            throw new Exception("Bu hesab sizə aid deyil");
+
+        if (account.Status == AccountStatus.Frozen)
+            throw new Exception("Bu hesab dondurulub, əməliyyat aparıla bilməz");
+
+        if (dto.Amount <= 0)
+            throw new Exception("Məbləğ 0-dan böyük olmalıdır");
+
+        await using var dbTransaction = await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            account.Balance += dto.Amount;
+            await _accountRepository.UpdateAsync(account);
+
+            var transaction = new Transaction
+            {
+                ToAccountId = account.Id,
+                Amount = dto.Amount,
+                TransactionType = TransactionType.Deposit,
+                BalanceSnapshot = account.Balance,
+                Description = dto.Description ?? "Balans artırıldı (Deposit)"
+            };
+
+            await _transactionRepository.AddAsync(transaction);
+            await _unitOfWork.SaveChangesAsync();
+            await dbTransaction.CommitAsync();
+
+            return _mapper.Map<TransactionDto>(transaction);
+        }
+        catch
+        {
+            await dbTransaction.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task<IEnumerable<TransactionDto>> GetByAccountIdAsync(string userId, int accountId)
     {
         var account = await _accountRepository.GetByIdAsync(accountId);

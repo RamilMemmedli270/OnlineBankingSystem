@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineBankingSystem.Contract.Abstractions;
+using OnlineBankingSystem.Contract.Dtos;
 using OnlineBankingSystem.Contract.Dtos.Transaction;
 using System.Security.Claims;
 namespace OnlineBankingSystem.WebApi.Controllers;
@@ -23,6 +24,23 @@ public class TransactionController : ControllerBase
         try
         {
             var result = await _transactionService.TransferAsync(userId, dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("deposit")]
+    public async Task<IActionResult> Deposit(DepositDto dto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+            return Unauthorized();
+        try
+        {
+            var result = await _transactionService.DepositAsync(userId, dto);
             return Ok(result);
         }
         catch (Exception ex)
