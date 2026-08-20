@@ -1,3 +1,5 @@
+let allAccounts = [];
+
 document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("token");
 
@@ -27,6 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- /Admin məhdudiyyəti ---
 
     loadAccounts();
+
+    const typeFilterSelect = document.getElementById("accountTypeFilter");
+    if (typeFilterSelect) {
+        typeFilterSelect.addEventListener("change", function () {
+            filterAndRenderAccounts();
+        });
+    }
 
     document.getElementById("createAccountForm").addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -62,6 +71,17 @@ document.addEventListener("DOMContentLoaded", function () {
             modalErrorBox.classList.remove("d-none");
         }
     });
+
+    // Quick Amount Buttons click handler
+    document.addEventListener("click", function (e) {
+        if (e.target && e.target.classList.contains("quick-amount-btn")) {
+            const val = e.target.getAttribute("data-value");
+            const amountInput = document.getElementById("depositAmount");
+            if (amountInput) {
+                amountInput.value = val;
+            }
+        }
+    });
 });
 
 async function loadAccounts() {
@@ -85,47 +105,105 @@ async function loadAccounts() {
             throw new Error("Hesablar yüklənərkən xəta baş verdi");
         }
 
-        const accounts = await response.json();
-
-        if (accounts.length === 0) {
-            emptyState.classList.remove("d-none");
-            return;
-        }
-
-        emptyState.classList.add("d-none");
-
-        accounts.forEach(account => {
-            const typeLabel = account.accountType === 0 ? "Əmanət" : "Cari";
-            const statusLabel = account.status === 0 ? "Aktiv" : "Dondurulub";
-            const statusClass = account.status === 0 ? "bg-success" : "bg-danger";
-            const depositBtn = account.status === 0
-                ? `<button class="btn btn-sm btn-outline-success mt-2 w-100" onclick="openDepositModal(${account.id}, '${account.accountNumber}')">💳 Pul Yüklə</button>`
-                : '';
-
-            const card = document.createElement("div");
-            card.className = "col-md-6 col-lg-4";
-            card.innerHTML = `
-                <div class="card account-card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary">${typeLabel}</span>
-                            <span class="badge ${statusClass}">${statusLabel}</span>
-                        </div>
-                        <p class="text-muted mb-1 small">Hesab Nömrəsi</p>
-                        <p class="fw-bold mb-3">${account.accountNumber}</p>
-                        <p class="text-muted mb-1 small">Balans</p>
-                        <h4 class="fw-bold text-primary">${account.balance.toFixed(2)} AZN</h4>
-                        ${depositBtn}
-                    </div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
+        allAccounts = await response.json();
+        filterAndRenderAccounts();
 
     } catch (error) {
         errorBox.textContent = error.message;
         errorBox.classList.remove("d-none");
     }
+}
+
+function filterAndRenderAccounts() {
+    const filterSelect = document.getElementById("accountTypeFilter");
+    const filterValue = filterSelect ? filterSelect.value : "all";
+    
+    let filtered = allAccounts;
+    if (filterValue !== "all") {
+        const typeNum = parseInt(filterValue);
+        filtered = allAccounts.filter(a => a.accountType === typeNum);
+    }
+    
+    renderAccounts(filtered);
+}
+
+function renderAccounts(accounts) {
+    const container = document.getElementById("accountsContainer");
+    const emptyState = document.getElementById("emptyState");
+    
+    container.innerHTML = "";
+
+    if (!accounts || accounts.length === 0) {
+        emptyState.classList.remove("d-none");
+        return;
+    }
+
+    emptyState.classList.add("d-none");
+
+    accounts.forEach(account => {
+        const typeLabel = account.accountType === 0 ? "Əmanət" : "Cari";
+        const statusLabel = account.status === 0 ? "Aktiv" : "Bloklanmış";
+        const statusClass = account.status === 0 ? "bg-success" : "bg-danger";
+
+        // Modern Neobank Card Gradients
+        const cardGradient = account.accountType === 0 
+            ? "linear-gradient(135deg, #1e293b 0%, #4361ee 100%)" // Savings: Slate to Blue
+            : "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)"; // Current: Indigo to Cyan
+
+        // Format masked card number (e.g. **** 2624)
+        const maskedAccNumber = maskAccountNumber(account.accountNumber);
+
+        const card = document.createElement("div");
+        card.className = "col-md-6 col-lg-4 mb-4";
+        card.innerHTML = `
+            <div class="card account-card shadow-lg text-white border-0 position-relative overflow-hidden" style="background: ${cardGradient}; border-radius: 16px; min-height: 230px; transition: transform 0.2s, box-shadow 0.2s;">
+                <!-- Texture overlay -->
+                <div class="position-absolute w-100 h-100" style="background: linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0)); top: 0; left: 0; pointer-events: none; z-index: 1;"></div>
+                
+                <div class="card-body d-flex flex-column justify-content-between p-4 position-relative" style="z-index: 2; height: 100%;">
+                    <!-- Top Row: Logo & Badges -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold tracking-wider" style="font-size: 1.1rem; opacity: 0.95; letter-spacing: 1px;">🏦 Online Banking</span>
+                        <div class="d-flex gap-2">
+                            <span class="badge" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); font-weight: 500; font-size: 0.75rem;">${typeLabel}</span>
+                            <span class="badge ${statusClass}" style="font-size: 0.75rem;">${statusLabel}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Middle Row: Chip & Masked Account Number -->
+                    <div class="mb-2">
+                        <!-- Golden Sim Card Chip -->
+                        <div class="mb-2" style="width: 40px; height: 28px; background: linear-gradient(135deg, #facc15 0%, #eab308 100%); border-radius: 6px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);"></div>
+                        
+                        <p class="mb-0 text-uppercase tracking-wider text-white-50" style="font-size: 0.65rem; letter-spacing: 1px;">Hesab Nömrəsi</p>
+                        <p class="fs-5 fw-bold mb-0 font-monospace tracking-widest text-white" style="letter-spacing: 1px;">${maskedAccNumber}</p>
+                    </div>
+                    
+                    <!-- Bottom Row: Balance & Action Buttons -->
+                    <div class="mt-2">
+                        <div class="d-flex justify-content-between align-items-end mb-3">
+                            <div>
+                                <p class="mb-0 text-uppercase tracking-wider text-white-50" style="font-size: 0.65rem; letter-spacing: 1px;">Balans</p>
+                                <h3 class="fw-bold mb-0 text-white" style="font-size: 1.45rem;">${account.balance.toFixed(2)} AZN</h3>
+                            </div>
+                            <!-- Modern logo circles -->
+                            <div class="d-flex" style="opacity: 0.75;">
+                                <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 50%; margin-right: -8px; backdrop-filter: blur(2px);"></div>
+                                <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 50%; backdrop-filter: blur(2px);"></div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons inside Card -->
+                        <div class="d-flex gap-2" style="position: relative; z-index: 10;">
+                            <a href="transfer.html?from=${account.id}" class="btn btn-sm btn-outline-light flex-grow-1" style="border-radius: 10px; font-size: 0.8rem; font-weight: 600;"><i class="bi bi-arrow-left-right"></i> Köçür</a>
+                            ${account.status === 0 ? `<button class="btn btn-sm btn-light flex-grow-1" onclick="openDepositModal(${account.id}, '${account.accountNumber}')" style="border-radius: 10px; font-size: 0.8rem; font-weight: 600; color: var(--text-dark);"><i class="bi bi-wallet2"></i> Pul Yüklə</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }
 
 let depositModalInstance = null;

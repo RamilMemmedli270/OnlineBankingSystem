@@ -6,173 +6,158 @@
     <title>Əməliyyatlar | Online Banking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body class="dashboard-body">
 
-    <nav class="navbar navbar-expand-lg navbar-dark dashboard-header">
-        <div class="container-fluid px-4">
-            <span class="navbar-brand fw-bold">🏦 Online Banking</span>
-            <div class="d-flex align-items-center">
-                <span class="text-white me-3" id="userGreeting">Xoş gəldiniz</span>
-                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Çıxış</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 col-lg-2 dashboard-sidebar p-0">
-                <ul class="nav flex-column py-3">
-
+    <div class="d-flex">
+        <!-- Online Banking Dark Sidebar (Fixed Width) -->
+        <div class="invest-sidebar">
+            <div>
+                <div class="sidebar-logo mb-4">
+                    <i class="bi bi-bank"></i> Online Banking
+                </div>
+                <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html">📊 Dashboard</a>
+                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
                     </li>
-
                     <li class="nav-item" id="navAccounts">
-                        <a class="nav-link" href="accounts.html">💳 Hesablarım</a>
+                        <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
                     </li>
-
                     <li class="nav-item" id="navTransfer">
-                        <a class="nav-link" href="transfer.html">🔄 Köçürmə</a>
+                        <a class="nav-link" href="transfer.html"><i class="bi bi-arrow-left-right"></i> Köçürmə</a>
                     </li>
-
                     <li class="nav-item" id="navTransactions">
-                        <a class="nav-link active" href="transactions.html">📜 Əməliyyatlar</a>
+                        <a class="nav-link active" href="transactions.html"><i class="bi bi-clock-history"></i> Əməliyyatlar</a>
                     </li>
-
                     <li class="nav-item" id="navLoans">
-                        <a class="nav-link" href="loans.html">💰 Kreditlər</a>
+                        <a class="nav-link" href="loans.html"><i class="bi bi-cash-coin"></i> Kreditlər</a>
                     </li>
-
                     <li class="nav-item" id="navNotifications">
-                        <a class="nav-link" href="notifications.html">🔔 Bildirişlər</a>
+                        <a class="nav-link" href="notifications.html"><i class="bi bi-bell"></i> Bildirişlər</a>
                     </li>
-
                     <li class="nav-item" id="navBalanceAlert">
-                        <a class="nav-link" href="balance-alert.html">⚠️ Balans Xəbərdarlığı</a>
+                        <a class="nav-link" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
                     </li>
-
                     <li class="nav-item" id="adminLinkWrapper" style="display:none;">
-                        <a class="nav-link text-warning" href="admin.html">🛠️ Admin Panel</a>
+                        <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
                     </li>
-
                 </ul>
             </div>
-
-            <div class="col-md-9 col-lg-10 p-4">
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1">Əməliyyatlar</h3>
-                        <p class="text-muted mb-0">
-                            Hesablarınız üzrə gələn və gedən əməliyyatların tarixçəsi
-                        </p>
-                    </div>
+            
+            <!-- Sidebar profile details -->
+            <div class="sidebar-profile-card">
+                <div class="profile-avatar" id="sidebarAvatar">U</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="sidebarName">İstifadəçi</div>
+                    <div class="profile-sub" id="sidebarRole">Müştəri</div>
+                    <a href="accounts.html" class="profile-link text-decoration-none mt-1 d-block" style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">Hesablarımı İdarə et →</a>
                 </div>
+            </div>
+        </div>
 
-                <!-- Alert box for errors -->
-                <div id="alertBox" class="alert d-none" role="alert"></div>
-
-                <!-- Hidden full name display for dashboard.js compatibility -->
-                <span id="fullNameDisplay" style="display: none;"></span>
-
-                <!-- Accounts Loading State -->
-                <div id="accountsLoading" class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="text-muted mt-2">Hesablar yüklənir...</p>
+        <!-- Flex Main Content Area -->
+        <div class="flex-grow-1 main-content-wrapper">
+            
+            <!-- Top Row: Notifications & Logout -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="search-container flex-grow-1">
+                    <!-- Placeholder search -->
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Axtarış...">
                 </div>
-
-                <!-- No Account Alert State -->
-                <div id="noAccountState" class="alert alert-warning d-none" role="alert">
-                    Hesabınız yoxdur. Əməliyyatlara baxmaq üçün əvvəlcə hesab yaradın.
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-danger btn-sm px-3 py-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
                 </div>
+            </div>
 
-                <!-- Main Content Area -->
-                <div id="mainContent" class="d-none">
+            <!-- Header greeting -->
+            <div class="mb-4 pb-2">
+                <h2 class="fw-bold text-dark mb-1">Əməliyyatlar</h2>
+                <p class="text-muted small">Hesablarınız üzrə gələn və gedən əməliyyatların ətraflı tarixçəsi.</p>
+            </div>
 
-                    <!-- Dropdown Selection & Filters Card -->
-                    <div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
-                        <div class="row g-3">
+            <!-- Alert box for errors -->
+            <div id="alertBox" class="alert alert-danger d-none" role="alert" style="border-radius: 12px;"></div>
 
-                            <div class="col-md-4">
-                                <label for="accountSelect" class="form-label fw-bold">
-                                    Hesab seçin
-                                </label>
-                                <select class="form-select" id="accountSelect">
-                                    <option value="" selected disabled>
-                                        Hesab seçin...
-                                    </option>
-                                </select>
-                            </div>
+            <!-- Hidden full name display for dashboard.js compatibility -->
+            <span id="fullNameDisplay" style="display: none;"></span>
 
-                            <div class="col-md-3">
-                                <label for="fromDate" class="form-label fw-bold">
-                                    Başlanğıc tarix
-                                </label>
-                                <input type="date" class="form-control" id="fromDate">
-                            </div>
+            <!-- Accounts Loading State -->
+            <div id="accountsLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Hesablar yüklənir...</p>
+            </div>
 
-                            <div class="col-md-3">
-                                <label for="toDate" class="form-label fw-bold">
-                                    Son tarix
-                                </label>
-                                <input type="date" class="form-control" id="toDate">
-                            </div>
+            <!-- No Account Alert State -->
+            <div id="noAccountState" class="alert alert-warning d-none" role="alert" style="border-radius: 12px;">
+                Hesabınız yoxdur. Əməliyyatlara baxmaq üçün əvvəlcə hesab yaradın.
+            </div>
 
-                            <div class="col-md-2 d-flex align-items-end gap-2">
-                                <button type="button" class="btn btn-primary w-100 py-2" id="filterBtn">
-                                    Filtrlə
-                                </button>
+            <!-- Main Content Area -->
+            <div id="mainContent" class="d-none">
 
-                                <button type="button"
-                                        class="btn btn-outline-secondary py-2"
-                                        id="clearFilterBtn"
-                                        title="Təmizlə">
-                                    🔄
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Search Input & Type Filter -->
-                    <div id="filterSearchSection" class="row g-3 mb-3 d-none">
-
-                        <div class="col-md-8">
-                            <input type="text"
-                                   class="form-control"
-                                   id="searchInput"
-                                   placeholder="Əməliyyat axtar (Əməliyyat növü, Qarşı tərəf ID)...">
-                        </div>
-
+                <!-- Dropdown Selection & Filters Card -->
+                <div class="card p-4 mb-4 border-0 shadow-sm" style="border-radius: var(--radius);">
+                    <div class="row g-3">
                         <div class="col-md-4">
-                            <select class="form-select" id="typeFilter">
-                                <option value="all">Bütün əməliyyatlar</option>
-                                <option value="incoming">Gələn (+)</option>
-                                <option value="outgoing">Gedən (-)</option>
+                            <label for="accountSelect" class="form-label">Hesab seçin</label>
+                            <select class="form-select" id="accountSelect" style="border-radius: 12px; padding: 10px 14px;">
+                                <option value="" selected disabled>Hesab seçin...</option>
                             </select>
                         </div>
 
+                        <div class="col-md-3">
+                            <label for="fromDate" class="form-label">Başlanğıc tarix</label>
+                            <input type="date" class="form-control" id="fromDate">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="toDate" class="form-label">Son tarix</label>
+                            <input type="date" class="form-control" id="toDate">
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end gap-2">
+                            <button type="button" class="btn btn-primary w-100 py-2.5" id="filterBtn">Filtrlə</button>
+                            <button type="button" class="btn btn-outline-secondary py-2.5" id="clearFilterBtn" style="border-radius: 12px;" title="Təmizlə">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Transactions Loading State -->
-                    <div id="transactionsLoading" class="text-center py-5 d-none">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="text-muted mt-2">Əməliyyatlar yüklənir...</p>
+                <!-- Search Input & Type Filter -->
+                <div id="filterSearchSection" class="row g-3 mb-4 d-none">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Əməliyyat axtar (Əməliyyat növü, Qarşı tərəf ID)...">
                     </div>
-
-                    <!-- Transactions Empty State -->
-                    <div id="emptyState" class="text-center text-muted py-5 d-none">
-                        <p class="fs-5">
-                            Bu hesab üzrə hələ heç bir əməliyyat yoxdur.
-                        </p>
+                    <div class="col-md-4">
+                        <select class="form-select" id="typeFilter" style="border-radius: 12px; padding: 10px 14px;">
+                            <option value="all">Bütün əməliyyatlar</option>
+                            <option value="incoming">Gələn (+)</option>
+                            <option value="outgoing">Gedən (-)</option>
+                        </select>
                     </div>
+                </div>
 
-                    <!-- Transactions Table -->
-                    <div id="tableContainer" class="table-responsive d-none">
-                        <table class="table table-hover align-middle bg-white rounded shadow-sm">
+                <!-- Transactions Loading State -->
+                <div id="transactionsLoading" class="text-center py-5 d-none">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2">Əməliyyatlar yüklənir...</p>
+                </div>
 
-                            <thead class="table-light">
+                <!-- Transactions Empty State -->
+                <div id="emptyState" class="text-center text-muted py-5 d-none">
+                    <div class="mb-3" style="font-size: 2.5rem;">🔍</div>
+                    <p class="fs-5 fw-semibold mb-1">Bu hesab üzrə əməliyyat tapılmadı.</p>
+                    <p class="small text-muted">Filtrləri dəyişərək yenidən axtarmağa cəhd edin.</p>
+                </div>
+
+                <!-- Transactions Table -->
+                <div id="tableContainer" class="card border-0 shadow-sm p-0 overflow-hidden d-none" style="border-radius: var(--radius);">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
                                 <tr>
                                     <th scope="col">Tarix</th>
                                     <th scope="col">Əməliyyat</th>
@@ -181,15 +166,13 @@
                                     <th scope="col">Balans</th>
                                 </tr>
                             </thead>
-
                             <tbody id="transactionTableBody">
                                 <!-- Dinamik əməliyyat sətirləri bura əlavə olunacaq -->
                             </tbody>
-
                         </table>
                     </div>
-
                 </div>
+
             </div>
         </div>
     </div>
@@ -198,6 +181,5 @@
     <script src="js/config.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/transactions.js"></script>
-
 </body>
 </html>

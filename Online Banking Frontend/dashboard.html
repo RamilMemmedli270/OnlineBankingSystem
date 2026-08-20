@@ -6,214 +6,241 @@
     <title>Dashboard | Online Banking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body class="dashboard-body">
 
-    <div class="dashboard-container">
-        <!-- Modern Sidebar -->
-        <aside class="modern-sidebar">
-            <div class="sidebar-brand">
-                <div class="sidebar-brand-icon">🏦</div>
-                <span class="sidebar-brand-text">BankApp</span>
+    <div class="d-flex">
+        <!-- Online Banking Dark Sidebar (Fixed Width) -->
+        <div class="invest-sidebar">
+            <div>
+                <div class="sidebar-logo mb-4">
+                    <i class="bi bi-bank"></i> Online Banking
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item" id="navAccounts">
+                        <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
+                    </li>
+                    <li class="nav-item" id="navTransfer">
+                        <a class="nav-link" href="transfer.html"><i class="bi bi-arrow-left-right"></i> Köçürmə</a>
+                    </li>
+                    <li class="nav-item" id="navTransactions">
+                        <a class="nav-link" href="transactions.html"><i class="bi bi-clock-history"></i> Əməliyyatlar</a>
+                    </li>
+                    <li class="nav-item" id="navLoans">
+                        <a class="nav-link" href="loans.html"><i class="bi bi-cash-coin"></i> Kreditlər</a>
+                    </li>
+                    <li class="nav-item" id="navNotifications">
+                        <a class="nav-link" href="notifications.html"><i class="bi bi-bell"></i> Bildirişlər</a>
+                    </li>
+                    <li class="nav-item" id="navBalanceAlert">
+                        <a class="nav-link" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
+                    </li>
+                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
+                        <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
+                    </li>
+                </ul>
             </div>
+            
+            <!-- Sidebar profile details -->
+            <div class="sidebar-profile-card">
+                <div class="profile-avatar" id="sidebarAvatar">R</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="sidebarName">Ramil Məmmədli</div>
+                    <div class="profile-sub" id="sidebarRole">Müştəri</div>
+                    <a href="accounts.html" class="profile-link text-decoration-none mt-1 d-block" style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">Hesablarımı İdarə et →</a>
+                </div>
+            </div>
+        </div>
 
-            <div class="sidebar-menu-title">ƏSAS MENYU</div>
-            <ul class="sidebar-nav">
-                <li class="sidebar-nav-item">
-                    <a href="dashboard.html" class="sidebar-nav-link active">
-                        <span class="sidebar-nav-icon">🏠</span>
-                        <span class="sidebar-nav-text">Dashboard</span>
-                    </a>
-                </li>
-                <li class="sidebar-nav-item" id="navTransactions">
-                    <a href="transactions.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">🔄</span>
-                        <span class="sidebar-nav-text">Əməliyyatlar</span>
-                    </a>
-                </li>
-                <li class="sidebar-nav-item" id="navAccounts">
-                    <a href="accounts.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">💳</span>
-                        <span class="sidebar-nav-text">Hesablarım</span>
-                    </a>
-                </li>
-                <li class="sidebar-nav-item" id="navLoans">
-                    <a href="loans.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">📄</span>
-                        <span class="sidebar-nav-text">Kreditlər</span>
-                    </a>
-                </li>
-                <li class="sidebar-nav-item" id="navNotifications">
-                    <a href="notifications.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">📊</span>
-                        <span class="sidebar-nav-text">Bildirişlər</span>
-                    </a>
-                </li>
-            </ul>
-
-            <div class="sidebar-menu-title" style="margin-top: 30px;">TƏNZİMLƏMƏLƏR</div>
-            <ul class="sidebar-nav">
-                <li class="sidebar-nav-item" id="navBalanceAlert">
-                    <a href="balance-alert.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">⚙️</span>
-                        <span class="sidebar-nav-text">Xəbərdarlıq</span>
-                    </a>
-                </li>
-                <li class="sidebar-nav-item" id="adminLinkWrapper" style="display:none;">
-                    <a href="admin.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">🛠️</span>
-                        <span class="sidebar-nav-text">Admin Panel</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Header -->
-            <div class="top-header">
-                <div class="search-box">
+        <!-- Flex Main Content Area -->
+        <div class="flex-grow-1 main-content-wrapper">
+            
+            <!-- Top Row: Search Input & Notification Alerts + Logout -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="search-container flex-grow-1">
                     <span class="search-icon">🔍</span>
-                    <input type="text" placeholder="Axtar...">
+                    <input type="text" class="search-input" placeholder="Axtarış...">
                 </div>
-
                 <div class="d-flex align-items-center gap-3">
-                    <div class="notification-icon">
+                    <div class="position-relative cursor-pointer" style="font-size: 1.25rem;">
                         🔔
-                        <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 2px 4px;" id="statUnreadCount">0</span>
                     </div>
-
-                    <div class="user-profile">
-                        <div class="user-avatar" id="userAvatar">U</div>
-                        <div class="user-info">
-                            <div class="user-name" id="userName">User</div>
-                            <div class="user-role" id="userRole">Personal Account</div>
-                        </div>
-                        <span>▼</span>
-                    </div>
-
-                    <button class="btn btn-outline-danger btn-sm" id="logoutBtn">Çıxış</button>
+                    <!-- Profile avatar dropdown visual container -->
+                    <div class="rounded-circle" style="width: 38px; height: 38px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; background-color: #cbd5e1;" id="topAvatar">R</div>
+                    <button class="btn btn-outline-danger btn-sm px-3 py-2 ms-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
                 </div>
             </div>
 
-            <!-- Hidden display for compatibility -->
-            <span id="fullNameDisplay" style="display: none;"></span>
-            <span id="userGreeting" style="display: none;"></span>
+            <!-- Header greeting -->
+            <div class="mb-4 pb-2">
+                <!-- Hidden greeting span to prevent JS reference error -->
+                <span id="userGreeting" style="display: none;"></span>
+                <h2 class="fw-bold text-dark mb-1">Salam, <span id="fullNameDisplay">İstifadəçi</span>!</h2>
+                <p class="text-muted small">Vəsaitlərinizi zövqlə və sürətlə idarə edin.</p>
+            </div>
 
-            <!-- Page Title -->
-            <h1 class="page-title">Portfelim</h1>
+            <!-- Alert box for system errors -->
+            <div id="alertBox" class="alert d-none" role="alert" style="border-radius: 12px;"></div>
 
-            <!-- Loading State -->
+            <!-- Loading Spinner container -->
             <div id="loadingState" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-3">Yüklənir...</p>
+                <p class="text-muted mt-2">Məlumatlar yüklənir...</p>
             </div>
 
-            <!-- Main Dashboard Content -->
-            <div id="dashboardContent" style="display: none;">
-                <div class="row">
-                    <!-- Left Column -->
+            <!-- Main dynamic wrapper -->
+            <div id="dashboardContent" class="d-none">
+                
+                <!-- 3 Stats Cards Row (Total balance, accounts count, transaction count) -->
+                <div class="row g-3 mb-4">
+                    <!-- Stat 1: Total Balance -->
+                    <div class="col-md-4">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Ümumi Balans</div>
+                            <div class="stat-value text-primary"><span id="totalBalance">0.00</span> AZN</div>
+                            <div class="stat-trend text-muted small" id="accountCountInfo">0 hesab</div>
+                        </div>
+                    </div>
+                    <!-- Stat 2: Accounts Count -->
+                    <div class="col-md-4">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Hesab sayı</div>
+                            <div class="stat-value" id="statAccountCount">0</div>
+                            <div class="stat-trend text-success small" style="font-weight: 500;">↑ Aktiv hesablar</div>
+                        </div>
+                    </div>
+                    <!-- Stat 3: Transaction Count -->
+                    <div class="col-md-4">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Son əməliyyat sayı</div>
+                            <div class="stat-value text-success" id="statTransactionCount">0</div>
+                            <div class="stat-trend text-success small" style="font-weight: 500;">↑ Yeniləndi indi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Layout: Wallet card visualization and Recent Transactions list -->
+                <div class="row g-4">
+                    <!-- Left Column: Virtual Card & Analytics Chart -->
                     <div class="col-lg-8">
-                        <!-- Balance Card -->
-                        <div class="balance-card">
-                            <div class="balance-label">Ümumi Balans</div>
-                            <div>
-                                <span class="balance-amount" id="totalBalance">0.00</span>
-                                <span class="balance-currency">AZN</span>
+                        
+                        <!-- Account Card Section -->
+                        <div class="wallet-card-panel mb-4">
+                            <h5 class="fw-bold mb-3" style="font-size: 1.05rem;">Hesab Kartı</h5>
+                            
+                            <!-- Card Active State -->
+                            <div class="row g-3 align-items-center d-none" id="accountCardActive">
+                                <!-- Virtual Visa Card -->
+                                <div class="col-md-6">
+                                    <div class="wallet-bank-card text-white p-4 d-flex flex-column justify-content-between" style="background: linear-gradient(135deg, #09090b 0%, #1e1b4b 55%, #4c1d95 100%); border-radius: 18px; min-height: 180px;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold fs-6">VISA</span>
+                                            <span class="badge" style="background: rgba(255, 255, 255, 0.2);" id="firstAccType">Cari</span>
+                                        </div>
+                                        <div>
+                                            <!-- Card Sim chip -->
+                                            <div class="mb-3" style="width: 38px; height: 26px; background: linear-gradient(135deg, #facc15 0%, #eab308 100%); border-radius: 4px;"></div>
+                                            <div class="font-monospace tracking-widest fs-6" id="firstAccNumber">•••• •••• •••• ••••</div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-end">
+                                            <span class="small opacity-75">KART SAHİBİ</span>
+                                            <div class="d-flex" style="opacity: 0.85;">
+                                                <div style="width: 22px; height: 22px; background: rgba(255,255,255,0.3); border-radius: 50%; margin-right: -8px;"></div>
+                                                <div style="width: 22px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Balance Details next to Card -->
+                                <div class="col-md-6 ps-md-4">
+                                    <div class="mb-3">
+                                        <span class="text-muted small d-block mb-1">Əsas Kart Balansı</span>
+                                        <h2 class="fw-bold mb-0 text-dark"><span id="firstAccBalance">0.00</span> <span class="fs-5 text-muted">AZN</span></h2>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="text-muted small d-block mb-1">Hesabın Statusu</span>
+                                        <span class="badge bg-success">Aktiv</span>
+                                    </div>
+                                    <!-- Clean transfer navigation link -->
+                                    <a href="transfer.html" class="btn btn-primary btn-sm w-100 py-2" style="background-color: var(--accent-color); border-color: var(--accent-color); border-radius: 10px;">Köçürmə et →</a>
+                                </div>
                             </div>
-                            <div class="balance-info">
-                                <span id="balanceDate">18 Avqust 2026</span>
-                                <span class="balance-change" id="balanceChange">+0%</span>
+
+                            <!-- Card Empty State -->
+                            <div class="row g-3 align-items-center d-none" id="accountCardEmpty">
+                                <!-- Dotted Card Placeholder -->
+                                <div class="col-md-6">
+                                    <div class="d-flex flex-column justify-content-center align-items-center text-muted p-4" style="border: 2px dashed #cbd5e1; border-radius: 18px; min-height: 180px; background-color: #f8fafc;">
+                                        <div class="mb-2" style="font-size: 2rem; opacity: 0.5;"><i class="bi bi-credit-card-2-front"></i></div>
+                                        <span class="small fw-semibold">Kart Aktiv Deyil</span>
+                                    </div>
+                                </div>
+                                <!-- Empty State Action Details -->
+                                <div class="col-md-6 ps-md-4">
+                                    <div class="mb-3">
+                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 1.05rem;">Hələ heç bir hesabınız yoxdur</h6>
+                                        <p class="text-muted small mb-0">Əməliyyat aparmaq və kart balansını görmək üçün yeni hesab açın.</p>
+                                    </div>
+                                    <a href="accounts.html" class="btn btn-primary btn-sm w-100 py-2" style="border-radius: 10px;">
+                                        <i class="bi bi-plus-lg"></i> Hesab Aç
+                                    </a>
+                                </div>
                             </div>
-                            <button class="withdraw-btn" onclick="window.location.href='transfer.html'">
-                                Köçürmə Et
-                            </button>
                         </div>
 
-                        <!-- Stats Grid -->
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-header">
-                                    <span class="stat-title">Aylıq Mədaxil</span>
-                                    <span>•••</span>
-                                </div>
-                                <div class="stat-amount" id="monthlyIncome">$0.00</div>
-                                <div class="stat-change positive" id="incomeChange">+0%</div>
+                        <!-- Financial Analytics Chart -->
+                        <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Maliyyə Analitikası</h5>
+                                <span class="badge bg-secondary">Son 6 ay</span>
+                            </div>
+                            
+                            <!-- Chart Active Container -->
+                            <div id="chartActive" class="d-none" style="position: relative; height: 220px; width: 100%;">
+                                <canvas id="analyticsChart"></canvas>
                             </div>
 
-                            <div class="stat-card">
-                                <div class="stat-header">
-                                    <span class="stat-title">Aylıq Məxaric</span>
-                                    <span>•••</span>
-                                </div>
-                                <div class="stat-amount" id="monthlyExpense">$0.00</div>
-                                <div class="stat-change negative" id="expenseChange">+0%</div>
-                            </div>
-
-                            <div class="stat-card">
-                                <div class="stat-header">
-                                    <span class="stat-title">Aylıq Əmanət</span>
-                                    <span>•••</span>
-                                </div>
-                                <div class="stat-amount" id="monthlySavings">$0.00</div>
-                                <div class="stat-change positive" id="savingsChange">+0%</div>
-                            </div>
-                        </div>
-
-                        <!-- Account Cards -->
-                        <div class="accounts-section">
-                            <h3 class="card-title">Hesablarım</h3>
-                            <div class="account-cards-grid" id="accountCardsContainer">
-                                <!-- Account cards will be inserted here -->
+                            <!-- Chart Empty Container -->
+                            <div id="chartEmpty" class="py-5 text-center text-muted d-none">
+                                <div class="mb-3" style="font-size: 2.5rem; opacity: 0.6;"><i class="bi bi-bar-chart"></i></div>
+                                <h6 class="fw-semibold mb-1 text-dark" style="font-size: 0.95rem;">Analitika üçün kifayət qədər məlumat yoxdur</h6>
+                                <p class="small text-muted mb-0">Hesab yaradıb əməliyyat etdikdən sonra burada gəlir/xərc qrafiki göstəriləcək.</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column -->
+                    <!-- Right Column: Recent Transactions list -->
                     <div class="col-lg-4">
-                        <!-- Quick Links -->
-                        <div class="quick-links-card">
-                            <h3 class="card-title">Sürətli Keçidlər</h3>
-                            <div class="quick-links-grid" style="grid-template-columns: repeat(2, 1fr);">
-                                <a href="transfer.html" class="quick-link-item" id="navTransfer">
-                                    <div class="quick-link-icon">➕</div>
-                                    <span class="quick-link-label">Köçürmə</span>
-                                </a>
-                                <a href="transactions.html" class="quick-link-item">
-                                    <div class="quick-link-icon">📤</div>
-                                    <span class="quick-link-label">Tarixçə</span>
-                                </a>
-                                <a href="accounts.html" class="quick-link-item">
-                                    <div class="quick-link-icon">📥</div>
-                                    <span class="quick-link-label">Hesablar</span>
-                                </a>
-                                <a href="loans.html" class="quick-link-item">
-                                    <div class="quick-link-icon">📄</div>
-                                    <span class="quick-link-label">Kreditlər</span>
-                                </a>
-                                <a href="notifications.html" class="quick-link-item">
-                                    <div class="quick-link-icon">🛒</div>
-                                    <span class="quick-link-label">Bildirişlər</span>
-                                </a>
+                        <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9; min-height: 360px;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Son Əməliyyatlar</h5>
+                                <a href="transactions.html" class="small text-decoration-none">Hamısı →</a>
                             </div>
-                        </div>
-
-                        <!-- Recent Transactions -->
-                        <div class="quick-links-card" style="margin-top: 20px;">
-                            <h3 class="card-title">Son Əməliyyatlar</h3>
-                            <div id="recentTransactionsContainer">
-                                <p class="text-muted text-center py-3">Əməliyyat yoxdur</p>
+                            
+                            <div id="recentTransactionsList"></div>
+                            
+                            <!-- Empty State for Recent Transactions -->
+                            <div id="noTransactionsMsg" class="text-muted text-center py-5 d-none">
+                                <div class="mb-3" style="font-size: 2rem; opacity: 0.5;"><i class="bi bi-clock-history"></i></div>
+                                <div class="small fw-semibold">Hələ heç bir əməliyyatınız yoxdur.</div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
-        </main>
+
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/config.js"></script>
     <script src="js/dashboard.js"></script>
-    <script src="js/dashboard-modern.js"></script>
 </body>
 </html>
