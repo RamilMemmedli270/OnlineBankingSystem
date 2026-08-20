@@ -73,7 +73,8 @@ public class TransactionService : ITransactionService
                 ToAccountId = toAccount.Id,
                 Amount = dto.Amount,
                 TransactionType = TransactionType.Transfer,
-                BalanceSnapshot = fromAccount.Balance
+                FromBalanceSnapshot = fromAccount.Balance,
+                ToBalanceSnapshot = toAccount.Balance
             };
 
             await _transactionRepository.AddAsync(transaction);
@@ -118,7 +119,7 @@ public class TransactionService : ITransactionService
                 ToAccountId = account.Id,
                 Amount = dto.Amount,
                 TransactionType = TransactionType.Deposit,
-                BalanceSnapshot = account.Balance,
+                ToBalanceSnapshot = account.Balance,
                 Description = dto.Description ?? "Balans artırıldı (Deposit)"
             };
 

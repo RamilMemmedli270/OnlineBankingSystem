@@ -85,23 +85,38 @@
 
             <!-- Alert Settings Form Container -->
             <div id="formContainer" class="d-none">
-                <div class="card p-4 col-md-8 col-lg-6 border-0 shadow-sm" style="border-radius: var(--radius);">
+                <div class="card p-4 col-md-8 col-lg-6 border-0 shadow-sm" style="border-radius: 20px;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="d-flex align-items-center justify-content-center bg-light text-primary rounded-circle" style="width: 42px; height: 42px;">
+                            <i class="bi bi-bell-fill" style="font-size: 1.25rem;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0" style="color: var(--text-dark);">Balans Xəbərdarlığı</h5>
+                    </div>
+                    
                     <p class="text-muted small mb-4">
-                        Hesabınızın balansı təyin etdiyiniz həddən aşağı düşdükdə sizə dərhal bildiriş göndəriləcək.
+                        Hesabınızın balansı təyin etdiyiniz həddən aşağı düşdükdə sizə dərhal təhlükəsizlik bildirişi göndəriləcək.
                     </p>
 
                     <div id="alertBox" class="alert d-none" role="alert" style="border-radius: 12px; font-size: 0.95rem;"></div>
 
                     <form id="balanceAlertForm">
                         <div class="mb-4">
-                            <label for="threshold" class="form-label">Aşağı balans həddi (AZN)</label>
-                            <input type="number" class="form-control" id="threshold" min="0" step="0.01" placeholder="0.00" required>
+                            <label for="threshold" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Aşağı balans həddi (AZN)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;">₼</span>
+                                <input type="number" class="form-control border-start-0" id="threshold" min="0" step="0.01" placeholder="0.00" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px; font-weight: 500;" required>
+                            </div>
                         </div>
-                        <div class="mb-4 form-check">
-                            <input type="checkbox" class="form-check-input" id="isEnabled">
-                            <label class="form-check-label text-muted small" for="isEnabled">Xəbərdarlığı aktivləşdir</label>
+                        <div class="mb-4 form-check form-switch p-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <label class="form-check-label fw-semibold text-dark mb-0" for="isEnabled" style="font-size: 0.9rem; cursor: pointer;">Bildirişləri Aktivləşdir</label>
+                                <div class="text-muted" style="font-size: 0.75rem;">Hədd keçildikdə sistem sizə avtomatik bildiriş göndərsin</div>
+                            </div>
+                            <input type="checkbox" class="form-check-input ms-0" id="isEnabled" role="switch" style="width: 44px; height: 22px; cursor: pointer;">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2.5" id="saveBtn">Ayarları Yadda Saxla</button>
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 d-flex align-items-center justify-content-center gap-2" id="saveBtn" style="border-radius: 12px; font-weight: 600;">
+                            <i class="bi bi-save"></i> Ayarları Yadda Saxla
+                        </button>
                     </form>
                 </div>
             </div>

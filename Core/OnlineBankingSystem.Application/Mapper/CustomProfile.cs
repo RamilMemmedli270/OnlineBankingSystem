@@ -13,8 +13,9 @@ public class CustomProfile : Profile
     {
         CreateMap<Account, AccountDto>();
         CreateMap<CreateAccountDto, Account>();
-
-        CreateMap<Transaction, TransactionDto>();
+        CreateMap<Transaction, TransactionDto>()
+            .ForMember(dest => dest.FromAccountNumber, opt => opt.MapFrom(src => src.FromAccount != null ? src.FromAccount.AccountNumber : null))
+            .ForMember(dest => dest.ToAccountNumber, opt => opt.MapFrom(src => src.ToAccount != null ? src.ToAccount.AccountNumber : null));
 
         CreateMap<LoanApplication, LoanApplicationDto>();
         CreateMap<CreateLoanDto, LoanApplication>();

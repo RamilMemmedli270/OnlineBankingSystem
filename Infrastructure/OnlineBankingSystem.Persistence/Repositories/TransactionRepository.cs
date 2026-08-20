@@ -21,12 +21,17 @@ public class TransactionRepository : ITransactionRepository
 
     public async Task<IEnumerable<Transaction>> GetAllAsync()
     {
-        return await _context.Transactions.ToListAsync();
+        return await _context.Transactions
+            .Include(t => t.FromAccount)
+            .Include(t => t.ToAccount)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Transaction>> GetByAccountIdAsync(int accountId)
     {
         return await _context.Transactions
+            .Include(t => t.FromAccount)
+            .Include(t => t.ToAccount)
             .Where(t => t.FromAccountId == accountId || t.ToAccountId == accountId)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
@@ -35,6 +40,8 @@ public class TransactionRepository : ITransactionRepository
     public async Task<IEnumerable<Transaction>> GetByAccountIdAndDateRangeAsync(int accountId, DateTime from, DateTime to)
     {
         return await _context.Transactions
+            .Include(t => t.FromAccount)
+            .Include(t => t.ToAccount)
             .Where(t => (t.FromAccountId == accountId || t.ToAccountId == accountId)
                 && t.CreatedAt >= from && t.CreatedAt <= to)
             .OrderByDescending(t => t.CreatedAt)

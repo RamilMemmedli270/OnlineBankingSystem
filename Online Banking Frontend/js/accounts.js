@@ -37,6 +37,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            filterAndRenderAccounts();
+        });
+    }
+
     document.getElementById("createAccountForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -118,10 +125,21 @@ function filterAndRenderAccounts() {
     const filterSelect = document.getElementById("accountTypeFilter");
     const filterValue = filterSelect ? filterSelect.value : "all";
     
+    const searchInput = document.getElementById("searchInput");
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    
     let filtered = allAccounts;
     if (filterValue !== "all") {
         const typeNum = parseInt(filterValue);
         filtered = allAccounts.filter(a => a.accountType === typeNum);
+    }
+    
+    if (query) {
+        filtered = filtered.filter(a => {
+            const typeLabel = a.accountType === 0 ? "əmanət" : "cari";
+            return (a.accountNumber && a.accountNumber.toLowerCase().includes(query)) || 
+                   typeLabel.includes(query);
+        });
     }
     
     renderAccounts(filtered);

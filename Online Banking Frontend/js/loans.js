@@ -1,3 +1,5 @@
+let allLoans = [];
+
 document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("token");
 
@@ -27,6 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- /Admin məhdudiyyəti ---
 
     loadLoans();
+
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            filterAndRenderLoans();
+        });
+    }
 
     document.getElementById("loanApplicationForm").addEventListener("submit", handleSubmit);
 });
@@ -131,51 +140,8 @@ async function loadLoans() {
         }
 
         const loans = await response.json();
-        loadingState.classList.add("d-none");
-
-        if (loans.length === 0) {
-            emptyState.classList.remove("d-none");
-            return;
-        }
-
-        container.classList.remove("d-none");
-
-        loans.forEach(loan => {
-            const statusInfo = getStatusInfo(loan.status);
-            const formattedDate = formatDate(loan.createdAt);
-
-            let reviewedInfo = "";
-            if (loan.reviewedAt) {
-                reviewedInfo += `<p class="text-muted mb-1 small">Baxılma tarixi</p>
-                    <p class="mb-2">${formatDate(loan.reviewedAt)}</p>`;
-            }
-            if (loan.reviewedBy) {
-                reviewedInfo += `<p class="text-muted mb-1 small">Baxlayan</p>
-                    <p class="mb-0">${loan.reviewedBy}</p>`;
-            }
-
-            const card = document.createElement("div");
-            card.className = "col-md-6 col-lg-4";
-            card.innerHTML = `
-                <div class="card account-card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge ${statusInfo.badgeClass}">${statusInfo.label}</span>
-                        </div>
-                        <p class="text-muted mb-1 small">Məbləğ</p>
-                        <p class="fw-bold text-primary mb-2">${loan.amount.toFixed(2)} AZN</p>
-                        <p class="text-muted mb-1 small">Müddət</p>
-                        <p class="mb-2">${loan.term} ay</p>
-                        <p class="text-muted mb-1 small">Səbəb</p>
-                        <p class="mb-2">${escapeHtml(loan.reason)}</p>
-                        <p class="text-muted mb-1 small">Müraciət tarixi</p>
-                        <p class="mb-2">${formattedDate}</p>
-                        ${reviewedInfo}
-                    </div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
+        allLoans = loans;
+        filterAndRenderLoans();
 
     } catch (error) {
         loadingState.classList.add("d-none");
@@ -186,23 +152,24 @@ async function loadLoans() {
 
 function getStatusInfo(status) {
     const statusMap = {
-        0: { label: "Pending", badgeClass: "bg-warning text-dark" },
-        1: { label: "Approved", badgeClass: "bg-success" },
-        2: { label: "Declined", badgeClass: "bg-danger" },
-        "Pending": { label: "Pending", badgeClass: "bg-warning text-dark" },
-        "Approved": { label: "Approved", badgeClass: "bg-success" },
-        "Declined": { label: "Declined", badgeClass: "bg-danger" }
+        0: { label: "Gözləmədə", badgeStyle: "background: rgba(245, 158, 11, 0.08); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" },
+        1: { label: "Təsdiqləndi", badgeStyle: "background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" },
+        2: { label: "İmtina edildi", badgeStyle: "background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" },
+        "Pending": { label: "Gözləmədə", badgeStyle: "background: rgba(245, 158, 11, 0.08); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" },
+        "Approved": { label: "Təsdiqləndi", badgeStyle: "background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" },
+        "Declined": { label: "İmtina edildi", badgeStyle: "background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" }
     };
 
-    return statusMap[status] || { label: String(status), badgeClass: "bg-secondary" };
+    return statusMap[status] || { label: String(status), badgeStyle: "background: rgba(108, 117, 125, 0.08); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;" };
 }
 
 function formatDate(dateString) {
     const dateObj = new Date(dateString);
-    return dateObj.toLocaleString("az-AZ", {
+    return dateObj.toLocaleDateString("az-AZ", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
+        year: "numeric"
+    }) + " " + dateObj.toLocaleTimeString("az-AZ", {
         hour: "2-digit",
         minute: "2-digit"
     });
@@ -213,10 +180,125 @@ function showFormAlert(message, type) {
     formAlertBox.textContent = message;
     formAlertBox.className = `alert alert-${type}`;
     formAlertBox.classList.remove("d-none");
+    
+    // Auto-scroll to alert
+    formAlertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function escapeHtml(text) {
+    if (!text) return "";
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+}
+
+function filterAndRenderLoans() {
+    const searchInput = document.getElementById("searchInput");
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+    let filtered = allLoans;
+
+    if (query) {
+        filtered = filtered.filter(loan => {
+            const reason = (loan.reason || "").toLowerCase();
+            const amount = String(loan.amount || "");
+            const term = String(loan.term || "");
+            return reason.includes(query) ||
+                   amount.includes(query) ||
+                   term.includes(query);
+        });
+    }
+
+    renderLoansList(filtered);
+}
+
+function renderLoansList(loans) {
+    const container = document.getElementById("loansContainer");
+    const emptyState = document.getElementById("emptyState");
+    const loadingState = document.getElementById("loadingState");
+
+    container.innerHTML = "";
+    loadingState.classList.add("d-none");
+
+    if (!loans || loans.length === 0) {
+        container.classList.add("d-none");
+        emptyState.classList.remove("d-none");
+        return;
+    }
+
+    emptyState.classList.add("d-none");
+    container.classList.remove("d-none");
+
+    loans.forEach(loan => {
+        const statusInfo = getStatusInfo(loan.status);
+        const formattedDate = formatDate(loan.createdAt);
+
+        let reviewedInfo = "";
+        if (loan.reviewedAt || loan.reviewedBy) {
+            reviewedInfo += `
+                <div class="border-top border-dashed pt-3 mt-3" style="border-top: 1.5px dashed var(--border-color) !important;">
+            `;
+            if (loan.reviewedAt) {
+                reviewedInfo += `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Baxılma Tarixi:</span>
+                        <span class="small fw-semibold text-dark">${formatDate(loan.reviewedAt)}</span>
+                    </div>
+                `;
+            }
+            if (loan.reviewedBy) {
+                reviewedInfo += `
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Baxan Menecer:</span>
+                        <span class="small fw-semibold text-dark">${escapeHtml(loan.reviewedBy)}</span>
+                    </div>
+                `;
+            }
+            reviewedInfo += `</div>`;
+        }
+
+        const card = document.createElement("div");
+        card.className = "col-md-6 col-lg-4 mb-4";
+        card.innerHTML = `
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; transition: transform 0.2s, box-shadow 0.2s;">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <!-- Header status badge -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge py-2 px-3" style="${statusInfo.badgeStyle}">${statusInfo.label}</span>
+                            <span class="text-muted" style="font-size: 0.8rem;"><i class="bi bi-clock"></i> ${loan.term} ay</span>
+                        </div>
+                        
+                        <!-- Amount -->
+                        <div class="mb-3">
+                            <span class="text-muted small d-block">Müraciət Məbləği</span>
+                            <span class="fw-bold text-primary" style="font-size: 1.5rem;">${loan.amount.toFixed(2)} AZN</span>
+                        </div>
+
+                        <!-- Reason and Date -->
+                        <div class="d-flex flex-column gap-2" style="font-size: 0.88rem;">
+                            <div class="d-flex align-items-start gap-2">
+                                <span class="text-muted mt-0.5"><i class="bi bi-chat-left-quote"></i></span>
+                                <div>
+                                    <span class="text-muted small d-block">Kreditin Məqsədi</span>
+                                    <span class="text-dark fw-medium">${escapeHtml(loan.reason)}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-start gap-2 mt-2">
+                                <span class="text-muted mt-0.5"><i class="bi bi-calendar-event"></i></span>
+                                <div>
+                                    <span class="text-muted small d-block">Müraciət Tarixi</span>
+                                    <span class="text-dark fw-medium">${formattedDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Review Info -->
+                        ${reviewedInfo}
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }

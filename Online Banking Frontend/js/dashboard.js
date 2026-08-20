@@ -6,7 +6,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
-    const fullName = localStorage.getItem("fullName") || "İstifadəçi";
+    let fullNameVal = localStorage.getItem("fullName");
+    if (fullNameVal) {
+        fullNameVal = fullNameVal.trim();
+    }
+    const fullName = fullNameVal || "İstifadəçi";
     const roles = JSON.parse(localStorage.getItem("roles") || "[]");
 
     const fullNameDisplay = document.getElementById("fullNameDisplay");
@@ -19,7 +23,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     const sidebarAvatar = document.getElementById("sidebarAvatar");
     const sidebarRole = document.getElementById("sidebarRole");
     if (sidebarName) sidebarName.textContent = fullName;
-    if (sidebarAvatar) sidebarAvatar.textContent = fullName.charAt(0).toUpperCase();
+    
+    const avatarLetter = fullName.charAt(0).toUpperCase();
+    if (sidebarAvatar) sidebarAvatar.textContent = avatarLetter;
+
+    const topAvatar = document.getElementById("topAvatar");
+    if (topAvatar) topAvatar.textContent = avatarLetter;
+
     if (sidebarRole) {
         sidebarRole.textContent = roles.includes("Admin") ? "Administrator" : "Müştəri";
     }

@@ -64,7 +64,7 @@
                 <div class="search-container flex-grow-1">
                     <!-- Placeholder search -->
                     <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Axtarış...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Axtarış...">
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-danger btn-sm px-3 py-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
@@ -81,31 +81,42 @@
             <span id="fullNameDisplay" style="display: none;"></span>
 
             <!-- Application Card -->
-            <div class="card p-4 mb-4 border-0 shadow-sm col-lg-8" style="border-radius: var(--radius);">
-                <h5 class="fw-bold mb-3" style="color: var(--text-dark);">Yeni Kredit Müraciəti</h5>
+            <div class="card p-4 mb-4 border-0 shadow-sm col-lg-9" style="border-radius: 20px;">
+                <h5 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-dark);">
+                    <i class="bi bi-bank2 text-primary" style="font-size: 1.25rem;"></i> Yeni Kredit Müraciəti
+                </h5>
 
-                <div id="formAlertBox" class="alert d-none" role="alert" style="border-radius: 12px;"></div>
+                <div id="formAlertBox" class="alert d-none" role="alert" style="border-radius: 12px; font-size: 0.95rem;"></div>
 
                 <form id="loanApplicationForm">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label for="amount" class="form-label">Məbləğ (AZN)</label>
-                            <input type="number" class="form-control" id="amount" min="0.01" step="0.01" placeholder="Məs. 1000" required>
+                            <label for="amount" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Məbləğ (AZN)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;">₼</span>
+                                <input type="number" class="form-control border-start-0" id="amount" min="0.01" step="0.01" placeholder="Məs. 1000" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;" required>
+                            </div>
                         </div>
 
                         <div class="col-md-4">
-                            <label for="term" class="form-label">Müddət (ay)</label>
-                            <input type="number" class="form-control" id="term" min="1" step="1" placeholder="Məs. 12" required>
+                            <label for="term" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Müddət (ay)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-calendar-range"></i></span>
+                                <input type="number" class="form-control border-start-0" id="term" min="1" step="1" placeholder="Məs. 12" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;" required>
+                            </div>
                         </div>
 
                         <div class="col-md-4">
-                            <label for="reason" class="form-label">Səbəb</label>
-                            <input type="text" class="form-control" id="reason" placeholder="Kreditin məqsədi" required>
+                            <label for="reason" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Məqsəd / Səbəb</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-pencil-square"></i></span>
+                                <input type="text" class="form-control border-start-0" id="reason" placeholder="Kreditin təyinatı" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;" required>
+                            </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary mt-4 px-4 py-2.5" id="submitBtn">
-                        Müraciət Göndər
+                    <button type="submit" class="btn btn-primary mt-4 px-4 py-2.5 d-flex align-items-center gap-2" id="submitBtn" style="border-radius: 12px; font-weight: 600;">
+                        <i class="bi bi-check2-circle"></i> Müraciət Göndər
                     </button>
                 </form>
             </div>

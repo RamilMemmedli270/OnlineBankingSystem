@@ -31,6 +31,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("usersSearch").addEventListener("input", filterUsers);
     document.getElementById("accountsSearch").addEventListener("input", filterAccounts);
+    
+    const loansSearch = document.getElementById("loansSearch");
+    if (loansSearch) {
+        loansSearch.addEventListener("input", filterLoans);
+    }
 
     loadUsers();
 });
@@ -312,8 +317,9 @@ function renderLoans(loans) {
         const formattedDate = formatDate(loan.createdAt);
 
         const row = document.createElement("tr");
+        row.dataset.search = `${loan.userId || ""} ${loan.reason || ""}`.toLowerCase();
         row.innerHTML = `
-            <td>${loan.amount.toFixed(2)} AZN</td>
+            <td>${(loan.amount ?? 0).toFixed(2)} AZN</td>
             <td>${loan.term} ay</td>
             <td>${escapeHtml(loan.reason)}</td>
             <td>${formattedDate}</td>
@@ -362,17 +368,27 @@ async function reviewLoan(id, status, confirmMsg) {
 
 function formatDate(dateString) {
     const dateObj = new Date(dateString);
-    return dateObj.toLocaleString("az-AZ", {
+    const datePart = dateObj.toLocaleDateString("az-AZ", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
+        year: "numeric"
+    });
+    const timePart = dateObj.toLocaleTimeString("az-AZ", {
         hour: "2-digit",
         minute: "2-digit"
     });
+    return `${datePart} ${timePart}`;
 }
 
 function escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+}
+
+function filterLoans() {
+    const query = document.getElementById("loansSearch").value.toLowerCase();
+    document.querySelectorAll("#loansTableBody tr").forEach(row => {
+        row.classList.toggle("d-none", !row.dataset.search.includes(query));
+    });
 }

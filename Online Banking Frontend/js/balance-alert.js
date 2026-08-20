@@ -142,9 +142,21 @@ function showForm() {
     document.getElementById("formContainer").classList.remove("d-none");
 }
 
+let alertTimeout = null;
+
 function showAlert(message, type) {
     const alertBox = document.getElementById("alertBox");
     alertBox.textContent = message;
     alertBox.className = `alert alert-${type}`;
     alertBox.classList.remove("d-none");
+
+    if (alertTimeout) {
+        clearTimeout(alertTimeout);
+    }
+
+    if (type === "success") {
+        alertTimeout = setTimeout(() => {
+            alertBox.classList.add("d-none");
+        }, 5000);
+    }
 }

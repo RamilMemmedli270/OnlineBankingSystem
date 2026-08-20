@@ -64,7 +64,7 @@
                 <div class="search-container flex-grow-1">
                     <!-- Placeholder search -->
                     <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Axtarış...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Axtarış...">
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-danger btn-sm px-3 py-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
@@ -77,19 +77,15 @@
                 <p class="text-muted small">Hesabınızla bağlı vacib bildirişlərə buradan nəzər yetirin.</p>
             </div>
 
-            <!-- Tabs Selection -->
-            <ul class="nav nav-tabs mb-4 border-bottom" id="notificationTabs" style="gap: 4px;">
-                <li class="nav-item">
-                    <button class="nav-link active fw-semibold" id="tabAll" data-filter="all" style="border: none; border-radius: 8px; padding: 10px 18px; color: var(--text-dark);">
-                        Bütün Bildirişlər
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link fw-semibold" id="tabUnread" data-filter="unread" style="border: none; border-radius: 8px; padding: 10px 18px; color: var(--text-muted);">
-                        Oxunmamışlar
-                    </button>
-                </li>
-            </ul>
+            <!-- Tabs Selection (Pills Segment) -->
+            <div class="d-inline-flex p-1 mb-4" style="background: #f1f5f9; border-radius: 14px; border: 1px solid #e2e8f0;">
+                <button class="btn btn-sm active fw-bold py-2 px-4 d-flex align-items-center gap-2" id="tabAll" data-filter="all" style="border-radius: 10px; border: none; font-size: 0.85rem; transition: all 0.2s; background: #ffffff; color: var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <i class="bi bi-envelope-open"></i> Bütün Bildirişlər
+                </button>
+                <button class="btn btn-sm fw-bold py-2 px-4 d-flex align-items-center gap-2 text-muted" id="tabUnread" data-filter="unread" style="border-radius: 10px; border: none; font-size: 0.85rem; transition: all 0.2s; background: transparent;">
+                    <i class="bi bi-envelope-exclamation"></i> Oxunmamışlar
+                </button>
+            </div>
 
             <!-- Alert box for errors -->
             <div id="alertBox" class="alert alert-danger d-none" role="alert" style="border-radius: 12px;"></div>
