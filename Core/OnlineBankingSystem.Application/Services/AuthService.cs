@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using OnlineBankingSystem.Contract.Abstractions;
 using OnlineBankingSystem.Contract.Dtos;
@@ -16,12 +17,15 @@ public class AuthService : IAuthService
     private readonly UserManager<AppUser> _userManager;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IMapper mapper)
+
+    public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IMapper mapper, ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _configuration = configuration;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -45,7 +49,7 @@ public class AuthService : IAuthService
             var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
             throw new Exception($"İstifadəçi yaradıldı, amma rol təyin edilmədi: {errors}");
         }
-
+        _logger.LogInformation("Yeni istifadəçi qeydiyyatdan keçdi: {Email}", dto.Email);
         return await GenerateAuthResponseAsync(user, false);
     }
 
@@ -58,6 +62,8 @@ public class AuthService : IAuthService
         var isPasswordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
         if (!isPasswordValid)
             throw new Exception("Email və ya şifrə yanlışdır");
+
+        _logger.LogInformation("İstifadəçi login oldu: {Email}", dto.Email);
 
         return await GenerateAuthResponseAsync(user, dto.RememberMe);
     }

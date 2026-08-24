@@ -384,3 +384,29 @@ body {
 .btn-primary:active {
     transform: translateY(0);
 }
+
+/* Premium Unified Input Groups (Solves Focus & Overlay Border Bugs) */
+.input-group-unified {
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 12px;
+    background-color: var(--bg-card);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    overflow: hidden;
+}
+
+.input-group-unified .input-group-text {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.input-group-unified .form-control,
+.input-group-unified .form-select {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.input-group-unified:focus-within {
+    border-color: var(--primary-indigo) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}

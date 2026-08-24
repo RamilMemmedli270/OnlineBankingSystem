@@ -57,7 +57,65 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (isAdmin) {
         const loadingState = document.getElementById("loadingState");
-        if (loadingState) loadingState.classList.add("d-none");
+        const adminDashboardContent = document.getElementById("adminDashboardContent");
+        const dashboardContent = document.getElementById("dashboardContent");
+
+        if (dashboardContent) dashboardContent.classList.add("d-none");
+        if (adminDashboardContent) adminDashboardContent.classList.remove("d-none");
+
+        try {
+            const [usersRes, accountsRes, loansRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/admin/users`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                }),
+                fetch(`${API_BASE_URL}/admin/accounts`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                }),
+                fetch(`${API_BASE_URL}/loanapplication/pending`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                })
+            ]);
+
+            if (usersRes.status === 401 || accountsRes.status === 401 || loansRes.status === 401) {
+                localStorage.clear();
+                window.location.href = "index.html";
+                return;
+            }
+
+            if (!usersRes.ok || !accountsRes.ok || !loansRes.ok) {
+                throw new Error("Admin məlumatlarını yükləmək mümkün olmadı.");
+            }
+
+            const users = await usersRes.json();
+            const accounts = await accountsRes.json();
+            const loans = await loansRes.json();
+
+            // Populate Stats
+            const adminTotalUsers = document.getElementById("adminTotalUsers");
+            if (adminTotalUsers) adminTotalUsers.textContent = users.length;
+
+            const adminTotalAccounts = document.getElementById("adminTotalAccounts");
+            if (adminTotalAccounts) adminTotalAccounts.textContent = accounts.length;
+
+            const adminPendingLoans = document.getElementById("adminPendingLoans");
+            if (adminPendingLoans) adminPendingLoans.textContent = loans.length;
+
+            const adminFrozenAccounts = document.getElementById("adminFrozenAccounts");
+            if (adminFrozenAccounts) {
+                const frozenCount = accounts.filter(a => a.status === 1 || a.status === "Frozen" || a.status === "Blocked").length;
+                adminFrozenAccounts.textContent = frozenCount;
+            }
+
+        } catch (error) {
+            console.error("Admin Dashboard yüklənərkən xəta:", error);
+            const alertBox = document.getElementById("alertBox");
+            if (alertBox) {
+                alertBox.textContent = error.message;
+                alertBox.classList.remove("d-none");
+            }
+        } finally {
+            if (loadingState) loadingState.classList.add("d-none");
+        }
         return;
     }
 

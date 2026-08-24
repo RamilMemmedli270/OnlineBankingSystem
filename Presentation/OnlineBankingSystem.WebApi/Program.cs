@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Serilog;
+using Serilog.Sinks.MongoDB;
 
 namespace OnlineBankingSystem.WebApi
 {
@@ -20,6 +22,19 @@ namespace OnlineBankingSystem.WebApi
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            
+            var mongoConnectionString = builder.Configuration["MongoDb:ConnectionString"];
+            var mongoDatabaseName = builder.Configuration["MongoDb:DatabaseName"];
+
+            Log.Logger = new LoggerConfiguration()
+       .MinimumLevel.Warning()
+       .MinimumLevel.Override("OnlineBankingSystem", Serilog.Events.LogEventLevel.Information)
+       .WriteTo.Console()
+       .WriteTo.MongoDB($"{mongoConnectionString}/{mongoDatabaseName}", collectionName: "Logs")
+       .CreateLogger();
+
+            builder.Host.UseSerilog();
 
             // Add services to the container.
             builder.Services.AddControllers();

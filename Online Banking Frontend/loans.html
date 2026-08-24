@@ -92,25 +92,25 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="amount" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Məbləğ (AZN)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;">₼</span>
-                                <input type="number" class="form-control border-start-0" id="amount" min="0.01" step="0.01" placeholder="Məs. 1000" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;" required>
+                            <div class="input-group input-group-unified">
+                                <span class="input-group-text text-muted">₼</span>
+                                <input type="number" class="form-control" id="amount" min="0.01" step="0.01" placeholder="Məs. 1000" style="padding: 10px 14px;" required>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <label for="term" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Müddət (ay)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-calendar-range"></i></span>
-                                <input type="number" class="form-control border-start-0" id="term" min="1" step="1" placeholder="Məs. 12" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;" required>
+                            <div class="input-group input-group-unified">
+                                <span class="input-group-text text-muted"><i class="bi bi-calendar-range"></i></span>
+                                <input type="number" class="form-control" id="term" min="1" step="1" placeholder="Məs. 12" style="padding: 10px 14px;" required>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <label for="reason" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Məqsəd / Səbəb</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-pencil-square"></i></span>
-                                <input type="text" class="form-control border-start-0" id="reason" placeholder="Kreditin təyinatı" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;" required>
+                            <div class="input-group input-group-unified">
+                                <span class="input-group-text text-muted"><i class="bi bi-pencil-square"></i></span>
+                                <input type="text" class="form-control" id="reason" placeholder="Kreditin təyinatı" style="padding: 10px 14px;" required>
                             </div>
                         </div>
                     </div>

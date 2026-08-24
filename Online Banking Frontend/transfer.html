@@ -98,9 +98,9 @@
                     <!-- Göndərən hesab -->
                     <div class="mb-4">
                         <label for="fromAccountSelect" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Göndərən Hesab</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-wallet2"></i></span>
-                            <select class="form-select border-start-0" id="fromAccountSelect" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px; font-weight: 500;" required>
+                        <div class="input-group input-group-unified">
+                            <span class="input-group-text text-muted"><i class="bi bi-wallet2"></i></span>
+                            <select class="form-select" id="fromAccountSelect" style="padding: 10px 14px; font-weight: 500;" required>
                                 <option value="" selected disabled>Hesab seçin...</option>
                             </select>
                         </div>
@@ -110,9 +110,9 @@
                     <!-- Hədəf Hesab (Öz hesabları üçün) -->
                     <div class="mb-4" id="toAccountSelectWrapper">
                         <label for="toAccountSelect" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Hədəf Hesab</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-wallet2"></i></span>
-                            <select class="form-select border-start-0" id="toAccountSelect" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px; font-weight: 500;">
+                        <div class="input-group input-group-unified">
+                            <span class="input-group-text text-muted"><i class="bi bi-wallet2"></i></span>
+                            <select class="form-select" id="toAccountSelect" style="padding: 10px 14px; font-weight: 500;">
                                 <option value="" selected disabled>Hədəf hesabı seçin...</option>
                             </select>
                         </div>
@@ -121,18 +121,18 @@
                     <!-- Alan hesab nömrəsi (Kənar hesab üçün - default d-none) -->
                     <div class="mb-4 d-none" id="toAccountNumberWrapper">
                         <label for="toAccountNumber" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Alan Hesab Nömrəsi</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-credit-card"></i></span>
-                            <input type="text" class="form-control border-start-0 font-monospace" id="toAccountNumber" placeholder="Məsələn: AZF440272624" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px; letter-spacing: 0.5px;">
+                        <div class="input-group input-group-unified">
+                            <span class="input-group-text text-muted"><i class="bi bi-credit-card"></i></span>
+                            <input type="text" class="form-control font-monospace" id="toAccountNumber" placeholder="Məsələn: AZF440272624" style="padding: 10px 14px; letter-spacing: 0.5px;">
                         </div>
                     </div>
 
                     <!-- Məbləğ (AZN - Böyük & Aydın) -->
                     <div class="mb-4">
                         <label for="amount" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Məbləğ (AZN)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted fs-4 fw-bold" style="border: 1.5px solid var(--border-color); border-radius: 16px 0 0 16px; padding-left: 20px;">₼</span>
-                            <input type="number" step="0.01" min="0.01" class="form-control border-start-0 fs-3 fw-bold text-dark" id="amount" placeholder="0.00" style="border: 1.5px solid var(--border-color); border-radius: 0 16px 16px 0; padding: 12px 20px;" required>
+                        <div class="input-group input-group-unified" style="border-radius: 16px;">
+                            <span class="input-group-text text-muted fs-4 fw-bold" style="padding-left: 20px;">₼</span>
+                            <input type="number" step="0.01" min="0.01" class="form-control fs-3 fw-bold text-dark" id="amount" placeholder="0.00" style="padding: 12px 20px;" required>
                         </div>
                         
                         <!-- Quick select amount buttons -->
@@ -147,9 +147,9 @@
                     <!-- Qeyd -->
                     <div class="mb-4">
                         <label for="description" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Qeyd (İstəyə bağlı)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-chat-left-text"></i></span>
-                            <input type="text" class="form-control border-start-0" id="description" placeholder="Köçürmənin təyinatı" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;">
+                        <div class="input-group input-group-unified">
+                            <span class="input-group-text text-muted"><i class="bi bi-chat-left-text"></i></span>
+                            <input type="text" class="form-control" id="description" placeholder="Köçürmənin təyinatı" style="padding: 10px 14px;">
                         </div>
                     </div>
 

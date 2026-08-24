@@ -38,6 +38,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     loadUsers();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get("tab");
+    if (tabParam && ["users", "accounts", "loans"].includes(tabParam)) {
+        switchTab(tabParam);
+    }
 });
 
 function switchTab(tab) {

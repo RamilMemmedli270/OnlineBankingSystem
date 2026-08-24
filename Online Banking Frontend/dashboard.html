@@ -235,6 +235,61 @@
 
             </div>
 
+            <!-- Admin dynamic wrapper -->
+            <div id="adminDashboardContent" class="d-none">
+                <!-- 4 Stats Cards Row -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Ümumi İstifadəçi</div>
+                            <div class="stat-value text-primary" id="adminTotalUsers">0</div>
+                            <div class="stat-trend text-muted small">Qeydiyyatdan keçmiş istifadəçilər</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Ümumi Hesab</div>
+                            <div class="stat-value text-success" id="adminTotalAccounts">0</div>
+                            <div class="stat-trend text-muted small">Yaradılmış hesablar</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Gözləyən Kredit Müraciəti</div>
+                            <div class="stat-value text-warning" id="adminPendingLoans">0</div>
+                            <div class="stat-trend text-muted small">Təsdiq gözləyən müraciətlər</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="invest-stat-card">
+                            <div class="stat-header">Dondurulmuş Hesab</div>
+                            <div class="stat-value text-danger" id="adminFrozenAccounts">0</div>
+                            <div class="stat-trend text-muted small">Dondurulmuş (Frozen) hesablar</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Section -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px;">
+                            <h5 class="fw-bold mb-4">Sürətli Keçidlər (Admin)</h5>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="admin.html?tab=users" class="btn btn-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;">
+                                    <i class="bi bi-people-fill"></i> İstifadəçilərə bax
+                                </a>
+                                <a href="admin.html?tab=accounts" class="btn btn-outline-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;">
+                                    <i class="bi bi-wallet2"></i> Hesablara bax
+                                </a>
+                                <a href="admin.html?tab=loans" class="btn btn-outline-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;">
+                                    <i class="bi bi-file-earmark-text-fill"></i> Gözləyən Kreditlərə bax
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
