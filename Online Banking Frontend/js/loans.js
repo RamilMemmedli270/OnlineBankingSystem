@@ -1,7 +1,7 @@
 let allLoans = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- Admin üçün sidebar məhdudiyyəti və direct URL girişindən qorunma ---
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
 
     // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
     if (roles.includes("Admin") && !roles.includes("Customer")) {
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
 async function handleSubmit(e) {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const formAlertBox = document.getElementById("formAlertBox");
     const submitBtn = document.getElementById("submitBtn");
 
@@ -81,7 +81,7 @@ async function handleSubmit(e) {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }
@@ -104,7 +104,7 @@ async function handleSubmit(e) {
 }
 
 async function loadLoans() {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const container = document.getElementById("loansContainer");
     const emptyState = document.getElementById("emptyState");
     const loadingState = document.getElementById("loadingState");
@@ -126,7 +126,7 @@ async function loadLoans() {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }

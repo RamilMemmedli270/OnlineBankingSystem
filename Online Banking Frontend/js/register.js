@@ -40,9 +40,9 @@ document.getElementById("registerForm").addEventListener("submit", async functio
             throw new Error(data.message || "Qeydiyyat zamanı xəta baş verdi");
         }
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("fullName", data.fullName);
-        localStorage.setItem("roles", JSON.stringify(data.roles));
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("fullName", data.fullName);
+        sessionStorage.setItem("roles", JSON.stringify(data.roles));
 
         window.location.href = "dashboard.html";
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using OnlineBankingSystem.Contract.Abstractions;
 using OnlineBankingSystem.Contract.Dtos;
 using OnlineBankingSystem.Contract.Dtos.Transaction;
@@ -15,19 +16,22 @@ public class TransactionService : ITransactionService
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
+    private readonly ILogger<TransactionService> _logger;
 
     public TransactionService(
         ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
         IUnitOfWork unitOfWork,
         INotificationService notificationService,
-        IMapper mapper)
+        IMapper mapper,
+        ILogger<TransactionService> logger)
     {
         _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<TransactionDto> TransferAsync(string userId, TransferDto dto)
@@ -84,6 +88,10 @@ public class TransactionService : ITransactionService
             await _unitOfWork.SaveChangesAsync();
             await dbTransaction.CommitAsync();
 
+            _logger.LogInformation(
+                "Transfer edildi: {UserId} -> {FromAccount} -> {ToAccount}, Məbləğ: {Amount}",
+                userId, fromAccount.AccountNumber, toAccount.AccountNumber, dto.Amount);
+
             return _mapper.Map<TransactionDto>(transaction);
         }
         catch
@@ -126,6 +134,10 @@ public class TransactionService : ITransactionService
             await _transactionRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync();
             await dbTransaction.CommitAsync();
+
+            _logger.LogInformation(
+                "Deposit edildi: {UserId} -> {Account}, Məbləğ: {Amount}",
+                userId, account.AccountNumber, dto.Amount);
 
             return _mapper.Map<TransactionDto>(transaction);
         }

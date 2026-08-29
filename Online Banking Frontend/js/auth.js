@@ -23,9 +23,9 @@ document.getElementById("loginForm").addEventListener("submit", async function (
             throw new Error(data.message || "Email və ya şifrə yanlışdır");
         }
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("fullName", data.fullName);
-        localStorage.setItem("roles", JSON.stringify(data.roles));
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("fullName", data.fullName);
+        sessionStorage.setItem("roles", JSON.stringify(data.roles));
 
         window.location.href = "dashboard.html";
 

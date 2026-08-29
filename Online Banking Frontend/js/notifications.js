@@ -2,7 +2,7 @@ let currentFilter = "all";
 let allNotifications = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- Admin üçün sidebar məhdudiyyəti və direct URL girişindən qorunma ---
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
 
     // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
     if (roles.includes("Admin") && !roles.includes("Customer")) {
@@ -81,7 +81,7 @@ function setActiveTab(filter) {
 }
 
 async function loadNotifications(filter) {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const container = document.getElementById("notificationsContainer");
     const emptyState = document.getElementById("emptyState");
     const emptyStateText = document.getElementById("emptyStateText");
@@ -108,7 +108,7 @@ async function loadNotifications(filter) {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }
@@ -180,7 +180,7 @@ function createNotificationCard(notification) {
 }
 
 async function markAsRead(id, cardElement) {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const btn = cardElement.querySelector(".mark-read-btn");
 
     if (btn) {
@@ -197,7 +197,7 @@ async function markAsRead(id, cardElement) {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }

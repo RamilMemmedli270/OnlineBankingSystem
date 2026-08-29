@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 async function loadDashboardData() {
-    const token = localStorage.getItem("token");
-    const fullName = localStorage.getItem("fullName");
+    const token = sessionStorage.getItem("token");
+    const fullName = sessionStorage.getItem("fullName");
 
     if (!token) {
         window.location.href = "index.html";
@@ -39,7 +39,7 @@ async function loadDashboardData() {
         });
 
         if (accountsResponse.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }

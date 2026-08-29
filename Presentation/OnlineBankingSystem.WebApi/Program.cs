@@ -23,7 +23,7 @@ namespace OnlineBankingSystem.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+
             var mongoConnectionString = builder.Configuration["MongoDb:ConnectionString"];
             var mongoDatabaseName = builder.Configuration["MongoDb:DatabaseName"];
 
@@ -142,6 +142,13 @@ namespace OnlineBankingSystem.WebApi
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
+
+            // Apply pending EF Core migrations automatically (needed for Docker, where SQL Server starts empty)
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<OnlineBankingDbContext>();
+                await dbContext.Database.MigrateAsync();
+            }
 
             // Role and Admin Seeding
             using (var scope = app.Services.CreateScope())

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Role check
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
     const isAdmin = roles.includes("Admin");
     const isCustomer = roles.includes("Customer");
 
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
 let userAccounts = [];
 
 async function loadAccounts() {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const selectElement = document.getElementById("fromAccountSelect");
 
     selectElement.innerHTML =
@@ -144,7 +144,7 @@ async function loadAccounts() {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }
@@ -259,7 +259,7 @@ async function handleTransferSubmit(e) {
     submitBtn.disabled = true;
     submitSpinner.classList.remove("d-none");
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     try {
         const response = await fetch(
@@ -280,7 +280,7 @@ async function handleTransferSubmit(e) {
         );
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }

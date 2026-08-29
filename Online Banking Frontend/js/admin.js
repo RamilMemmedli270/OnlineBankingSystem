@@ -3,14 +3,14 @@ let accountsData = [];
 let loansData = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
     if (!roles.includes("Admin")) {
         window.location.href = "dashboard.html";
         return;
@@ -63,7 +63,7 @@ function switchTab(tab) {
 }
 
 async function apiFetch(url, options = {}) {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const response = await fetch(url, {
         ...options,
         headers: {
@@ -74,7 +74,7 @@ async function apiFetch(url, options = {}) {
     });
 
     if (response.status === 401) {
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = "index.html";
         return null;
     }

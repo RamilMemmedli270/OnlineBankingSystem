@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using OnlineBankingSystem.Contract.Abstractions;
 using OnlineBankingSystem.Contract.Dtos;
 using OnlineBankingSystem.Contract.Dtos.Account;
@@ -11,11 +12,14 @@ public class AccountService : IAccountService
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    public AccountService(IAccountRepository accountRepository, IUnitOfWork unitOfWork, IMapper mapper)
+    private readonly ILogger<AccountService> _logger;
+
+    public AccountService(IAccountRepository accountRepository, IUnitOfWork unitOfWork, IMapper mapper, ILogger<AccountService> logger)
     {
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _logger = logger;
     }
     public async Task<IEnumerable<AccountDto>> GetAllAsync()
     {
@@ -45,6 +49,9 @@ public class AccountService : IAccountService
         account.Status = AccountStatus.Active;
         await _accountRepository.AddAsync(account);
         await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Yeni hesab yaradıldı: {UserId}, Hesab: {AccountNumber}", userId, account.AccountNumber);
+
         return _mapper.Map<AccountDto>(account);
     }
     public async Task UpdateStatusAsync(int id, UpdateAccountStatusDto dto)
@@ -55,6 +62,8 @@ public class AccountService : IAccountService
         account.Status = dto.Status;
         await _accountRepository.UpdateAsync(account);
         await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogWarning("Hesab statusu dəyişdi: Hesab ID {AccountId}, Yeni status: {Status}", id, dto.Status);
     }
     private async Task<string> GenerateUniqueAccountNumberAsync()
     {

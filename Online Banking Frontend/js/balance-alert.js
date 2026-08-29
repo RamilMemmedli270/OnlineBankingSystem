@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
    
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
 
     if (roles.includes("Admin") && !roles.includes("Customer")) {
         window.location.href = "dashboard.html";
@@ -43,7 +43,7 @@ function hideCustomerNavLinks() {
 }
 
 async function loadSetting() {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const loadingState = document.getElementById("loadingState");
     const formContainer = document.getElementById("formContainer");
 
@@ -60,7 +60,7 @@ async function loadSetting() {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }
@@ -93,7 +93,7 @@ async function loadSetting() {
 async function handleSubmit(e) {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const saveBtn = document.getElementById("saveBtn");
 
     const threshold = parseFloat(document.getElementById("threshold").value);
@@ -117,7 +117,7 @@ async function handleSubmit(e) {
         });
 
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }

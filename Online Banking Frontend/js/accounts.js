@@ -1,7 +1,7 @@
 let allAccounts = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- Admin üçün sidebar məhdudiyyəti və direct URL girişindən qorunma ---
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
 
     // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
     if (roles.includes("Admin") && !roles.includes("Customer")) {
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function loadAccounts() {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const container = document.getElementById("accountsContainer");
     const emptyState = document.getElementById("emptyState");
     const errorBox = document.getElementById("errorBox");
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (depositForm) {
         depositForm.addEventListener("submit", async function (e) {
             e.preventDefault();
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const accountId = parseInt(document.getElementById("depositAccountId").value);
             const amount = parseFloat(document.getElementById("depositAmount").value);

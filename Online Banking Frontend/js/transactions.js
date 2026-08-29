@@ -1,7 +1,7 @@
 let allTransactions = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     // Redirect to index.html if token doesn't exist
     if (!token) {
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Admin role check
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
     const isAdmin = roles.includes("Admin");
     const isCustomer = roles.includes("Customer");
 
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
  * Loads user accounts from the API and populates the dropdown
  */
 async function loadAccounts() {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const selectElement = document.getElementById("accountSelect");
     const accountsLoading = document.getElementById("accountsLoading");
     const noAccountState = document.getElementById("noAccountState");
@@ -87,7 +87,7 @@ async function loadAccounts() {
 
         // 401 Unauthorized handling
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }
@@ -160,7 +160,7 @@ function handleAccountChange() {
  * Loads transactions for a selected account ID (optionally date filtered)
  */
 async function loadTransactions(accountId, fromDate = null, toDate = null) {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const transactionsLoading = document.getElementById("transactionsLoading");
     const tableContainer = document.getElementById("tableContainer");
     const emptyState = document.getElementById("emptyState");
@@ -191,7 +191,7 @@ async function loadTransactions(accountId, fromDate = null, toDate = null) {
 
         // 401 Unauthorized handling
         if (response.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }

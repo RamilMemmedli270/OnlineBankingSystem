@@ -1,17 +1,17 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    let fullNameVal = localStorage.getItem("fullName");
+    let fullNameVal = sessionStorage.getItem("fullName");
     if (fullNameVal) {
         fullNameVal = fullNameVal.trim();
     }
     const fullName = fullNameVal || "İstifadəçi";
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
 
     const fullNameDisplay = document.getElementById("fullNameDisplay");
     const userGreeting = document.getElementById("userGreeting");
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
         });
     }
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             ]);
 
             if (usersRes.status === 401 || accountsRes.status === 401 || loansRes.status === 401) {
-                localStorage.clear();
+                sessionStorage.clear();
                 window.location.href = "index.html";
                 return;
             }
@@ -139,7 +139,7 @@ async function loadDashboardData(token) {
         });
 
         if (accountsRes.status === 401) {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = "index.html";
             return;
         }
@@ -187,7 +187,7 @@ async function loadDashboardData(token) {
         // Render first account on decorative virtual card
         const firstAcc = accounts[0];
         if (firstAcc) {
-            const formatted = firstAcc.accountNumber.replace(/(.{4})/g, '$1 ').trim();
+            const formatted = firstAcc.accountNumber.replace(/\s+/g, '');
             const firstAccNumber = document.getElementById("firstAccNumber");
             const firstAccBalance = document.getElementById("firstAccBalance");
             const firstAccType = document.getElementById("firstAccType");
