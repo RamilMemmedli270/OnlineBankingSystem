@@ -103,6 +103,8 @@ namespace OnlineBankingSystem.WebApi
             builder.Services.AddScoped<ILoanApplicationRepository, LoanApplicationRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<IBalanceAlertSettingRepository, BalanceAlertSettingRepository>();
+            builder.Services.AddScoped<ISavingsGoalRepository, SavingsGoalRepository>();
+
 
             // Unit of Work
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -115,6 +117,7 @@ namespace OnlineBankingSystem.WebApi
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IBalanceAlertSettingService, BalanceAlertSettingService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<ISavingsGoalService, SavingsGoalService>();
 
             // JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");

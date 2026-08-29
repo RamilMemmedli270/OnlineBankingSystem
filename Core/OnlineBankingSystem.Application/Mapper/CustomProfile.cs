@@ -29,5 +29,15 @@ public class CustomProfile : Profile
             .ForMember(dest => dest.Roles, opt => opt.Ignore());
 
         CreateMap<RegisterDto, AppUser>();
+
+        CreateMap<SavingsGoal, SavingsGoalDto>()
+    .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account != null ? src.Account.AccountNumber : string.Empty))
+    .ForMember(dest => dest.CurrentBalance, opt => opt.MapFrom(src => src.Account != null ? src.Account.Balance : 0))
+    .ForMember(dest => dest.ProgressPercentage, opt => opt.MapFrom(src =>
+        (src.Account != null && src.TargetAmount > 0)
+            ? Math.Round((src.Account.Balance / src.TargetAmount) * 100, 2)
+            : 0));
+
+        CreateMap<CreateSavingsGoalDto, SavingsGoal>();
     }
 }

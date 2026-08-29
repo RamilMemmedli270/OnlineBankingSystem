@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     await loadDashboardData(token);
+    initCurrencyConverter();
 });
 
 async function loadDashboardData(token) {
@@ -417,4 +418,81 @@ function renderLineChart(allTransactions) {
             }
         }
     });
+}
+
+const conversionRates = {
+    AZN: 1.0,
+    USD: 1.7000,
+    EUR: 1.8450,
+    RUB: 0.0184
+};
+
+async function initCurrencyConverter() {
+    const rateUsdBuy = document.getElementById("rateUsdBuy");
+    const rateUsdSell = document.getElementById("rateUsdSell");
+    const rateEurBuy = document.getElementById("rateEurBuy");
+    const rateEurSell = document.getElementById("rateEurSell");
+    const rateRubBuy = document.getElementById("rateRubBuy");
+    const rateRubSell = document.getElementById("rateRubSell");
+
+    const convertAmount = document.getElementById("convertAmount");
+    const convertFrom = document.getElementById("convertFrom");
+    const convertTo = document.getElementById("convertTo");
+    const convertResult = document.getElementById("convertResult");
+
+    if (!convertAmount || !convertFrom || !convertTo || !convertResult) return;
+
+    // Fetch dynamic rates
+    try {
+        const res = await fetch("https://open.er-api.com/v6/latest/AZN");
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.rates) {
+                // Since base is AZN, rate is 1 AZN = X Currency.
+                // 1 Currency = 1 / X AZN
+                if (data.rates.USD) {
+                    const usdReal = 1 / data.rates.USD;
+                    conversionRates.USD = 1.7000; // USD pegged at 1.70
+                }
+                if (data.rates.EUR) {
+                    const eurReal = 1 / data.rates.EUR;
+                    conversionRates.EUR = parseFloat(eurReal.toFixed(4));
+                    if (rateEurBuy) rateEurBuy.textContent = (eurReal - 0.0070).toFixed(4);
+                    if (rateEurSell) rateEurSell.textContent = (eurReal + 0.0070).toFixed(4);
+                }
+                if (data.rates.RUB) {
+                    const rubReal = 1 / data.rates.RUB;
+                    conversionRates.RUB = parseFloat(rubReal.toFixed(4));
+                    if (rateRubBuy) rateRubBuy.textContent = (rubReal - 0.0004).toFixed(4);
+                    if (rateRubSell) rateRubSell.textContent = (rubReal + 0.0004).toFixed(4);
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("Valyuta API xətası, sabit məzənnələrdən istifadə olunur:", e);
+    }
+
+    function performConversion() {
+        const amount = parseFloat(convertAmount.value) || 0;
+        const from = convertFrom.value;
+        const to = convertTo.value;
+
+        if (amount <= 0) {
+            convertResult.textContent = `0.00 ${to}`;
+            return;
+        }
+
+        // Convert source currency to AZN, then to target currency
+        const amountInAzn = amount * conversionRates[from];
+        const result = amountInAzn / conversionRates[to];
+
+        convertResult.textContent = `${amount.toFixed(2)} ${from} = ${result.toFixed(2)} ${to}`;
+    }
+
+    convertAmount.addEventListener("input", performConversion);
+    convertFrom.addEventListener("change", performConversion);
+    convertTo.addEventListener("change", performConversion);
+
+    // Initial run
+    performConversion();
 }

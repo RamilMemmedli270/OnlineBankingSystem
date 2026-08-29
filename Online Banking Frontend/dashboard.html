@@ -214,8 +214,8 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Recent Transactions list -->
-                    <div class="col-lg-4">
+                    <!-- Right Column: Recent Transactions & Currency Converter -->
+                    <div class="col-lg-4 d-flex flex-column gap-4">
                         <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9; min-height: 360px;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Son Əməliyyatlar</h5>
@@ -228,6 +228,75 @@
                             <div id="noTransactionsMsg" class="text-muted text-center py-5 d-none">
                                 <div class="mb-3" style="font-size: 2rem; opacity: 0.5;"><i class="bi bi-clock-history"></i></div>
                                 <div class="small fw-semibold">Hələ heç bir əməliyyatınız yoxdur.</div>
+                            </div>
+                        </div>
+
+                        <!-- Currency Converter Card -->
+                        <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9;">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="bi bi-currency-exchange text-primary fs-5"></i>
+                                <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Məzənnələr & Kalkulyator</h5>
+                            </div>
+                            
+                            <!-- Exchange Rates Table -->
+                            <div class="table-responsive mb-3">
+                                <table class="table table-sm table-borderless align-middle mb-0" style="font-size: 0.85rem;">
+                                    <thead>
+                                        <tr class="text-muted" style="border-bottom: 1px solid #f1f5f9;">
+                                            <th>Valyuta</th>
+                                            <th class="text-end">Alış</th>
+                                            <th class="text-end">Satış</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ratesTableBody">
+                                        <tr>
+                                            <td class="fw-semibold">🇺🇸 USD</td>
+                                            <td class="text-end text-success" id="rateUsdBuy">1.6970</td>
+                                            <td class="text-end text-danger" id="rateUsdSell">1.7030</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-semibold">🇪🇺 EUR</td>
+                                            <td class="text-end text-success" id="rateEurBuy">1.8380</td>
+                                            <td class="text-end text-danger" id="rateEurSell">1.8490</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-semibold">🇷🇺 RUB</td>
+                                            <td class="text-end text-success" id="rateRubBuy">0.0180</td>
+                                            <td class="text-end text-danger" id="rateRubSell">0.0189</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Converter Form -->
+                            <div class="converter-box p-3 bg-light rounded-3" style="border: 1px solid #f1f5f9;">
+                                <div class="mb-2">
+                                    <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Məbləğ</label>
+                                    <input type="number" id="convertAmount" class="form-control form-control-sm" placeholder="Məbləğ daxil edin" value="100">
+                                </div>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Haradan</label>
+                                        <select id="convertFrom" class="form-select form-select-sm">
+                                            <option value="AZN" selected>AZN</option>
+                                            <option value="USD">USD</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="RUB">RUB</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Haraya</label>
+                                        <select id="convertTo" class="form-select form-select-sm">
+                                            <option value="AZN">AZN</option>
+                                            <option value="USD" selected>USD</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="RUB">RUB</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="convertResult" class="text-center fw-bold text-primary mt-2 p-2 bg-white rounded shadow-sm" style="font-size: 0.95rem; border: 1px solid #f1f5f9;">
+                                    100.00 AZN = 58.82 USD
+                                </div>
                             </div>
                         </div>
                     </div>

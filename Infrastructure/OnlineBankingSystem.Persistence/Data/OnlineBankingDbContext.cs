@@ -18,6 +18,8 @@ public class OnlineBankingDbContext : IdentityDbContext<AppUser>
     public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<BalanceAlertSetting> BalanceAlertSettings => Set<BalanceAlertSetting>();
+    public DbSet<SavingsGoal> SavingsGoals => Set<SavingsGoal>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
