@@ -31,7 +31,8 @@ function hideCustomerNavLinks() {
         "navTransactions",
         "navLoans",
         "navNotifications",
-        "navBalanceAlert"
+        "navBalanceAlert",
+        "navSavingsGoal"
     ];
 
     idsToHide.forEach(function (id) {

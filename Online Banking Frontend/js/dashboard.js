@@ -15,16 +15,34 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const fullNameDisplay = document.getElementById("fullNameDisplay");
     const userGreeting = document.getElementById("userGreeting");
+    const headerFullName = document.getElementById("headerFullName");
+    const headerAvatar = document.getElementById("headerAvatar");
+    
     if (fullNameDisplay) fullNameDisplay.textContent = fullName;
-    if (userGreeting) userGreeting.textContent = `Salam, ${fullName}`;
+    if (headerFullName) headerFullName.textContent = fullName;
+    
+    const avatarLetter = fullName.charAt(0).toUpperCase();
+    if (headerAvatar) headerAvatar.textContent = avatarLetter;
+    
+    if (userGreeting) {
+        const hour = new Date().getHours();
+        let greeting = "Salam";
+        if (hour >= 6 && hour < 12) {
+            greeting = "Sabahınız xeyir";
+        } else if (hour >= 12 && hour < 18) {
+            greeting = "Günortanız xeyir";
+        } else if (hour >= 18 && hour < 24) {
+            greeting = "Axşamınız xeyir";
+        } else {
+            greeting = "Gecəniz xeyir";
+        }
+        userGreeting.innerHTML = `${greeting}, <span id="fullNameDisplay">${fullName}</span>!`;
+    }
 
-    // Dynamic sidebar profile details
     const sidebarName = document.getElementById("sidebarName");
     const sidebarAvatar = document.getElementById("sidebarAvatar");
     const sidebarRole = document.getElementById("sidebarRole");
     if (sidebarName) sidebarName.textContent = fullName;
-    
-    const avatarLetter = fullName.charAt(0).toUpperCase();
     if (sidebarAvatar) sidebarAvatar.textContent = avatarLetter;
 
     const topAvatar = document.getElementById("topAvatar");
@@ -119,8 +137,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
-    await loadDashboardData(token);
-    initCurrencyConverter();
+    const dashboardContent = document.getElementById("dashboardContent");
+    if (dashboardContent) {
+        await loadDashboardData(token);
+    }
 });
 
 async function loadDashboardData(token) {
@@ -135,6 +155,7 @@ async function loadDashboardData(token) {
     const noTransactionsMsg = document.getElementById("noTransactionsMsg");
 
     try {
+        const fullName = sessionStorage.getItem("fullName") || "İstifadəçi";
         const accountsRes = await fetch(`${API_BASE_URL}/account`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
@@ -192,10 +213,12 @@ async function loadDashboardData(token) {
             const firstAccNumber = document.getElementById("firstAccNumber");
             const firstAccBalance = document.getElementById("firstAccBalance");
             const firstAccType = document.getElementById("firstAccType");
+            const cardHolderName = document.getElementById("cardHolderName");
             
             if (firstAccNumber) firstAccNumber.textContent = formatted;
             if (firstAccBalance) firstAccBalance.textContent = firstAcc.balance.toFixed(2);
             if (firstAccType) firstAccType.textContent = firstAcc.accountType === 0 ? "Əmanət" : "Cari";
+            if (cardHolderName) cardHolderName.textContent = fullName.toUpperCase();
         }
 
         // Fetch transactions for all accounts to calculate stats and recent history
@@ -222,8 +245,9 @@ async function loadDashboardData(token) {
         // Render recent transactions
         renderRecentTransactions(allTransactions.slice(0, 5));
 
-        // Render line chart with Chart.js
+        // Render charts with Chart.js
         renderLineChart(allTransactions);
+        renderDonutChart(allTransactions);
 
         // Get unread notifications
         await loadUnreadNotificationsCount(token);
@@ -346,7 +370,6 @@ function renderLineChart(allTransactions) {
 
     const ctx = document.getElementById('analyticsChart').getContext('2d');
     
-    // Destroy previous instance of chart if it exists to prevent memory leaks/re-draw issues
     const existingChart = Chart.getChart("analyticsChart");
     if (existingChart) {
         existingChart.destroy();
@@ -360,23 +383,23 @@ function renderLineChart(allTransactions) {
                 {
                     label: 'Gəlir',
                     data: last6Months.map(m => m.income),
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.04)',
+                    borderColor: '#38bdf8', // Neon Blue
+                    backgroundColor: 'rgba(56, 189, 248, 0.04)',
                     borderWidth: 3,
                     tension: 0.35,
                     fill: true,
-                    pointBackgroundColor: '#10b981',
+                    pointBackgroundColor: '#38bdf8',
                     pointHoverRadius: 6
                 },
                 {
                     label: 'Xərc',
                     data: last6Months.map(m => m.expense),
-                    borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.04)',
+                    borderColor: '#ec4899', // Neon Pink
+                    backgroundColor: 'rgba(236, 72, 153, 0.04)',
                     borderWidth: 3,
                     tension: 0.35,
                     fill: true,
-                    pointBackgroundColor: '#ef4444',
+                    pointBackgroundColor: '#ec4899',
                     pointHoverRadius: 6
                 }
             ]
@@ -390,11 +413,17 @@ function renderLineChart(allTransactions) {
                     position: 'top',
                     labels: {
                         boxWidth: 12,
-                        font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' },
+                        color: '#94a3b8',
+                        font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
                         padding: 15
                     }
                 },
                 tooltip: {
+                    backgroundColor: '#0f172a',
+                    borderColor: 'rgba(255,255,255,0.08)',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#cbd5e1',
                     padding: 10,
                     bodyFont: { family: 'Plus Jakarta Sans' },
                     titleFont: { family: 'Plus Jakarta Sans', weight: '700' }
@@ -403,17 +432,114 @@ function renderLineChart(allTransactions) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
                     ticks: {
-                        font: { family: 'Plus Jakarta Sans', size: 11 },
+                        color: '#94a3b8',
+                        font: { family: 'Plus Jakarta Sans', size: 10 },
                         callback: function(value) {
-                            return value.toFixed(0) + ' AZN';
+                            return value.toFixed(0) + ' ₼';
                         }
                     }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { font: { family: 'Plus Jakarta Sans', size: 11 } }
+                    ticks: { 
+                        color: '#94a3b8',
+                        font: { family: 'Plus Jakarta Sans', size: 10 } 
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderDonutChart(allTransactions) {
+    const canvas = document.getElementById("expenseBreakdownChart");
+    if (!canvas) return;
+
+    // Reset buckets
+    let medaxilSum = 0;
+    let mexaricSum = 0;
+    let kocurmeSum = 0;
+
+    allTransactions.forEach(t => {
+        if (t.transactionType === 0) {
+            // Transfer
+            const isOutgoing = t.fromAccountId === t.ownAccountId;
+            if (isOutgoing) {
+                kocurmeSum += t.amount;
+            } else {
+                medaxilSum += t.amount;
+            }
+        } else if (t.transactionType === 1) {
+            // Deposit (Mədaxil)
+            medaxilSum += t.amount;
+        } else if (t.transactionType === 2) {
+            // Withdrawal (Məxaric)
+            mexaricSum += t.amount;
+        }
+    });
+
+    const total = medaxilSum + mexaricSum + kocurmeSum;
+    if (total === 0) {
+        // Fallback placeholder data if user has accounts but no transactions
+        medaxilSum = 100;
+        mexaricSum = 0;
+        kocurmeSum = 0;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const existingDonut = Chart.getChart("expenseBreakdownChart");
+    if (existingDonut) {
+        existingDonut.destroy();
+    }
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Mədaxil', 'Məxaric', 'Köçürmə'],
+            datasets: [{
+                data: [medaxilSum, mexaricSum, kocurmeSum],
+                backgroundColor: [
+                    '#10b981', // green for deposits
+                    '#f43f5e', // pink/red for withdrawals
+                    '#818cf8'  // purple for transfers
+                ],
+                borderWidth: 2,
+                borderColor: '#0b0f17',
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                        color: '#94a3b8',
+                        font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' },
+                        padding: 10
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    borderColor: 'rgba(255,255,255,0.08)',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#cbd5e1',
+                    padding: 8,
+                    bodyFont: { family: 'Plus Jakarta Sans' },
+                    callbacks: {
+                        label: function(context) {
+                            const val = context.raw || 0;
+                            const pct = ((val / (total || 1)) * 100).toFixed(0);
+                            return ` ${context.label}: ${val.toFixed(2)} ₼ (${pct}%)`;
+                        }
+                    }
                 }
             }
         }

@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (roles.includes("Admin")) {
-        const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert"];
+        const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert", "navSavingsGoal"];
         restrictedNavIds.forEach(function (id) {
             const el = document.getElementById(id);
             if (el) {
@@ -57,26 +57,10 @@ function setActiveTab(filter) {
 
     if (filter === "all") {
         tabAll.classList.add("active");
-        tabAll.style.background = "#ffffff";
-        tabAll.style.color = "var(--primary-color)";
-        tabAll.style.boxShadow = "0 2px 4px rgba(0,0,0,0.05)";
-
         tabUnread.classList.remove("active");
-        tabUnread.classList.add("text-muted");
-        tabUnread.style.background = "transparent";
-        tabUnread.style.color = "#64748b";
-        tabUnread.style.boxShadow = "none";
     } else {
         tabUnread.classList.add("active");
-        tabUnread.style.background = "#ffffff";
-        tabUnread.style.color = "var(--primary-color)";
-        tabUnread.style.boxShadow = "0 2px 4px rgba(0,0,0,0.05)";
-
         tabAll.classList.remove("active");
-        tabAll.classList.add("text-muted");
-        tabAll.style.background = "transparent";
-        tabAll.style.color = "#64748b";
-        tabAll.style.boxShadow = "none";
     }
 }
 
@@ -123,6 +107,7 @@ async function loadNotifications(filter) {
 
         const notifications = await response.json();
         allNotifications = notifications;
+        loadingState.classList.add("d-none");
         filterAndRenderNotifications();
 
     } catch (error) {
@@ -130,6 +115,15 @@ async function loadNotifications(filter) {
         alertBox.textContent = error.message;
         alertBox.classList.remove("d-none");
     }
+}
+
+function cleanMessage(text) {
+    if (!text) return "";
+    return text.replace(/bal[аa][нn][сs][ıi]/g, "balansı")
+               .replace(/bal[аa][нn]/g, "balan")
+               .replace(/[\u0430]/g, "a")
+               .replace(/[\u043D]/g, "n")
+               .replace(/[\u0441]/g, "s");
 }
 
 function createNotificationCard(notification) {
@@ -144,13 +138,18 @@ function createNotificationCard(notification) {
     card.style.transition = "all 0.2s";
 
     if (isRead) {
-        card.style.background = "#f8fafc";
-        card.style.opacity = "0.75";
-        card.style.borderLeft = "4px solid #cbd5e1";
+        card.style.background = "rgba(255, 255, 255, 0.02)";
+        card.style.opacity = "0.65";
+        card.style.border = "1px solid rgba(255, 255, 255, 0.04)";
+        card.style.borderLeft = "4px solid #64748b";
     } else {
-        card.style.background = "#ffffff";
-        card.style.borderLeft = "4px solid var(--primary-color)";
+        card.style.background = "rgba(255, 255, 255, 0.04)";
+        card.style.border = "1px solid rgba(255, 255, 255, 0.08)";
+        card.style.borderLeft = "4px solid #4f46e5";
     }
+
+    const titleText = cleanMessage(notification.title);
+    const messageText = cleanMessage(notification.message);
 
     card.innerHTML = `
         <div class="card-body p-4">
@@ -158,10 +157,10 @@ function createNotificationCard(notification) {
                 <div class="flex-grow-1">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="fs-5">${typeInfo.icon}</span>
-                        <h6 class="mb-0 ${isRead ? "text-dark" : "fw-bold text-dark"}" style="font-size: 0.95rem;">${escapeHtml(notification.title)}</h6>
+                        <h6 class="mb-0 ${isRead ? "text-white-50" : "fw-bold text-white"}" style="font-size: 0.95rem;">${escapeHtml(titleText)}</h6>
                         <span class="badge py-1.5 px-2.5" style="${typeInfo.badgeStyle}">${typeInfo.label}</span>
                     </div>
-                    <p class="mb-2 ${isRead ? "text-muted" : "text-dark"}" style="font-size: 0.88rem; line-height: 1.5;">${escapeHtml(notification.message)}</p>
+                    <p class="mb-2 ${isRead ? "text-muted" : "text-white-50"}" style="font-size: 0.88rem; line-height: 1.5;">${escapeHtml(messageText)}</p>
                     <small class="text-muted d-block mt-2" style="font-size: 0.75rem;"><i class="bi bi-clock"></i> ${formattedDate}</small>
                 </div>
                 ${!isRead ? `<button class="btn btn-sm btn-outline-primary ms-3 mark-read-btn d-flex align-items-center gap-1 py-1.5 px-3" data-id="${notification.id}" style="border-radius: 8px; font-size: 0.8rem; font-weight: 600;"><i class="bi bi-check2"></i> Oxundu et</button>` : ""}
@@ -233,18 +232,21 @@ async function markAsRead(id, cardElement) {
 }
 
 function updateCardAsRead(cardElement) {
-    cardElement.style.background = "#f8fafc";
-    cardElement.style.opacity = "0.75";
-    cardElement.style.borderLeft = "4px solid #cbd5e1";
+    cardElement.style.background = "rgba(255, 255, 255, 0.02)";
+    cardElement.style.opacity = "0.65";
+    cardElement.style.border = "1px solid rgba(255, 255, 255, 0.04)";
+    cardElement.style.borderLeft = "4px solid #64748b";
 
     const title = cardElement.querySelector("h6");
     if (title) {
         title.classList.remove("fw-bold");
+        title.classList.remove("text-white");
+        title.classList.add("text-white-50");
     }
 
     const message = cardElement.querySelector("p");
     if (message) {
-        message.classList.remove("text-dark");
+        message.classList.remove("text-white-50");
         message.classList.add("text-muted");
     }
 
@@ -256,15 +258,15 @@ function updateCardAsRead(cardElement) {
 
 function getTypeInfo(type) {
     const typeMap = {
-        0: { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        1: { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(79, 70, 229, 0.08); color: var(--primary-color); border: 1px solid rgba(79, 70, 229, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        2: { label: "Sistem Bildirişi", icon: "⚙️", badgeStyle: "background: rgba(108, 117, 125, 0.08); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        "LowBalance": { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        "LoanStatus": { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(79, 70, 229, 0.08); color: var(--primary-color); border: 1px solid rgba(79, 70, 229, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        "System": { label: "Sistem Bildirişi", icon: "⚙️", badgeStyle: "background: rgba(108, 117, 125, 0.08); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" }
+        0: { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
+        1: { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
+        2: { label: "Sistem Bildirişi", icon: "⚙️", badgeStyle: "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
+        "LowBalance": { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
+        "LoanStatus": { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
+        "System": { label: "Sistem Bildirişi", icon: "⚙️", badgeStyle: "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" }
     };
 
-    return typeMap[type] || { label: String(type), icon: "🔔", badgeStyle: "background: rgba(108, 117, 125, 0.08); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.15); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" };
+    return typeMap[type] || { label: String(type), icon: "🔔", badgeStyle: "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" };
 }
 
 function formatDate(dateString) {

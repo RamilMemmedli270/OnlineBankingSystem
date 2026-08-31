@@ -7,6 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            var extra = !col ? '' : '\ncolumn: ' + col;
+            extra += !error ? '' : '\nerror: ' + error;
+            alert("Səhifədə JavaScript Xətası tapıldı:\n\n" + msg + "\n\nFayl: " + url + "\nSətir: " + line + extra);
+            return false;
+        };
+    </script>
 </head>
 <body class="dashboard-body">
 
@@ -19,7 +27,7 @@
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        <a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> İdarəetmə Paneli</a>
                     </li>
                     <li class="nav-item" id="navAccounts">
                         <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
@@ -78,9 +86,7 @@
 
             <!-- Header greeting -->
             <div class="mb-4 pb-2">
-                <!-- Hidden greeting span to prevent JS reference error -->
-                <span id="userGreeting" style="display: none;"></span>
-                <h2 class="fw-bold text-dark mb-1">Salam, <span id="fullNameDisplay">İstifadəçi</span>!</h2>
+                <h2 class="fw-bold text-white mb-1" id="userGreeting">Salam, <span id="fullNameDisplay">İstifadəçi</span>!</h2>
                 <p class="text-muted small">Vəsaitlərinizi zövqlə və sürətlə idarə edin.</p>
             </div>
 
@@ -137,7 +143,7 @@
                             <div class="row g-3 align-items-center d-none" id="accountCardActive">
                                 <!-- Virtual Visa Card -->
                                 <div class="col-md-6">
-                                    <div class="wallet-bank-card text-white p-4 d-flex flex-column justify-content-between" style="background: linear-gradient(135deg, #09090b 0%, #1e1b4b 55%, #4c1d95 100%); border-radius: 18px; min-height: 180px;">
+                                    <div class="wallet-bank-card floating-card text-white p-4 d-flex flex-column justify-content-between glass-card-mockup" style="border-radius: 18px; min-height: 180px;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="fw-bold fs-6">VISA</span>
                                             <span class="badge" style="background: rgba(255, 255, 255, 0.2);" id="firstAccType">Cari</span>
@@ -148,7 +154,7 @@
                                             <div class="font-monospace tracking-widest fs-6" id="firstAccNumber">•••• •••• •••• ••••</div>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-end">
-                                            <span class="small opacity-75">KART SAHİBİ</span>
+                                            <span class="small opacity-75" id="cardHolderName">KART SAHİBİ</span>
                                             <div class="d-flex" style="opacity: 0.85;">
                                                 <div style="width: 22px; height: 22px; background: rgba(255,255,255,0.3); border-radius: 50%; margin-right: -8px;"></div>
                                                 <div style="width: 22px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div>
@@ -160,7 +166,7 @@
                                 <div class="col-md-6 ps-md-4">
                                     <div class="mb-3">
                                         <span class="text-muted small d-block mb-1">Əsas Kart Balansı</span>
-                                        <h2 class="fw-bold mb-0 text-dark"><span id="firstAccBalance">0.00</span> <span class="fs-5 text-muted">AZN</span></h2>
+                                        <h2 class="fw-bold mb-0 text-white"><span id="firstAccBalance">0.00</span> <span class="fs-5 text-muted">AZN</span></h2>
                                     </div>
                                     <div class="mb-3">
                                         <span class="text-muted small d-block mb-1">Hesabın Statusu</span>
@@ -193,22 +199,37 @@
                             </div>
                         </div>
 
-                        <!-- Financial Analytics Chart -->
-                        <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9;">
+                        <!-- Financial Analytics Charts -->
+                        <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Maliyyə Analitikası</h5>
                                 <span class="badge bg-secondary">Son 6 ay</span>
                             </div>
                             
-                            <!-- Chart Active Container -->
-                            <div id="chartActive" class="d-none" style="position: relative; height: 220px; width: 100%;">
-                                <canvas id="analyticsChart"></canvas>
+                            <!-- Charts Active Container -->
+                            <div id="chartActive" class="d-none">
+                                <div class="row g-3">
+                                    <!-- Line Chart: Spending & Income Trends -->
+                                    <div class="col-md-7">
+                                        <div class="small text-muted mb-2">Gəlir və Xərc Dinamikası</div>
+                                        <div style="position: relative; height: 220px; width: 100%;">
+                                            <canvas id="analyticsChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <!-- Donut Chart: Expense Breakdown -->
+                                    <div class="col-md-5" style="border-left: 1px solid rgba(255,255,255,0.06);">
+                                        <div class="small text-muted mb-2 text-center">Əməliyyat Bölgüsü</div>
+                                        <div style="position: relative; height: 220px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                                            <canvas id="expenseBreakdownChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Chart Empty Container -->
+                            <!-- Charts Empty Container -->
                             <div id="chartEmpty" class="py-5 text-center text-muted d-none">
                                 <div class="mb-3" style="font-size: 2.5rem; opacity: 0.6;"><i class="bi bi-bar-chart"></i></div>
-                                <h6 class="fw-semibold mb-1 text-dark" style="font-size: 0.95rem;">Analitika üçün kifayət qədər məlumat yoxdur</h6>
+                                <h6 class="fw-semibold mb-1 text-white" style="font-size: 0.95rem;">Analitika üçün kifayət qədər məlumat yoxdur</h6>
                                 <p class="small text-muted mb-0">Hesab yaradıb əməliyyat etdikdən sonra burada gəlir/xərc qrafiki göstəriləcək.</p>
                             </div>
                         </div>
@@ -228,75 +249,6 @@
                             <div id="noTransactionsMsg" class="text-muted text-center py-5 d-none">
                                 <div class="mb-3" style="font-size: 2rem; opacity: 0.5;"><i class="bi bi-clock-history"></i></div>
                                 <div class="small fw-semibold">Hələ heç bir əməliyyatınız yoxdur.</div>
-                            </div>
-                        </div>
-
-                        <!-- Currency Converter Card -->
-                        <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9;">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <i class="bi bi-currency-exchange text-primary fs-5"></i>
-                                <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Məzənnələr & Kalkulyator</h5>
-                            </div>
-                            
-                            <!-- Exchange Rates Table -->
-                            <div class="table-responsive mb-3">
-                                <table class="table table-sm table-borderless align-middle mb-0" style="font-size: 0.85rem;">
-                                    <thead>
-                                        <tr class="text-muted" style="border-bottom: 1px solid #f1f5f9;">
-                                            <th>Valyuta</th>
-                                            <th class="text-end">Alış</th>
-                                            <th class="text-end">Satış</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="ratesTableBody">
-                                        <tr>
-                                            <td class="fw-semibold">🇺🇸 USD</td>
-                                            <td class="text-end text-success" id="rateUsdBuy">1.6970</td>
-                                            <td class="text-end text-danger" id="rateUsdSell">1.7030</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-semibold">🇪🇺 EUR</td>
-                                            <td class="text-end text-success" id="rateEurBuy">1.8380</td>
-                                            <td class="text-end text-danger" id="rateEurSell">1.8490</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-semibold">🇷🇺 RUB</td>
-                                            <td class="text-end text-success" id="rateRubBuy">0.0180</td>
-                                            <td class="text-end text-danger" id="rateRubSell">0.0189</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <!-- Converter Form -->
-                            <div class="converter-box p-3 bg-light rounded-3" style="border: 1px solid #f1f5f9;">
-                                <div class="mb-2">
-                                    <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Məbləğ</label>
-                                    <input type="number" id="convertAmount" class="form-control form-control-sm" placeholder="Məbləğ daxil edin" value="100">
-                                </div>
-                                <div class="row g-2 mb-2">
-                                    <div class="col-6">
-                                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Haradan</label>
-                                        <select id="convertFrom" class="form-select form-select-sm">
-                                            <option value="AZN" selected>AZN</option>
-                                            <option value="USD">USD</option>
-                                            <option value="EUR">EUR</option>
-                                            <option value="RUB">RUB</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label text-muted mb-1" style="font-size: 0.75rem;">Haraya</label>
-                                        <select id="convertTo" class="form-select form-select-sm">
-                                            <option value="AZN">AZN</option>
-                                            <option value="USD" selected>USD</option>
-                                            <option value="EUR">EUR</option>
-                                            <option value="RUB">RUB</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="convertResult" class="text-center fw-bold text-primary mt-2 p-2 bg-white rounded shadow-sm" style="font-size: 0.95rem; border: 1px solid #f1f5f9;">
-                                    100.00 AZN = 58.82 USD
-                                </div>
                             </div>
                         </div>
                     </div>

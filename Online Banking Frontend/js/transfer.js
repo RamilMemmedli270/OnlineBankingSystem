@@ -19,7 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
             "navTransactions",
             "navLoans",
             "navNotifications",
-            "navBalanceAlert"
+            "navBalanceAlert",
+            "navSavingsGoal"
         ];
 
         customerNavItems.forEach(id => {
@@ -58,14 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (internalBtn && externalBtn) {
         internalBtn.addEventListener("click", function() {
             internalBtn.classList.add("active");
-            internalBtn.style.background = "#ffffff";
-            internalBtn.style.color = "var(--primary-color)";
-            internalBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.05)";
-
             externalBtn.classList.remove("active");
-            externalBtn.style.background = "transparent";
-            externalBtn.style.color = "#64748b";
-            externalBtn.style.boxShadow = "none";
 
             if (toAccountSelectWrapper) toAccountSelectWrapper.classList.remove("d-none");
             if (toAccountNumberWrapper) toAccountNumberWrapper.classList.add("d-none");
@@ -76,14 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         externalBtn.addEventListener("click", function() {
             externalBtn.classList.add("active");
-            externalBtn.style.background = "#ffffff";
-            externalBtn.style.color = "var(--primary-color)";
-            externalBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.05)";
-
             internalBtn.classList.remove("active");
-            internalBtn.style.background = "transparent";
-            internalBtn.style.color = "#64748b";
-            internalBtn.style.boxShadow = "none";
 
             if (toAccountNumberWrapper) toAccountNumberWrapper.classList.remove("d-none");
             if (toAccountSelectWrapper) toAccountSelectWrapper.classList.add("d-none");

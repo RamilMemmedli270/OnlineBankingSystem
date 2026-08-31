@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
             "navTransactions",
             "navLoans",
             "navNotifications",
-            "navBalanceAlert"
+            "navBalanceAlert",
+            "navSavingsGoal"
         ];
 
         customerNavItems.forEach(id => {
@@ -368,16 +369,16 @@ function renderTransactionsList(transactions, accountId) {
         const row = document.createElement("tr");
         row.dataset.direction = direction;
 
-        let badgeStyle = "background: rgba(108, 117, 125, 0.08); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
+        let badgeStyle = "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
         let icon = "⚙️";
         if (t.transactionType === 0) {
-            badgeStyle = "background: rgba(79, 70, 229, 0.08); color: var(--primary-color); border: 1px solid rgba(79, 70, 229, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
+            badgeStyle = "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
             icon = "💸";
         } else if (t.transactionType === 1) {
-            badgeStyle = "background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
+            badgeStyle = "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
             icon = "💰";
         } else if (t.transactionType === 2) {
-            badgeStyle = "background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
+            badgeStyle = "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; font-size: 0.75rem; border-radius: 8px;";
             icon = "💳";
         }
 
@@ -385,14 +386,14 @@ function renderTransactionsList(transactions, accountId) {
 
         row.innerHTML = `
             <td style="padding-left: 15px;">
-                <div class="fw-semibold text-dark" style="font-size: 0.85rem;">${dateStr}</div>
+                <div class="fw-semibold text-white" style="font-size: 0.85rem;">${dateStr}</div>
                 <div class="text-muted" style="font-size: 0.72rem;">${timeStr}</div>
             </td>
             <td><span class="badge py-2 px-3" style="${badgeStyle}">${icon} ${typeLabel}</span></td>
-            <td style="font-family: monospace; font-size: 0.85rem; color: #475569; font-weight: 500;">${counterparty}</td>
+            <td style="font-family: monospace; font-size: 0.85rem; color: #cbd5e1; font-weight: 500;">${counterparty}</td>
             <td class="fw-bold ${amountClass}" style="font-size: 0.95rem;">${amountSign}${(t.amount ?? 0).toFixed(2)} AZN</td>
             <td style="padding-right: 15px;">
-                <span class="badge bg-light text-secondary py-2 px-3 fw-semibold" style="border: 1px solid #e2e8f0; font-size: 0.82rem; border-radius: 8px;">${(balanceToShow ?? 0).toFixed(2)} AZN</span>
+                <span class="badge py-2 px-3 fw-semibold text-white" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.82rem; border-radius: 8px;">${(balanceToShow ?? 0).toFixed(2)} AZN</span>
             </td>
         `;
 
@@ -411,11 +412,15 @@ function showAlert(message, type = "danger") {
 }
 
 function getDisplayBalance(transaction, accountId) {
-    if (Number(transaction.toAccountId) === Number(accountId)) {
-        return transaction.toBalanceSnapshot ?? 0;
+    if (transaction.toAccountId != null && Number(transaction.toAccountId) === Number(accountId)) {
+        if (transaction.toBalanceSnapshot != null && transaction.toBalanceSnapshot !== 0) {
+            return transaction.toBalanceSnapshot;
+        }
     }
-    if (Number(transaction.fromAccountId) === Number(accountId)) {
-        return transaction.fromBalanceSnapshot ?? 0;
+    if (transaction.fromAccountId != null && Number(transaction.fromAccountId) === Number(accountId)) {
+        if (transaction.fromBalanceSnapshot != null && transaction.fromBalanceSnapshot !== 0) {
+            return transaction.fromBalanceSnapshot;
+        }
     }
-    return 0;
+    return transaction.toBalanceSnapshot ?? transaction.fromBalanceSnapshot ?? transaction.balanceSnapshot ?? 0;
 }

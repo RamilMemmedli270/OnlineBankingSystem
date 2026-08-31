@@ -69,12 +69,19 @@ public class AccountService : IAccountService
     {
         string accountNumber;
         Account? existing;
+        var random = new Random();
         do
         {
-            accountNumber = "AZ" + Guid.NewGuid().ToString("N").Substring(0, 10).ToUpper();
+            string digits = "";
+            for (int i = 0; i < 16; i++) 
+            {
+                digits += random.Next(0, 10).ToString();
+            }
+            accountNumber = digits;
             existing = await _accountRepository.GetByAccountNumberAsync(accountNumber);
         }
         while (existing != null);
+
         return accountNumber;
     }
 }

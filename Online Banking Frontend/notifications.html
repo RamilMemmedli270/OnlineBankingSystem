@@ -19,7 +19,7 @@
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> İdarəetmə Paneli</a>
                     </li>
                     <li class="nav-item" id="navAccounts">
                         <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
@@ -38,6 +38,9 @@
                     </li>
                     <li class="nav-item" id="navBalanceAlert">
                         <a class="nav-link" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
+                    </li>
+                    <li class="nav-item" id="navSavingsGoal">
+                        <a class="nav-link" href="savings-goal.html"><i class="bi bi-bullseye"></i> Yığım Hədəfi</a>
                     </li>
                     <li class="nav-item" id="adminLinkWrapper" style="display:none;">
                         <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
@@ -73,16 +76,16 @@
 
             <!-- Header greeting -->
             <div class="mb-4 pb-2">
-                <h2 class="fw-bold text-dark mb-1">Bildirişlər</h2>
+                <h2 class="fw-bold text-white mb-1">Bildirişlər</h2>
                 <p class="text-muted small">Hesabınızla bağlı vacib bildirişlərə buradan nəzər yetirin.</p>
             </div>
 
             <!-- Tabs Selection (Pills Segment) -->
-            <div class="d-inline-flex p-1 mb-4" style="background: #f1f5f9; border-radius: 14px; border: 1px solid #e2e8f0;">
-                <button class="btn btn-sm active fw-bold py-2 px-4 d-flex align-items-center gap-2" id="tabAll" data-filter="all" style="border-radius: 10px; border: none; font-size: 0.85rem; transition: all 0.2s; background: #ffffff; color: var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="d-inline-flex p-1 mb-4 segment-toggle-container">
+                <button class="btn btn-sm segment-toggle-btn active fw-bold py-2 px-4 d-flex align-items-center gap-2" id="tabAll" data-filter="all">
                     <i class="bi bi-envelope-open"></i> Bütün Bildirişlər
                 </button>
-                <button class="btn btn-sm fw-bold py-2 px-4 d-flex align-items-center gap-2 text-muted" id="tabUnread" data-filter="unread" style="border-radius: 10px; border: none; font-size: 0.85rem; transition: all 0.2s; background: transparent;">
+                <button class="btn btn-sm segment-toggle-btn fw-bold py-2 px-4 d-flex align-items-center gap-2" id="tabUnread" data-filter="unread">
                     <i class="bi bi-envelope-exclamation"></i> Oxunmamışlar
                 </button>
             </div>

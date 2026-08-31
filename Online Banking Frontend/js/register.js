@@ -51,3 +51,26 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         errorBox.classList.remove("d-none");
     }
 });
+
+// Toggle Password Visibility
+function setupPasswordToggle(btnId, inputId, iconId) {
+    const btn = document.getElementById(btnId);
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+
+    if (btn && input && icon) {
+        btn.addEventListener("click", function () {
+            const isPassword = input.getAttribute("type") === "password";
+            input.setAttribute("type", isPassword ? "text" : "password");
+            
+            if (isPassword) {
+                icon.classList.replace("bi-eye-slash-fill", "bi-eye-fill");
+            } else {
+                icon.classList.replace("bi-eye-fill", "bi-eye-slash-fill");
+            }
+        });
+    }
+}
+
+setupPasswordToggle("togglePasswordBtn1", "password", "togglePasswordIcon1");
+setupPasswordToggle("togglePasswordBtn2", "confirmPassword", "togglePasswordIcon2");

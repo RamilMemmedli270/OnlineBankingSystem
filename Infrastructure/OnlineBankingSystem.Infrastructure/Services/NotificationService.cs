@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using OnlineBankingSystem.Contract.Abstractions;
 using OnlineBankingSystem.Contract.Dtos;
 using OnlineBankingSystem.Domain.Entities;
@@ -61,7 +61,7 @@ public class NotificationService : INotificationService
         {
             UserId = userId,
             Title = "Aşağı Balans Xəbərdarlığı",
-            Message = $"Hesabınızın balансı {currentBalance} AZN-dir, bu, təyin etdiyiniz həddən aşağıdır.",
+            Message = $"Hesabınızın balansı {currentBalance:0.00} AZN-dir, bu, təyin etdiyiniz həddən aşağıdır.",
             Type = NotificationType.LowBalance,
             IsRead = false
         };
