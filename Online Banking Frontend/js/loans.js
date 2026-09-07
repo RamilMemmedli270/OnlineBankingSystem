@@ -53,13 +53,13 @@ async function handleSubmit(e) {
 
     formAlertBox.classList.add("d-none");
 
-    if (!amount || amount <= 0) {
-        showFormAlert("Məbləğ 0-dan böyük olmalıdır.", "danger");
+    if (!amount || amount < 100 || amount > 50000) {
+        showFormAlert("Kredit məbləği 100 AZN ilə 50,000 AZN arasında olmalıdır.", "danger");
         return;
     }
 
-    if (!term || term <= 0) {
-        showFormAlert("Müddət 0-dan böyük olmalıdır.", "danger");
+    if (!term || term < 3 || term > 48) {
+        showFormAlert("Kredit müddəti 3 ilə 48 ay arasında olmalıdır.", "danger");
         return;
     }
 
@@ -234,7 +234,7 @@ function renderLoansList(loans) {
         const formattedDate = formatDate(loan.createdAt);
 
         let reviewedInfo = "";
-        if (loan.reviewedAt || loan.reviewedBy) {
+        if (loan.reviewedAt || loan.reviewedBy || loan.rejectionReason) {
             reviewedInfo += `
                 <div class="border-top border-dashed pt-3 mt-3" style="border-top: 1.5px dashed var(--border-color) !important;">
             `;
@@ -242,15 +242,24 @@ function renderLoansList(loans) {
                 reviewedInfo += `
                     <div class="d-flex justify-content-between mb-1">
                         <span class="text-muted small">Baxılma Tarixi:</span>
-                        <span class="small fw-semibold text-dark">${formatDate(loan.reviewedAt)}</span>
+                        <span class="small fw-semibold text-white">${formatDate(loan.reviewedAt)}</span>
                     </div>
                 `;
             }
             if (loan.reviewedBy) {
+                const managerDisplay = (loan.reviewedBy.length > 20 || loan.reviewedBy.includes("-")) ? "Kredit Meneceri" : escapeHtml(loan.reviewedBy);
                 reviewedInfo += `
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mb-1">
                         <span class="text-muted small">Baxan Menecer:</span>
-                        <span class="small fw-semibold text-dark">${escapeHtml(loan.reviewedBy)}</span>
+                        <span class="small fw-semibold text-white">${managerDisplay}</span>
+                    </div>
+                `;
+            }
+            if (loan.rejectionReason) {
+                reviewedInfo += `
+                    <div class="mt-2 p-2 rounded" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <span class="text-danger small fw-bold d-block"><i class="bi bi-info-circle-fill me-1"></i> İmtina Səbəbi:</span>
+                        <span class="text-danger small">${escapeHtml(loan.rejectionReason)}</span>
                     </div>
                 `;
             }
@@ -281,14 +290,14 @@ function renderLoansList(loans) {
                                 <span class="text-muted mt-0.5"><i class="bi bi-chat-left-quote"></i></span>
                                 <div>
                                     <span class="text-muted small d-block">Kreditin Məqsədi</span>
-                                    <span class="text-dark fw-medium">${escapeHtml(loan.reason)}</span>
+                                    <span class="text-white fw-medium">${escapeHtml(loan.reason)}</span>
                                 </div>
                             </div>
                             <div class="d-flex align-items-start gap-2 mt-2">
                                 <span class="text-muted mt-0.5"><i class="bi bi-calendar-event"></i></span>
                                 <div>
                                     <span class="text-muted small d-block">Müraciət Tarixi</span>
-                                    <span class="text-dark fw-medium">${formattedDate}</span>
+                                    <span class="text-white fw-medium">${formattedDate}</span>
                                 </div>
                             </div>
                         </div>

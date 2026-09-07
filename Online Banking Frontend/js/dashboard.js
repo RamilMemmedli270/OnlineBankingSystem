@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const adminLinkWrapper = document.getElementById("adminLinkWrapper");
         if (adminLinkWrapper) adminLinkWrapper.style.display = "block";
 
-        ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert"]
+        ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert", "navSavingsGoal"]
             .forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = "none";

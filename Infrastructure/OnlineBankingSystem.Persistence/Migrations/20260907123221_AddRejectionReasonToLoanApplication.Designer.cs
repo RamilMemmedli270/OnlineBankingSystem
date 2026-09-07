@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineBankingSystem.Persistence.Data;
 
@@ -11,9 +12,11 @@ using OnlineBankingSystem.Persistence.Data;
 namespace OnlineBankingSystem.Persistence.Migrations
 {
     [DbContext(typeof(OnlineBankingDbContext))]
-    partial class OnlineBankingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260907123221_AddRejectionReasonToLoanApplication")]
+    partial class AddRejectionReasonToLoanApplication
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -97,16 +97,18 @@
                             <label for="amount" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Məbləğ (AZN)</label>
                             <div class="input-group input-group-unified">
                                 <span class="input-group-text text-muted">₼</span>
-                                <input type="number" class="form-control" id="amount" min="0.01" step="0.01" placeholder="Məs. 1000" style="padding: 10px 14px;" required>
+                                <input type="number" class="form-control" id="amount" min="100" max="50000" step="0.01" placeholder="Məs. 1000" style="padding: 10px 14px;" required>
                             </div>
+                            <div class="form-text text-muted" style="font-size: 0.75rem;">Min: 100 ₼ — Max: 50,000 ₼</div>
                         </div>
 
                         <div class="col-md-4">
                             <label for="term" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Müddət (ay)</label>
                             <div class="input-group input-group-unified">
                                 <span class="input-group-text text-muted"><i class="bi bi-calendar-range"></i></span>
-                                <input type="number" class="form-control" id="term" min="1" step="1" placeholder="Məs. 12" style="padding: 10px 14px;" required>
+                                <input type="number" class="form-control" id="term" min="3" max="48" step="1" placeholder="Məs. 12" style="padding: 10px 14px;" required>
                             </div>
+                            <div class="form-text text-muted" style="font-size: 0.75rem;">Min: 3 ay — Max: 48 ay</div>
                         </div>
 
                         <div class="col-md-4">

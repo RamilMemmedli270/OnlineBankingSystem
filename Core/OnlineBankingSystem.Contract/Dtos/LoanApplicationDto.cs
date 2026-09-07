@@ -1,4 +1,4 @@
-﻿using OnlineBankingSystem.Domain.Enums;
+using OnlineBankingSystem.Domain.Enums;
 
 namespace OnlineBankingSystem.Contract.Dtos;
 
@@ -11,4 +11,5 @@ public record LoanApplicationDto : BaseDto
     public LoanStatus Status { get; init; }
     public DateTime? ReviewedAt { get; init; }
     public string? ReviewedBy { get; init; }
+    public string? RejectionReason { get; init; }
 }

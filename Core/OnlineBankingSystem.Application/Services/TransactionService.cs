@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using OnlineBankingSystem.Contract.Abstractions;
 using OnlineBankingSystem.Contract.Dtos;
@@ -84,6 +84,7 @@ public class TransactionService : ITransactionService
             await _transactionRepository.AddAsync(transaction);
 
             await _notificationService.CheckAndSendLowBalanceAlertAsync(fromAccount.UserId, fromAccount.Balance);
+            await _notificationService.SendTransferReceivedNotificationAsync(toAccount.UserId, dto.Amount, fromAccount.AccountNumber, toAccount.Balance);
 
             await _unitOfWork.SaveChangesAsync();
             await dbTransaction.CommitAsync();
@@ -132,6 +133,7 @@ public class TransactionService : ITransactionService
             };
 
             await _transactionRepository.AddAsync(transaction);
+            await _notificationService.SendDepositNotificationAsync(account.UserId, dto.Amount, account.Balance);
             await _unitOfWork.SaveChangesAsync();
             await dbTransaction.CommitAsync();
 

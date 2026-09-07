@@ -336,24 +336,31 @@ function renderLoans(loans) {
         `;
 
         row.querySelector(".approve-btn").addEventListener("click", function () {
-            reviewLoan(loan.id, 1, "Bu kredit müraciətini təsdiqləmək istədiyinizə əminsiniz?");
+            if (confirm("Bu kredit müraciətini təsdiqləmək istədiyinizə əminsiniz? Məbləğ avtomatik olaraq müştərinin hesabına köçürüləcək.")) {
+                reviewLoan(loan.id, 1);
+            }
         });
 
         row.querySelector(".decline-btn").addEventListener("click", function () {
-            reviewLoan(loan.id, 2, "Bu kredit müraciətini rədd etmək istədiyinizə əminsiniz?");
+            const reason = prompt("Zəhmət olmasa imtina səbəbini qeyd edin (məsələn: Gəlir kifayət deyil):");
+            if (reason === null) return; // Admin cancelled prompt
+            reviewLoan(loan.id, 2, reason);
         });
 
         tbody.appendChild(row);
     });
 }
 
-async function reviewLoan(id, status, confirmMsg) {
-    if (!confirm(confirmMsg)) return;
-
+async function reviewLoan(id, status, rejectionReason = null) {
     try {
+        const payload = { status };
+        if (rejectionReason && rejectionReason.trim().length > 0) {
+            payload.rejectionReason = rejectionReason.trim();
+        }
+
         const response = await apiFetch(`${API_BASE_URL}/loanapplication/${id}/review`, {
             method: "PATCH",
-            body: JSON.stringify({ status })
+            body: JSON.stringify(payload)
         });
         if (!response) return;
 
@@ -363,7 +370,7 @@ async function reviewLoan(id, status, confirmMsg) {
             throw new Error(errorData.message || "Kredit müraciəti baxıla bilmədi.");
         }
 
-        showGlobalAlert("Kredit müraciəti uğurla yeniləndi", "success");
+        showGlobalAlert(status === 1 ? "Kredit təsdiqləndi və vəsait müştərinin hesabına köçürüldü!" : "Kredit müraciətinə imtina edildi.", "success");
         loansData = [];
         loadLoans();
 

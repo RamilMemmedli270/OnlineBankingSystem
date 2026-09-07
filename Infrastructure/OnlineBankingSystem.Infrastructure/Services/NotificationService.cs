@@ -67,6 +67,33 @@ public class NotificationService : INotificationService
         };
 
         await _notificationRepository.AddAsync(notification);
-       
+    }
+
+    public async Task SendTransferReceivedNotificationAsync(string userId, decimal amount, string fromAccountNumber, decimal newBalance)
+    {
+        var notification = new Notification
+        {
+            UserId = userId,
+            Title = "Mədaxil Bildirişi",
+            Message = $"Hesabınıza {amount:0.00} AZN vəsait daxil oldu. Göndərən hesab: {fromAccountNumber}. Cari balans: {newBalance:0.00} AZN.",
+            Type = NotificationType.System,
+            IsRead = false
+        };
+
+        await _notificationRepository.AddAsync(notification);
+    }
+
+    public async Task SendDepositNotificationAsync(string userId, decimal amount, decimal newBalance)
+    {
+        var notification = new Notification
+        {
+            UserId = userId,
+            Title = "Balans Artırıldı",
+            Message = $"Hesabınıza {amount:0.00} AZN nağd vəsait yükləndi. Cari balans: {newBalance:0.00} AZN.",
+            Type = NotificationType.System,
+            IsRead = false
+        };
+
+        await _notificationRepository.AddAsync(notification);
     }
 }

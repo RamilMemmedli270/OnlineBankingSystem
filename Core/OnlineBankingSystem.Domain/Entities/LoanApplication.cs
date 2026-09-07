@@ -1,4 +1,4 @@
-﻿using OnlineBankingSystem.Domain.Enums;
+using OnlineBankingSystem.Domain.Enums;
 
 namespace OnlineBankingSystem.Domain.Entities;
 
@@ -12,4 +12,5 @@ public class LoanApplication : BaseEntity
     public LoanStatus Status { get; set; } = LoanStatus.Pending;
     public DateTime? ReviewedAt { get; set; }
     public string? ReviewedBy { get; set; }
+    public string? RejectionReason { get; set; }
 }

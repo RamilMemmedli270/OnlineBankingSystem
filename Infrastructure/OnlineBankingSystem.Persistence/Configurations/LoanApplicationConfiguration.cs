@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OnlineBankingSystem.Domain.Entities;
 
@@ -14,6 +14,9 @@ public class LoanApplicationConfiguration : IEntityTypeConfiguration<LoanApplica
             .HasColumnType("decimal(18,2)");
 
         builder.Property(l => l.Reason)
+            .HasMaxLength(500);
+
+        builder.Property(l => l.RejectionReason)
             .HasMaxLength(500);
 
         builder.HasOne(l => l.User)

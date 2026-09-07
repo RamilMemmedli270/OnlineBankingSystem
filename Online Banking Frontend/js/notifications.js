@@ -127,7 +127,7 @@ function cleanMessage(text) {
 }
 
 function createNotificationCard(notification) {
-    const typeInfo = getTypeInfo(notification.type);
+    const typeInfo = getTypeInfo(notification.type, notification.title);
     const isRead = notification.isRead === true;
     const formattedDate = formatDate(notification.createdAt);
 
@@ -256,7 +256,11 @@ function updateCardAsRead(cardElement) {
     }
 }
 
-function getTypeInfo(type) {
+function getTypeInfo(type, title) {
+    if (title && (title.includes("Mədaxil") || title.includes("Balans Artırıldı"))) {
+        return { label: "Mədaxil", icon: "💸", badgeStyle: "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" };
+    }
+
     const typeMap = {
         0: { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
         1: { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
