@@ -18,14 +18,14 @@ public class SavingsGoalConfiguration : IEntityTypeConfiguration<SavingsGoal>
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
+        builder.Property(sg => sg.CurrentAmount)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0)
+            .IsRequired();
+
         builder.HasOne(sg => sg.User)
             .WithMany()
             .HasForeignKey(sg => sg.UserId)
-            .OnDelete(DeleteBehavior.Cascade); 
-
-        builder.HasOne(sg => sg.Account)
-            .WithMany()
-            .HasForeignKey(sg => sg.AccountId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -181,7 +181,7 @@ function renderAccounts(accounts) {
                 <div class="card-body d-flex flex-column justify-content-between p-4 position-relative" style="z-index: 2; height: 100%;">
                     <!-- Top Row: Logo & Badges -->
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold tracking-wider" style="font-size: 1.1rem; opacity: 0.95; letter-spacing: 1px;">🏦 Online Banking</span>
+                        <span class="fw-bold tracking-wider" style="font-size: 1.1rem; opacity: 0.95; letter-spacing: 1px;">🪙 QəpikPay</span>
                         <div class="d-flex gap-2">
                             <span class="badge" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); font-weight: 500; font-size: 0.75rem;">${typeLabel}</span>
                             <span class="badge ${statusClass}" style="font-size: 0.75rem;">${statusLabel}</span>

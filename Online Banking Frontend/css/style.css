@@ -125,34 +125,47 @@ body {
     border-left: 3px solid var(--primary-indigo);
 }
 
-/* InvestBank Specific Sidebar (Dark Theme matching dashboard.html layout) */
+/* QəpikPay Specific Sidebar (Dark Theme matching layout) */
 .invest-sidebar {
     width: 260px;
     min-width: 260px;
-    background-color: #0f172a;
+    background-color: #090d16;
     color: #cbd5e1;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 24px;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .invest-sidebar .sidebar-logo {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #ffffff;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     letter-spacing: -0.025em;
+}
+
+.sidebar-brand-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
 }
 
 .invest-sidebar .nav-link {
     color: #94a3b8;
-    padding: 10px 14px;
-    border-radius: 10px;
+    padding: 11px 16px;
+    border-radius: 12px;
     margin-bottom: 6px;
     font-weight: 500;
     display: flex;
@@ -171,9 +184,10 @@ body {
 }
 
 .invest-sidebar .nav-link.active {
-    color: #ffffff;
-    background-color: var(--accent-color);
-    font-weight: 600;
+    color: #000000;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
 }
 
 .invest-sidebar .sidebar-profile-card {
@@ -183,13 +197,13 @@ body {
     padding: 14px;
     background-color: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
+    border-radius: 14px;
     margin-top: auto;
     transition: background-color 0.2s ease;
 }
 
 .invest-sidebar .sidebar-profile-card:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 .invest-sidebar .profile-avatar {
@@ -197,12 +211,13 @@ body {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
-    background-color: var(--accent-color);
-    color: #ffffff;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .invest-sidebar .profile-info {
@@ -874,12 +889,13 @@ body.dashboard-body {
     filter: invert(1) grayscale(1) brightness(2);
 }
 
-/* Glowing Neon effects for Sidebar Active Menu and credit card (Design 3 style) */
+/* Glowing Gold effects for Sidebar Active Menu and credit card */
 .dashboard-body .invest-sidebar .nav-link.active {
-    background-color: rgba(99, 102, 241, 0.15) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(99, 102, 241, 0.3) !important;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.25) !important;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35) !important;
 }
 
 .dashboard-body .glass-card-mockup {

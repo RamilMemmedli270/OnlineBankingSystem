@@ -367,7 +367,7 @@ function handleSourceAccountChange() {
         <div class="card shadow text-white border-0 position-relative overflow-hidden p-3" style="background: ${cardGradient}; border-radius: 12px; min-height: 120px; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;">
             <div class="position-absolute w-100 h-100" style="background: linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0)); top:0; left:0; pointer-events:none;"></div>
             <div class="d-flex justify-content-between align-items-start mb-2" style="position: relative; z-index: 2;">
-                <span class="fw-bold">🏦 Online Banking</span>
+                <span class="fw-bold">🪙 QəpikPay</span>
                 <span class="badge" style="background: rgba(255,255,255,0.25);">${typeLabel}</span>
             </div>
             <div class="mb-2" style="position: relative; z-index: 2;">

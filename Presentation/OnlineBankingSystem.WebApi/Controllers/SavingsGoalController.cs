@@ -8,7 +8,7 @@ namespace OnlineBankingSystem.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Roles = "Customer")] 
+[Authorize(Roles = "Customer")]
 public class SavingsGoalController : ControllerBase
 {
     private readonly ISavingsGoalService _savingsGoalService;
@@ -29,6 +29,25 @@ public class SavingsGoalController : ControllerBase
         return Ok(goals);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+            return Unauthorized();
+
+        try
+        {
+            var goal = await _savingsGoalService.GetByIdAsync(userId, id);
+            if (goal == null) return NotFound(new { message = "Yığım qutusu tapılmadı." });
+            return Ok(goal);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateSavingsGoalDto dto)
     {
@@ -47,6 +66,42 @@ public class SavingsGoalController : ControllerBase
         }
     }
 
+    [HttpPost("{id}/topup")]
+    public async Task<IActionResult> TopUp(int id, TopUpSavingsGoalDto dto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+            return Unauthorized();
+
+        try
+        {
+            var result = await _savingsGoalService.TopUpAsync(userId, id, dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id}/withdraw")]
+    public async Task<IActionResult> Withdraw(int id, WithdrawSavingsGoalDto dto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+            return Unauthorized();
+
+        try
+        {
+            var result = await _savingsGoalService.WithdrawAsync(userId, id, dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -57,7 +112,7 @@ public class SavingsGoalController : ControllerBase
         try
         {
             await _savingsGoalService.DeleteAsync(userId, id);
-            return Ok(new { message = "Yığım hədəfi uğurla silindi" });
+            return Ok(new { message = "Yığım qutusu uğurla silindi və qalıq məbləğ hesabınıza qaytarıldı." });
         }
         catch (Exception ex)
         {

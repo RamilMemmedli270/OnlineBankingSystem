@@ -31,21 +31,12 @@ public class SavingsGoalRepository : ISavingsGoalRepository
     public async Task<SavingsGoal?> GetByIdAsync(int id)
     {
         return await _context.SavingsGoals
-            .Include(sg => sg.Account)
             .FirstOrDefaultAsync(sg => sg.Id == id);
-    }
-
-    public async Task<SavingsGoal?> GetByAccountIdAsync(int accountId)
-    {
-        return await _context.SavingsGoals
-            .Include(sg => sg.Account)
-            .FirstOrDefaultAsync(sg => sg.AccountId == accountId);
     }
 
     public async Task<IEnumerable<SavingsGoal>> GetByUserIdAsync(string userId)
     {
         return await _context.SavingsGoals
-            .Include(sg => sg.Account)
             .Where(sg => sg.UserId == userId)
             .ToListAsync();
     }
