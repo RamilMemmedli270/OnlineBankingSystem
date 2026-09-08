@@ -2,43 +2,71 @@ let currentFilter = "all";
 let allNotifications = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
 
     if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    // --- Admin üçün sidebar məhdudiyyəti və direct URL girişindən qorunma ---
-    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
+    const roles = getAuthRoles();
 
-    // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
     if (roles.includes("Admin") && !roles.includes("Customer")) {
-        window.location.href = "dashboard.html";
+        window.location.href = "admin.html";
         return;
     }
 
-    if (roles.includes("Admin")) {
-        const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert", "navSavingsGoal"];
-        restrictedNavIds.forEach(function (id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.style.display = "none";
-            }
+    // User Profile in Navbar & Sidebar
+    const fullName = getAuthFullName();
+    const avatarLetter = fullName.charAt(0).toUpperCase();
+
+    const topAvatar = document.getElementById("topAvatar") || document.getElementById("userAvatar");
+    const headerFullName = document.getElementById("headerFullName") || document.getElementById("userFullName");
+    const fullNameDisplay = document.getElementById("fullNameDisplay");
+    const sidebarRole = document.getElementById("sidebarRole") || document.getElementById("userRole");
+    const adminLinkWrapper = document.getElementById("adminLinkWrapper") || document.getElementById("adminNavWrapper");
+
+    if (topAvatar) topAvatar.textContent = avatarLetter;
+    if (headerFullName) headerFullName.textContent = fullName;
+    if (fullNameDisplay) fullNameDisplay.textContent = fullName;
+    if (sidebarRole) sidebarRole.textContent = roles.includes("Admin") ? "Administrator" : "Müştəri";
+    if (adminLinkWrapper && roles.includes("Admin")) {
+        adminLinkWrapper.style.display = "block";
+    }
+
+    const logoutAction = (e) => {
+        e.preventDefault();
+        clearAuth();
+        window.location.href = "index.html";
+    };
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const dashLogoutBtn = document.getElementById("dashLogoutBtn");
+    const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+
+    if (logoutBtn) logoutBtn.addEventListener("click", logoutAction);
+    if (dashLogoutBtn) dashLogoutBtn.addEventListener("click", logoutAction);
+    if (dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", logoutAction);
+
+
+
+    // Tab buttons
+    const tabAll = document.getElementById("tabAll");
+    const tabUnread = document.getElementById("tabUnread");
+    if (tabAll) {
+        tabAll.addEventListener("click", function () {
+            setActiveTab("all");
+            loadNotifications("all");
         });
     }
-    // --- /Admin məhdudiyyəti ---
+    if (tabUnread) {
+        tabUnread.addEventListener("click", function () {
+            setActiveTab("unread");
+            loadNotifications("unread");
+        });
+    }
 
-    document.getElementById("tabAll").addEventListener("click", function () {
-        setActiveTab("all");
-        loadNotifications("all");
-    });
-
-    document.getElementById("tabUnread").addEventListener("click", function () {
-        setActiveTab("unread");
-        loadNotifications("unread");
-    });
-
+    // Search filter
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         searchInput.addEventListener("input", function () {
@@ -65,18 +93,19 @@ function setActiveTab(filter) {
 }
 
 async function loadNotifications(filter) {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const container = document.getElementById("notificationsContainer");
     const emptyState = document.getElementById("emptyState");
-    const emptyStateText = document.getElementById("emptyStateText");
     const loadingState = document.getElementById("loadingState");
     const alertBox = document.getElementById("alertBox");
 
-    alertBox.classList.add("d-none");
-    container.classList.add("d-none");
-    emptyState.classList.add("d-none");
-    loadingState.classList.remove("d-none");
-    container.innerHTML = "";
+    if (alertBox) alertBox.classList.add("d-none");
+    if (container) {
+        container.classList.add("d-none");
+        container.innerHTML = "";
+    }
+    if (emptyState) emptyState.classList.add("d-none");
+    if (loadingState) loadingState.classList.remove("d-none");
 
     const url = filter === "unread"
         ? `${API_BASE_URL}/notification/unread`
@@ -92,7 +121,7 @@ async function loadNotifications(filter) {
         });
 
         if (response.status === 401) {
-            sessionStorage.clear();
+            clearAuth();
             window.location.href = "index.html";
             return;
         }
@@ -106,14 +135,24 @@ async function loadNotifications(filter) {
         }
 
         const notifications = await response.json();
-        allNotifications = notifications;
-        loadingState.classList.add("d-none");
+        allNotifications = Array.isArray(notifications) ? notifications : [];
+
+        // Check for unread dot
+        const unreadCount = allNotifications.filter(n => !n.isRead).length;
+        const unreadBadgeDot = document.getElementById("unreadBadgeDot");
+        if (unreadBadgeDot) {
+            unreadBadgeDot.style.display = unreadCount > 0 ? "block" : "none";
+        }
+
+        if (loadingState) loadingState.classList.add("d-none");
         filterAndRenderNotifications();
 
     } catch (error) {
-        loadingState.classList.add("d-none");
-        alertBox.textContent = error.message;
-        alertBox.classList.remove("d-none");
+        if (loadingState) loadingState.classList.add("d-none");
+        if (alertBox) {
+            alertBox.textContent = error.message;
+            alertBox.classList.remove("d-none");
+        }
     }
 }
 
@@ -126,45 +165,77 @@ function cleanMessage(text) {
                .replace(/[\u0441]/g, "s");
 }
 
+function getTypeInfo(type, title) {
+    if (title && (title.includes("Mədaxil") || title.includes("Balans Artırıldı") || title.includes("Köçürmə"))) {
+        return {
+            label: "Mədaxil",
+            icon: "💸",
+            bgIcon: "rgba(16, 229, 153, 0.12)",
+            badgeStyle: "background: rgba(16, 229, 153, 0.15); color: #10e599; border: 1px solid rgba(16, 229, 153, 0.3);"
+        };
+    }
+
+    if (type === 0 || type === "LowBalance" || (title && title.includes("Balans"))) {
+        return {
+            label: "Balans Xəbərdarlığı",
+            icon: "⚠️",
+            bgIcon: "rgba(239, 68, 68, 0.12)",
+            badgeStyle: "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);"
+        };
+    }
+
+    if (type === 1 || type === "LoanStatus" || (title && title.includes("Kredit"))) {
+        return {
+            label: "Kredit Statusu",
+            icon: "📝",
+            bgIcon: "rgba(99, 102, 241, 0.12)",
+            badgeStyle: "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3);"
+        };
+    }
+
+    return {
+        label: "Sistem Bildirişi",
+        icon: "⚙️",
+        bgIcon: "rgba(148, 163, 184, 0.12)",
+        badgeStyle: "background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3);"
+    };
+}
+
 function createNotificationCard(notification) {
     const typeInfo = getTypeInfo(notification.type, notification.title);
     const isRead = notification.isRead === true;
     const formattedDate = formatDate(notification.createdAt);
 
-    const card = document.createElement("div");
-    card.dataset.id = notification.id;
-    card.className = "card border-0 mb-3 shadow-sm";
-    card.style.borderRadius = "16px";
-    card.style.transition = "all 0.2s";
-
-    if (isRead) {
-        card.style.background = "rgba(255, 255, 255, 0.02)";
-        card.style.opacity = "0.65";
-        card.style.border = "1px solid rgba(255, 255, 255, 0.04)";
-        card.style.borderLeft = "4px solid #64748b";
-    } else {
-        card.style.background = "rgba(255, 255, 255, 0.04)";
-        card.style.border = "1px solid rgba(255, 255, 255, 0.08)";
-        card.style.borderLeft = "4px solid #4f46e5";
-    }
-
     const titleText = cleanMessage(notification.title);
     const messageText = cleanMessage(notification.message);
 
+    const card = document.createElement("div");
+    card.dataset.id = notification.id;
+    card.className = `notif-card ${isRead ? "read" : "unread"}`;
+
     card.innerHTML = `
-        <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="flex-grow-1">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="fs-5">${typeInfo.icon}</span>
-                        <h6 class="mb-0 ${isRead ? "text-white-50" : "fw-bold text-white"}" style="font-size: 0.95rem;">${escapeHtml(titleText)}</h6>
-                        <span class="badge py-1.5 px-2.5" style="${typeInfo.badgeStyle}">${typeInfo.label}</span>
-                    </div>
-                    <p class="mb-2 ${isRead ? "text-muted" : "text-white-50"}" style="font-size: 0.88rem; line-height: 1.5;">${escapeHtml(messageText)}</p>
-                    <small class="text-muted d-block mt-2" style="font-size: 0.75rem;"><i class="bi bi-clock"></i> ${formattedDate}</small>
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="d-flex align-items-start gap-3 flex-grow-1">
+                <div class="notif-icon-circle" style="background: ${typeInfo.bgIcon};">
+                    ${typeInfo.icon}
                 </div>
-                ${!isRead ? `<button class="btn btn-sm btn-outline-primary ms-3 mark-read-btn d-flex align-items-center gap-1 py-1.5 px-3" data-id="${notification.id}" style="border-radius: 8px; font-size: 0.8rem; font-weight: 600;"><i class="bi bi-check2"></i> Oxundu et</button>` : ""}
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <h6 class="mb-0 fw-bold text-white" style="font-size: 0.95rem;">${escapeHtml(titleText)}</h6>
+                        <span class="badge py-1 px-2.5 rounded-pill" style="${typeInfo.badgeStyle}; font-size: 0.72rem; font-weight: 700;">${typeInfo.label}</span>
+                    </div>
+                    <p class="mb-2 text-white-50" style="font-size: 0.88rem; line-height: 1.5;">${escapeHtml(messageText)}</p>
+                    <div class="text-muted" style="font-size: 0.75rem;">
+                        <i class="bi bi-clock me-1"></i> ${formattedDate}
+                    </div>
+                </div>
             </div>
+            ${!isRead ? `
+                <button class="btn-mark-read mark-read-btn" data-id="${notification.id}" title="Oxundu kimi işarələ">
+                    <i class="bi bi-check2"></i>
+                    <span>Oxundu</span>
+                </button>
+            ` : ""}
         </div>
     `;
 
@@ -179,11 +250,12 @@ function createNotificationCard(notification) {
 }
 
 async function markAsRead(id, cardElement) {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const btn = cardElement.querySelector(".mark-read-btn");
 
     if (btn) {
         btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span>`;
     }
 
     try {
@@ -196,7 +268,7 @@ async function markAsRead(id, cardElement) {
         });
 
         if (response.status === 401) {
-            sessionStorage.clear();
+            clearAuth();
             window.location.href = "index.html";
             return;
         }
@@ -209,71 +281,49 @@ async function markAsRead(id, cardElement) {
             throw new Error(errorData.message || "Bildiriş oxunmuş kimi işarələnmədi.");
         }
 
-        updateCardAsRead(cardElement);
+        // Update local object
+        const target = allNotifications.find(n => n.id === id);
+        if (target) target.isRead = true;
 
         if (currentFilter === "unread") {
             cardElement.remove();
             const container = document.getElementById("notificationsContainer");
-            if (container.children.length === 0) {
+            if (container && container.children.length === 0) {
                 container.classList.add("d-none");
-                document.getElementById("emptyStateText").textContent = "Oxunmamış bildirişiniz yoxdur.";
-                document.getElementById("emptyState").classList.remove("d-none");
+                const emptyState = document.getElementById("emptyState");
+                const emptyStateTitle = document.getElementById("emptyStateTitle");
+                const emptyStateText = document.getElementById("emptyStateText");
+                if (emptyStateTitle) emptyStateTitle.textContent = "Oxunmamış bildirişiniz yoxdur";
+                if (emptyStateText) emptyStateText.textContent = "Bütün bildirişlərinizi nəzərdən keçirmisiniz.";
+                if (emptyState) emptyState.classList.remove("d-none");
             }
+        } else {
+            cardElement.className = "notif-card read";
+            if (btn) btn.remove();
+        }
+
+        // Update dot
+        const remainingUnread = allNotifications.filter(n => !n.isRead).length;
+        const unreadBadgeDot = document.getElementById("unreadBadgeDot");
+        if (unreadBadgeDot) {
+            unreadBadgeDot.style.display = remainingUnread > 0 ? "block" : "none";
         }
 
     } catch (error) {
         if (btn) {
             btn.disabled = false;
+            btn.innerHTML = `<i class="bi bi-check2"></i> <span>Oxundu</span>`;
         }
         const alertBox = document.getElementById("alertBox");
-        alertBox.textContent = error.message;
-        alertBox.classList.remove("d-none");
+        if (alertBox) {
+            alertBox.textContent = error.message;
+            alertBox.classList.remove("d-none");
+        }
     }
-}
-
-function updateCardAsRead(cardElement) {
-    cardElement.style.background = "rgba(255, 255, 255, 0.02)";
-    cardElement.style.opacity = "0.65";
-    cardElement.style.border = "1px solid rgba(255, 255, 255, 0.04)";
-    cardElement.style.borderLeft = "4px solid #64748b";
-
-    const title = cardElement.querySelector("h6");
-    if (title) {
-        title.classList.remove("fw-bold");
-        title.classList.remove("text-white");
-        title.classList.add("text-white-50");
-    }
-
-    const message = cardElement.querySelector("p");
-    if (message) {
-        message.classList.remove("text-white-50");
-        message.classList.add("text-muted");
-    }
-
-    const btn = cardElement.querySelector(".mark-read-btn");
-    if (btn) {
-        btn.remove();
-    }
-}
-
-function getTypeInfo(type, title) {
-    if (title && (title.includes("Mədaxil") || title.includes("Balans Artırıldı"))) {
-        return { label: "Mədaxil", icon: "💸", badgeStyle: "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" };
-    }
-
-    const typeMap = {
-        0: { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        1: { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        2: { label: "Sistem Bildirişi", icon: "⚙️", badgeStyle: "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        "LowBalance": { label: "Balans Xəbərdarlığı", icon: "⚠️", badgeStyle: "background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        "LoanStatus": { label: "Kredit Statusu", icon: "📝", badgeStyle: "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" },
-        "System": { label: "Sistem Bildirişi", icon: "⚙️", badgeStyle: "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" }
-    };
-
-    return typeMap[type] || { label: String(type), icon: "🔔", badgeStyle: "background: rgba(108, 117, 125, 0.15); color: #94a3b8; border: 1px solid rgba(108, 117, 125, 0.3); font-weight: 600; font-size: 0.7rem; border-radius: 6px;" };
 }
 
 function formatDate(dateString) {
+    if (!dateString) return "";
     const dateObj = new Date(dateString);
     return dateObj.toLocaleDateString("az-AZ", {
         day: "2-digit",
@@ -312,19 +362,29 @@ function filterAndRenderNotifications() {
 function renderNotificationsList(notifications) {
     const container = document.getElementById("notificationsContainer");
     const emptyState = document.getElementById("emptyState");
+    const emptyStateTitle = document.getElementById("emptyStateTitle");
     const emptyStateText = document.getElementById("emptyStateText");
 
+    if (!container) return;
     container.innerHTML = "";
 
-    if (notifications.length === 0) {
-        emptyStateText.textContent = currentFilter === "unread"
-            ? "Oxunmamış bildirişiniz yoxdur."
-            : "Hələ heç bir bildirişiniz yoxdur.";
-        emptyState.classList.remove("d-none");
+    if (!notifications || notifications.length === 0) {
+        if (emptyStateTitle) {
+            emptyStateTitle.textContent = currentFilter === "unread"
+                ? "Oxunmamış bildirişiniz yoxdur"
+                : "Hələ heç bir bildirişiniz yoxdur";
+        }
+        if (emptyStateText) {
+            emptyStateText.textContent = currentFilter === "unread"
+                ? "Bütün bildirişlərinizi nəzərdən keçirmisiniz."
+                : "Hesabınızla bağlı bütün mühüm xəbərdarlıqlar və yeniliklər burada göstəriləcəkdir.";
+        }
+        if (emptyState) emptyState.classList.remove("d-none");
+        container.classList.add("d-none");
         return;
     }
 
-    emptyState.classList.add("d-none");
+    if (emptyState) emptyState.classList.add("d-none");
     container.classList.remove("d-none");
 
     notifications.forEach(notification => {

@@ -3,327 +3,490 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QəpikPay | İdarəetmə Paneli</title>
+    <title>OnlineBank | İdarəetmə Paneli</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <script>
-        window.onerror = function(msg, url, line, col, error) {
-            var extra = !col ? '' : '\ncolumn: ' + col;
-            extra += !error ? '' : '\nerror: ' + error;
-            alert("Səhifədə JavaScript Xətası tapıldı:\n\n" + msg + "\n\nFayl: " + url + "\nSətir: " + line + extra);
-            return false;
-        };
-    </script>
-</head>
-<body class="dashboard-body">
-
-    <div class="d-flex">
-        <!-- QəpikPay Dark Sidebar (Fixed Width) -->
-        <div class="invest-sidebar">
-            <div>
-                <div class="sidebar-logo mb-4">
-                    <div class="sidebar-brand-icon">🪙</div>
-                    <div class="d-flex flex-column">
-                        <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; color: #fff;">QəpikPay</span>
-                        <span style="font-size: 0.65rem; color: #f59e0b; font-weight: 600; letter-spacing: 0.2px;">"Son qəpiyinə qədər!"</span>
-                    </div>
-                </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> İdarəetmə Paneli</a>
-                    </li>
-                    <li class="nav-item" id="navAccounts">
-                        <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
-                    </li>
-                    <li class="nav-item" id="navTransfer">
-                        <a class="nav-link" href="transfer.html"><i class="bi bi-arrow-left-right"></i> Köçürmə</a>
-                    </li>
-                    <li class="nav-item" id="navTransactions">
-                        <a class="nav-link" href="transactions.html"><i class="bi bi-clock-history"></i> Əməliyyatlar</a>
-                    </li>
-                    <li class="nav-item" id="navLoans">
-                        <a class="nav-link" href="loans.html"><i class="bi bi-cash-coin"></i> Kreditlər</a>
-                    </li>
-                    <li class="nav-item" id="navNotifications">
-                        <a class="nav-link" href="notifications.html"><i class="bi bi-bell"></i> Bildirişlər</a>
-                    </li>
-                    <li class="nav-item" id="navBalanceAlert">
-                        <a class="nav-link" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
-                    </li>
-                    <li class="nav-item" id="navSavingsGoal">
-                        <a class="nav-link" href="savings-goal.html"><i class="bi bi-bullseye"></i> Yığım Hədəfi</a>
-                    </li>
-                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
-                        <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Sidebar profile details -->
-            <div class="sidebar-profile-card">
-                <div class="profile-avatar" id="sidebarAvatar">R</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="sidebarName">Ramil Məmmədli</div>
-                    <div class="profile-sub" id="sidebarRole">Müştəri</div>
-                    <a href="accounts.html" class="profile-link text-decoration-none mt-1 d-block" style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">Hesablarımı İdarə et →</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Flex Main Content Area -->
-        <div class="flex-grow-1 main-content-wrapper">
-            
-            <!-- Top Row: Search Input & Notification Alerts + Logout -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="search-container flex-grow-1">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Axtarış...">
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <a href="notifications.html" class="position-relative text-decoration-none cursor-pointer" style="font-size: 1.25rem; color: inherit; display: inline-block;">
-                        🔔
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 2px 4px;" id="statUnreadCount">0</span>
-                    </a>
-                    <!-- Profile avatar dropdown visual container -->
-                    <div class="rounded-circle" style="width: 38px; height: 38px; overflow: hidden; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; background-color: #cbd5e1;" id="topAvatar">R</div>
-                    <button class="btn btn-outline-danger btn-sm px-3 py-2 ms-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
-                </div>
-            </div>
-
-            <!-- Header greeting -->
-            <div class="mb-4 pb-2">
-                <h2 class="fw-bold text-white mb-1" id="userGreeting">Salam, <span id="fullNameDisplay">İstifadəçi</span>!</h2>
-                <p class="text-muted small">Vəsaitlərinizi zövqlə və sürətlə idarə edin.</p>
-            </div>
-
-            <!-- Alert box for system errors -->
-            <div id="alertBox" class="alert d-none" role="alert" style="border-radius: 12px;"></div>
-
-            <!-- Loading Spinner container -->
-            <div id="loadingState" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-2">Məlumatlar yüklənir...</p>
-            </div>
-
-            <!-- Main dynamic wrapper -->
-            <div id="dashboardContent" class="d-none">
-                
-                <!-- 3 Stats Cards Row (Total balance, accounts count, transaction count) -->
-                <div class="row g-3 mb-4">
-                    <!-- Stat 1: Total Balance -->
-                    <div class="col-md-4">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Ümumi Balans</div>
-                            <div class="stat-value text-primary"><span id="totalBalance">0.00</span> AZN</div>
-                            <div class="stat-trend text-muted small" id="accountCountInfo">0 hesab</div>
-                        </div>
-                    </div>
-                    <!-- Stat 2: Accounts Count -->
-                    <div class="col-md-4">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Hesab sayı</div>
-                            <div class="stat-value" id="statAccountCount">0</div>
-                            <div class="stat-trend text-success small" style="font-weight: 500;">↑ Aktiv hesablar</div>
-                        </div>
-                    </div>
-                    <!-- Stat 3: Transaction Count -->
-                    <div class="col-md-4">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Son əməliyyat sayı</div>
-                            <div class="stat-value text-success" id="statTransactionCount">0</div>
-                            <div class="stat-trend text-success small" style="font-weight: 500;">↑ Yeniləndi indi</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main Layout: Wallet card visualization and Recent Transactions list -->
-                <div class="row g-4">
-                    <!-- Left Column: Virtual Card & Analytics Chart -->
-                    <div class="col-lg-8">
-                        
-                        <!-- Account Card Section -->
-                        <div class="wallet-card-panel mb-4">
-                            <h5 class="fw-bold mb-3" style="font-size: 1.05rem;">Hesab Kartı</h5>
-                            
-                            <!-- Card Active State -->
-                            <div class="row g-3 align-items-center d-none" id="accountCardActive">
-                                <!-- Virtual Visa Card -->
-                                <div class="col-md-6">
-                                    <div class="wallet-bank-card floating-card text-white p-4 d-flex flex-column justify-content-between glass-card-mockup" style="border-radius: 18px; min-height: 180px;">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="fw-bold fs-6">VISA</span>
-                                            <span class="badge" style="background: rgba(255, 255, 255, 0.2);" id="firstAccType">Cari</span>
-                                        </div>
-                                        <div>
-                                            <!-- Card Sim chip -->
-                                            <div class="mb-3" style="width: 38px; height: 26px; background: linear-gradient(135deg, #facc15 0%, #eab308 100%); border-radius: 4px;"></div>
-                                            <div class="font-monospace tracking-widest fs-6" id="firstAccNumber">•••• •••• •••• ••••</div>
-                                        </div>
-                                        <div class="d-flex justify-content-between align-items-end">
-                                            <span class="small opacity-75" id="cardHolderName">KART SAHİBİ</span>
-                                            <div class="d-flex" style="opacity: 0.85;">
-                                                <div style="width: 22px; height: 22px; background: rgba(255,255,255,0.3); border-radius: 50%; margin-right: -8px;"></div>
-                                                <div style="width: 22px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Balance Details next to Card -->
-                                <div class="col-md-6 ps-md-4">
-                                    <div class="mb-3">
-                                        <span class="text-muted small d-block mb-1">Əsas Kart Balansı</span>
-                                        <h2 class="fw-bold mb-0 text-white"><span id="firstAccBalance">0.00</span> <span class="fs-5 text-muted">AZN</span></h2>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="text-muted small d-block mb-1">Hesabın Statusu</span>
-                                        <span class="badge bg-success">Aktiv</span>
-                                    </div>
-                                    <!-- Clean transfer navigation link -->
-                                    <a href="transfer.html" class="btn btn-primary btn-sm w-100 py-2" style="background-color: var(--accent-color); border-color: var(--accent-color); border-radius: 10px;">Köçürmə et →</a>
-                                </div>
-                            </div>
-
-                            <!-- Card Empty State -->
-                            <div class="row g-3 align-items-center d-none" id="accountCardEmpty">
-                                <!-- Dotted Card Placeholder -->
-                                <div class="col-md-6">
-                                    <div class="d-flex flex-column justify-content-center align-items-center text-muted p-4" style="border: 2px dashed #cbd5e1; border-radius: 18px; min-height: 180px; background-color: #f8fafc;">
-                                        <div class="mb-2" style="font-size: 2rem; opacity: 0.5;"><i class="bi bi-credit-card-2-front"></i></div>
-                                        <span class="small fw-semibold">Kart Aktiv Deyil</span>
-                                    </div>
-                                </div>
-                                <!-- Empty State Action Details -->
-                                <div class="col-md-6 ps-md-4">
-                                    <div class="mb-3">
-                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 1.05rem;">Hələ heç bir hesabınız yoxdur</h6>
-                                        <p class="text-muted small mb-0">Əməliyyat aparmaq və kart balansını görmək üçün yeni hesab açın.</p>
-                                    </div>
-                                    <a href="accounts.html" class="btn btn-primary btn-sm w-100 py-2" style="border-radius: 10px;">
-                                        <i class="bi bi-plus-lg"></i> Hesab Aç
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Financial Analytics Charts -->
-                        <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px;">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Maliyyə Analitikası</h5>
-                                <span class="badge bg-secondary">Son 6 ay</span>
-                            </div>
-                            
-                            <!-- Charts Active Container -->
-                            <div id="chartActive" class="d-none">
-                                <div class="row g-3">
-                                    <!-- Line Chart: Spending & Income Trends -->
-                                    <div class="col-md-7">
-                                        <div class="small text-muted mb-2">Gəlir və Xərc Dinamikası</div>
-                                        <div style="position: relative; height: 220px; width: 100%;">
-                                            <canvas id="analyticsChart"></canvas>
-                                        </div>
-                                    </div>
-                                    <!-- Donut Chart: Expense Breakdown -->
-                                    <div class="col-md-5" style="border-left: 1px solid rgba(255,255,255,0.06);">
-                                        <div class="small text-muted mb-2 text-center">Əməliyyat Bölgüsü</div>
-                                        <div style="position: relative; height: 220px; width: 100%; display: flex; align-items: center; justify-content: center;">
-                                            <canvas id="expenseBreakdownChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Charts Empty Container -->
-                            <div id="chartEmpty" class="py-5 text-center text-muted d-none">
-                                <div class="mb-3" style="font-size: 2.5rem; opacity: 0.6;"><i class="bi bi-bar-chart"></i></div>
-                                <h6 class="fw-semibold mb-1 text-white" style="font-size: 0.95rem;">Analitika üçün kifayət qədər məlumat yoxdur</h6>
-                                <p class="small text-muted mb-0">Hesab yaradıb əməliyyat etdikdən sonra burada gəlir/xərc qrafiki göstəriləcək.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column: Recent Transactions & Currency Converter -->
-                    <div class="col-lg-4 d-flex flex-column gap-4">
-                        <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f1f5f9; min-height: 360px;">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">Son Əməliyyatlar</h5>
-                                <a href="transactions.html" class="small text-decoration-none">Hamısı →</a>
-                            </div>
-                            
-                            <div id="recentTransactionsList"></div>
-                            
-                            <!-- Empty State for Recent Transactions -->
-                            <div id="noTransactionsMsg" class="text-muted text-center py-5 d-none">
-                                <div class="mb-3" style="font-size: 2rem; opacity: 0.5;"><i class="bi bi-clock-history"></i></div>
-                                <div class="small fw-semibold">Hələ heç bir əməliyyatınız yoxdur.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Admin dynamic wrapper -->
-            <div id="adminDashboardContent" class="d-none">
-                <!-- 4 Stats Cards Row -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-3">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Ümumi İstifadəçi</div>
-                            <div class="stat-value text-primary" id="adminTotalUsers">0</div>
-                            <div class="stat-trend text-muted small">Qeydiyyatdan keçmiş istifadəçilər</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Ümumi Hesab</div>
-                            <div class="stat-value text-success" id="adminTotalAccounts">0</div>
-                            <div class="stat-trend text-muted small">Yaradılmış hesablar</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Gözləyən Kredit Müraciəti</div>
-                            <div class="stat-value text-warning" id="adminPendingLoans">0</div>
-                            <div class="stat-trend text-muted small">Təsdiq gözləyən müraciətlər</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="invest-stat-card">
-                            <div class="stat-header">Dondurulmuş Hesab</div>
-                            <div class="stat-value text-danger" id="adminFrozenAccounts">0</div>
-                            <div class="stat-trend text-muted small">Dondurulmuş (Frozen) hesablar</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions Section -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-12">
-                        <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px;">
-                            <h5 class="fw-bold mb-4">Sürətli Keçidlər (Admin)</h5>
-                            <div class="d-flex flex-wrap gap-3">
-                                <a href="admin.html?tab=users" class="btn btn-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;">
-                                    <i class="bi bi-people-fill"></i> İstifadəçilərə bax
-                                </a>
-                                <a href="admin.html?tab=accounts" class="btn btn-outline-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;">
-                                    <i class="bi bi-wallet2"></i> Hesablara bax
-                                </a>
-                                <a href="admin.html?tab=loans" class="btn btn-outline-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;">
-                                    <i class="bi bi-file-earmark-text-fill"></i> Gözləyən Kreditlərə bax
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Unified Project Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- ======================================================================
+         1. LEFT SIDEBAR NAVIGATION (Zentro Structure)
+         ====================================================================== -->
+    <aside class="dash-sidebar" id="dashSidebar">
+        <div>
+            <!-- Brand Logo -->
+            <a href="dashboard.html" class="sidebar-brand">
+                <div class="brand-icon-box">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <span>OnlineBank</span>
+            </a>
+
+            <!-- Section 1: Əsas Menyu -->
+            <div class="sidebar-section-title">ƏSAS MENYU</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="dashboard.html" class="sidebar-link active">
+                        <i class="bi bi-grid-fill"></i>
+                        <span>İdarəetmə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transfer.html" class="sidebar-link">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Köçürmələr</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="sidebar-link">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Əməliyyatlar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="accounts.html" class="sidebar-link">
+                        <i class="bi bi-credit-card-2-front"></i>
+                        <span>Kartlar & Hesablar</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Section 2: Dəstək & Xidmətlər -->
+            <div class="sidebar-section-title mt-4">XİDMƏTLƏR & DƏSTƏK</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="loans.html" class="sidebar-link">
+                        <i class="bi bi-bank"></i>
+                        <span>Kreditlər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="savings-goal.html" class="sidebar-link">
+                        <i class="bi bi-piggy-bank"></i>
+                        <span>Yığım Qutuları</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notifications.html" class="sidebar-link">
+                        <i class="bi bi-bell"></i>
+                        <span>Bildirişlər</span>
+                        <span class="badge-nav" id="sidebarNotificationBadge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li id="adminNavWrapper" style="display: none;">
+                    <a href="admin.html" class="sidebar-link text-warning">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Admin Paneli</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <a href="balance-alert.html" class="sidebar-link">
+                <i class="bi bi-gear"></i>
+                <span>Tənzimləmələr</span>
+            </a>
+            <a href="#" class="sidebar-link text-danger" id="dashLogoutBtn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Çıxış</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ======================================================================
+         2. MAIN DASHBOARD CONTENT AREA
+         ====================================================================== -->
+    <main class="dash-main">
+
+        <!-- Topbar Toolbar -->
+        <header class="dash-topbar">
+            <!-- Search Box -->
+            <div class="search-box-wrapper">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-input" id="dashSearchInput" placeholder="Əməliyyat, hesab nömrəsi və ya təyinat axtarın...">
+            </div>
+
+            <!-- Right Actions -->
+            <div class="topbar-actions">
+                <!-- Date Filter Pill (Zentro style) -->
+                <div class="date-pill-btn" id="currentDateBadge">
+                    <i class="bi bi-calendar3"></i>
+                    <span id="currentDateDisplay">Bu ay</span>
+                </div>
+
+                <!-- Balance Visibility Toggle Eye -->
+                <button class="icon-btn" id="toggleBalanceVisibilityBtn" title="Balansları Gizlət / Göstər">
+                    <i class="bi bi-eye" id="toggleEyeIcon"></i>
+                </button>
+
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="icon-btn" title="Bildirişlər">
+                    <i class="bi bi-bell"></i>
+                    <span class="badge-dot" id="unreadBadgeDot" style="display: none;"></span>
+                </a>
+
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <div class="user-profile-badge" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar-circle" id="userAvatar">U</div>
+                        <div class="user-meta-info d-none d-md-flex">
+                            <span class="name" id="userFullName">İstifadəçi</span>
+                            <span class="role" id="userRole">Müştəri</span>
+                        </div>
+                        <i class="bi bi-chevron-down ms-1 text-muted small"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end">
+                        <li>
+                            <div class="px-3 py-2">
+                                <p class="mb-0 fw-bold text-white" id="profileDropdownName">İstifadəçi</p>
+                                <span class="text-muted small" id="profileDropdownRole">OnlineBank Müştərisi</span>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider-dark"></li>
+                        <li><a class="dropdown-item-dark" href="accounts.html"><i class="bi bi-wallet2"></i> Hesablarım</a></li>
+                        <li><a class="dropdown-item-dark" href="balance-alert.html"><i class="bi bi-bell"></i> Balans Xəbərdarlıqları</a></li>
+                        <li><hr class="dropdown-divider-dark"></li>
+                        <li><a class="dropdown-item-dark text-danger" href="#" id="dropdownLogoutBtn"><i class="bi bi-box-arrow-right"></i> Sistemdən Çıxış</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- ======================================================================
+             3. ZENTRO TOP 3 BALANCE CARDS ROW
+             ====================================================================== -->
+        <section class="zentro-cards-grid">
+            <!-- Card 1: Cari Hesab Balansı -->
+            <div class="zentro-balance-card">
+                <div>
+                    <div class="zcard-header">
+                        <div class="zcard-title-group">
+                            <div class="zcard-icon-wrap">
+                                <i class="bi bi-bank"></i>
+                            </div>
+                            <span class="zcard-title">Cari Hesab</span>
+                        </div>
+                        <!-- Mini Sparkline visualization -->
+                        <div class="zcard-sparkline">
+                            <span class="spark-bar" style="height: 12px;"></span>
+                            <span class="spark-bar" style="height: 18px;"></span>
+                            <span class="spark-bar" style="height: 14px;"></span>
+                            <span class="spark-bar active" style="height: 24px;"></span>
+                            <span class="spark-bar active" style="height: 28px;"></span>
+                        </div>
+                    </div>
+                    <div class="zcard-amount" id="currentAccountBalance">
+                        0.00 ₼
+                    </div>
+                </div>
+                <div class="zcard-footer">
+                    <div class="zcard-trend">
+                        <span class="trend-badge positive"><i class="bi bi-graph-up-arrow"></i> +16.0%</span>
+                        <span>Keçən aya nisbətən</span>
+                    </div>
+                    <a href="accounts.html" class="zcard-link">Ətraflı <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Card 2: Yığım & Əmanət Balansı -->
+            <div class="zentro-balance-card">
+                <div>
+                    <div class="zcard-header">
+                        <div class="zcard-title-group">
+                            <div class="zcard-icon-wrap">
+                                <i class="bi bi-piggy-bank"></i>
+                            </div>
+                            <span class="zcard-title">Ümumi Yığım & Əmanət</span>
+                        </div>
+                        <!-- Mini Sparkline visualization -->
+                        <div class="zcard-sparkline">
+                            <span class="spark-bar" style="height: 14px;"></span>
+                            <span class="spark-bar" style="height: 16px;"></span>
+                            <span class="spark-bar" style="height: 20px;"></span>
+                            <span class="spark-bar" style="height: 18px;"></span>
+                            <span class="spark-bar active" style="height: 26px;"></span>
+                        </div>
+                    </div>
+                    <div class="zcard-amount" id="savingsAccountBalance">
+                        0.00 ₼
+                    </div>
+                </div>
+                <div class="zcard-footer">
+                    <div class="zcard-trend">
+                        <span class="trend-badge positive"><i class="bi bi-check-circle"></i> Yığım Aktiv</span>
+                        <span id="savingsCountText">0 hesab</span>
+                    </div>
+                    <a href="savings-goal.html" class="zcard-link">Hədəflər <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Card 3: Ümumi Aktivlər (Total Net Balance) -->
+            <div class="zentro-balance-card">
+                <div>
+                    <div class="zcard-header">
+                        <div class="zcard-title-group">
+                            <div class="zcard-icon-wrap">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <span class="zcard-title">Ümumi Aktivlər</span>
+                        </div>
+                        <!-- Mini Sparkline visualization -->
+                        <div class="zcard-sparkline">
+                            <span class="spark-bar" style="height: 16px;"></span>
+                            <span class="spark-bar active" style="height: 22px;"></span>
+                            <span class="spark-bar" style="height: 19px;"></span>
+                            <span class="spark-bar active" style="height: 25px;"></span>
+                            <span class="spark-bar active" style="height: 30px;"></span>
+                        </div>
+                    </div>
+                    <div class="zcard-amount" id="totalNetBalance">
+                        0.00 ₼
+                    </div>
+                </div>
+                <div class="zcard-footer">
+                    <div class="zcard-trend">
+                        <span class="trend-badge positive"><i class="bi bi-shield-check"></i> Təhlükəsiz</span>
+                        <span>Bütün balanslar</span>
+                    </div>
+                    <a href="transactions.html" class="zcard-link">Çıxarış Al <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             4. MIDDLE 2-COLUMN SECTION: PUL AXINI & KARTLARIM
+             ====================================================================== -->
+        <section class="middle-grid-layout">
+            <!-- Sol Sütun: Pul Axını (Cash Flow) Qrafiki -->
+            <div class="chart-container-card">
+                <div class="chart-card-header">
+                    <div class="chart-title-group">
+                        <i class="bi bi-arrow-down-up text-success fs-5"></i>
+                        <h2>Pul Axını (Cash Flow)</h2>
+                    </div>
+                    <div class="chart-legend-group">
+                        <div class="legend-dot-item">
+                            <span class="legend-dot income"></span>
+                            <span>Mədaxil</span>
+                        </div>
+                        <div class="legend-dot-item">
+                            <span class="legend-dot expense"></span>
+                            <span>Məxaric</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="canvas-chart-wrapper">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Sağ Sütun: Kartlarım & Çevik Əməliyyatlar -->
+            <div class="cards-widget-container">
+                <div class="cards-widget-header">
+                    <h3><i class="bi bi-credit-card text-success"></i> Kartlarım</h3>
+                    <a href="accounts.html" class="view-all-link">Hamısı <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Digital Bank Card Visual -->
+                <div class="debit-card-visual" id="primaryCardBox">
+                    <div class="card-top-row">
+                        <div class="card-brand-label">
+                            <i class="bi bi-shield-shaded"></i>
+                            <span>OnlineBank</span>
+                        </div>
+                        <div class="card-chip-box"></div>
+                    </div>
+
+                    <div class="card-number-embossed" id="primaryCardNumber">
+                        •••• •••• •••• 8824
+                    </div>
+
+                    <div class="card-bottom-row">
+                        <div class="card-holder-group">
+                            <span class="card-label-small">Kart Sahibi</span>
+                            <span class="card-holder-name" id="primaryCardHolder">MÜŞTƏRİ</span>
+                        </div>
+                        <div class="card-network-logo">
+                            VISA
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Quick Action Buttons right below Card (Zentro Style) -->
+                <div class="card-quick-actions-row">
+                    <button class="quick-action-btn" data-bs-toggle="modal" data-bs-target="#depositModal">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Artır</span>
+                    </button>
+                    <a href="transfer.html" class="quick-action-btn">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Köçür</span>
+                    </a>
+                    <a href="loans.html" class="quick-action-btn">
+                        <i class="bi bi-cash-stack"></i>
+                        <span>Kredit</span>
+                    </a>
+                    <button class="quick-action-btn" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+                        <i class="bi bi-three-dots"></i>
+                        <span>Daha çox</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             5. BOTTOM SECTION: SON ƏMƏLİYYATLAR CƏDVƏLİ (Zentro Style)
+             ====================================================================== -->
+        <section class="recent-activity-card">
+            <div class="table-header-toolbar">
+                <div class="table-title-group">
+                    <i class="bi bi-clock-history text-success fs-5"></i>
+                    <h3>Son Əməliyyatlar</h3>
+                </div>
+                <div class="table-actions-right">
+                    <a href="transactions.html" class="btn-filter-pill">
+                        <i class="bi bi-funnel"></i>
+                        <span>Filtr</span>
+                    </a>
+                    <a href="transactions.html" class="btn-action-lime">
+                        <i class="bi bi-file-earmark-arrow-down"></i>
+                        <span>Çıxarış Al</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Responsive Table Container -->
+            <div class="table-responsive">
+                <table class="custom-dash-table">
+                    <thead>
+                        <tr>
+                            <th>Əməliyyat & Təyinat</th>
+                            <th>Tarix</th>
+                            <th>Məbləğ</th>
+                            <th>Status</th>
+                            <th>Metod / Hesab</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTransactionsTableBody">
+                        <!-- Dynamically populated from API (No hardcoded data) -->
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+                                Əməliyyatlar yüklənir...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ======================================================================
+         MODAL 1: BALANSI ARTIR (MƏDAXİL)
+         ====================================================================== -->
+    <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content dark-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="depositModalLabel">
+                        <i class="bi bi-plus-circle text-success me-2"></i>Balansı Artır (Mədaxil)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="depositForm">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label-muted">Hesabı Seçin</label>
+                            <select class="form-select dark-select" id="depositAccountSelect" required>
+                                <option value="" disabled selected>Hesab seçin...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-muted">Mədaxil Məbləği (₼)</label>
+                            <input type="number" step="0.01" min="1" max="50000" class="form-control dark-input" id="depositAmount" placeholder="Məsələn: 250.00" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-muted">Mənbə / Qeyd (İxtiyari)</label>
+                            <input type="text" class="form-control dark-input" id="depositDescription" placeholder="Məsələn: Maaş kartından artım və ya Terminal">
+                        </div>
+                        <div id="depositAlert" class="alert d-none mt-3" role="alert"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Ləğv et</button>
+                        <button type="submit" class="btn-action-lime px-4" id="depositSubmitBtn">
+                            <i class="bi bi-check2-circle"></i> Təsdiq et
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================
+         MODAL 2: YENİ HESAB AÇ
+         ====================================================================== -->
+    <div class="modal fade" id="createAccountModal" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content dark-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="createAccountModalLabel">
+                        <i class="bi bi-credit-card-2-front text-success me-2"></i>Yeni Bank Hesabı Aç
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="createAccountForm">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label-muted">Hesab Növü</label>
+                            <select class="form-select dark-select" id="newAccountType" required>
+                                <option value="1" selected>Cari Hesab (Gündəlik ödənişlər və köçürmələr üçün)</option>
+                                <option value="0">Əmanət Hesabı (Faiz gəliri və yığımlar üçün)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-muted">İlkin Mədaxil Məbləği (₼)</label>
+                            <input type="number" step="0.01" min="0" class="form-control dark-input" id="newAccountInitialBalance" placeholder="0.00" value="0.00" required>
+                            <small class="text-muted">İlkin mədaxil olmadan da (0 ₼) hesab açıla bilər.</small>
+                        </div>
+                        <div id="createAccountAlert" class="alert d-none mt-3" role="alert"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Bağla</button>
+                        <button type="submit" class="btn-action-lime px-4" id="createAccountSubmitBtn">
+                            <i class="bi bi-plus-lg"></i> Hesab Aç
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Configuration & Helpers -->
     <script src="js/config.js"></script>
+
+    <!-- Dashboard Logic Script -->
     <script src="js/dashboard.js"></script>
 </body>
 </html>

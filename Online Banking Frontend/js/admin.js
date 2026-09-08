@@ -3,41 +3,69 @@ let accountsData = [];
 let loansData = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
 
     if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
+    const roles = getAuthRoles();
     if (!roles.includes("Admin")) {
         window.location.href = "dashboard.html";
         return;
     }
 
-   
-    const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert", "navSavingsGoal"];
-    restrictedNavIds.forEach(function (id) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.style.display = "none";
-        }
-    });
+    // User Profile in Navbar & Sidebar
+    const fullName = getAuthFullName();
+    const avatarLetter = fullName.charAt(0).toUpperCase();
 
-    document.getElementById("tabUsers").addEventListener("click", () => switchTab("users"));
-    document.getElementById("tabAccounts").addEventListener("click", () => switchTab("accounts"));
-    document.getElementById("tabLoans").addEventListener("click", () => switchTab("loans"));
+    const topAvatar = document.getElementById("topAvatar") || document.getElementById("userAvatar");
+    const headerFullName = document.getElementById("headerFullName") || document.getElementById("userFullName");
+    const fullNameDisplay = document.getElementById("fullNameDisplay");
+    const sidebarRole = document.getElementById("sidebarRole") || document.getElementById("userRole");
 
-    document.getElementById("usersSearch").addEventListener("input", filterUsers);
-    document.getElementById("accountsSearch").addEventListener("input", filterAccounts);
-    
+    if (topAvatar) topAvatar.textContent = avatarLetter;
+    if (headerFullName) headerFullName.textContent = fullName;
+    if (fullNameDisplay) fullNameDisplay.textContent = fullName;
+    if (sidebarRole) sidebarRole.textContent = "Sistem Admini";
+
+    const logoutAction = (e) => {
+        e.preventDefault();
+        clearAuth();
+        window.location.href = "index.html";
+    };
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const dashLogoutBtn = document.getElementById("dashLogoutBtn");
+    const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+
+    if (logoutBtn) logoutBtn.addEventListener("click", logoutAction);
+    if (dashLogoutBtn) dashLogoutBtn.addEventListener("click", logoutAction);
+    if (dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", logoutAction);
+
+
+
+    // Tab Event Listeners
+    const tabUsers = document.getElementById("tabUsers");
+    const tabAccounts = document.getElementById("tabAccounts");
+    const tabLoans = document.getElementById("tabLoans");
+
+    if (tabUsers) tabUsers.addEventListener("click", () => switchTab("users"));
+    if (tabAccounts) tabAccounts.addEventListener("click", () => switchTab("accounts"));
+    if (tabLoans) tabLoans.addEventListener("click", () => switchTab("loans"));
+
+    // Search inputs
+    const usersSearch = document.getElementById("usersSearch");
+    const accountsSearch = document.getElementById("accountsSearch");
     const loansSearch = document.getElementById("loansSearch");
-    if (loansSearch) {
-        loansSearch.addEventListener("input", filterLoans);
-    }
+
+    if (usersSearch) usersSearch.addEventListener("input", filterUsers);
+    if (accountsSearch) accountsSearch.addEventListener("input", filterAccounts);
+    if (loansSearch) loansSearch.addEventListener("input", filterLoans);
 
     loadUsers();
+    loadMetricsSummary();
 
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab");
@@ -47,13 +75,21 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function switchTab(tab) {
-    document.getElementById("tabUsers").classList.toggle("active", tab === "users");
-    document.getElementById("tabAccounts").classList.toggle("active", tab === "accounts");
-    document.getElementById("tabLoans").classList.toggle("active", tab === "loans");
+    const tabUsers = document.getElementById("tabUsers");
+    const tabAccounts = document.getElementById("tabAccounts");
+    const tabLoans = document.getElementById("tabLoans");
 
-    document.getElementById("usersTab").classList.toggle("d-none", tab !== "users");
-    document.getElementById("accountsTab").classList.toggle("d-none", tab !== "accounts");
-    document.getElementById("loansTab").classList.toggle("d-none", tab !== "loans");
+    const usersTab = document.getElementById("usersTab");
+    const accountsTab = document.getElementById("accountsTab");
+    const loansTab = document.getElementById("loansTab");
+
+    if (tabUsers) tabUsers.classList.toggle("active", tab === "users");
+    if (tabAccounts) tabAccounts.classList.toggle("active", tab === "accounts");
+    if (tabLoans) tabLoans.classList.toggle("active", tab === "loans");
+
+    if (usersTab) usersTab.classList.toggle("d-none", tab !== "users");
+    if (accountsTab) accountsTab.classList.toggle("d-none", tab !== "accounts");
+    if (loansTab) loansTab.classList.toggle("d-none", tab !== "loans");
 
     if (tab === "accounts" && accountsData.length === 0) {
         loadAccounts();
@@ -63,7 +99,7 @@ function switchTab(tab) {
 }
 
 async function apiFetch(url, options = {}) {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
     const response = await fetch(url, {
         ...options,
         headers: {
@@ -74,7 +110,7 @@ async function apiFetch(url, options = {}) {
     });
 
     if (response.status === 401) {
-        sessionStorage.clear();
+        clearAuth();
         window.location.href = "index.html";
         return null;
     }
@@ -89,10 +125,32 @@ async function apiFetch(url, options = {}) {
 
 function showGlobalAlert(message, type) {
     const alertBox = document.getElementById("globalAlertBox");
+    if (!alertBox) return;
     alertBox.textContent = message;
-    alertBox.className = `alert alert-${type}`;
+    alertBox.className = `alert alert-${type === "success" ? "success" : "danger"} rounded-3 mb-4`;
     alertBox.classList.remove("d-none");
     setTimeout(() => alertBox.classList.add("d-none"), 4000);
+}
+
+async function loadMetricsSummary() {
+    try {
+        const [accRes, loanRes] = await Promise.allSettled([
+            apiFetch(`${API_BASE_URL}/admin/accounts`),
+            apiFetch(`${API_BASE_URL}/loanapplication/pending`)
+        ]);
+        if (accRes.status === "fulfilled" && accRes.value && accRes.value.ok) {
+            const accs = await accRes.value.json();
+            const el = document.getElementById("metricTotalAccounts");
+            if (el) el.textContent = accs.length;
+        }
+        if (loanRes.status === "fulfilled" && loanRes.value && loanRes.value.ok) {
+            const lns = await loanRes.value.json();
+            const el = document.getElementById("metricPendingLoans");
+            if (el) el.textContent = lns.length;
+        }
+    } catch (e) {
+        console.warn("Metrics error:", e);
+    }
 }
 
 // --- Users Tab ---
@@ -102,9 +160,9 @@ async function loadUsers() {
     const errorBox = document.getElementById("usersError");
     const container = document.getElementById("usersTableContainer");
 
-    loading.classList.remove("d-none");
-    errorBox.classList.add("d-none");
-    container.classList.add("d-none");
+    if (loading) loading.classList.remove("d-none");
+    if (errorBox) errorBox.classList.add("d-none");
+    if (container) container.classList.add("d-none");
 
     try {
         const response = await apiFetch(`${API_BASE_URL}/admin/users`);
@@ -117,37 +175,69 @@ async function loadUsers() {
         }
 
         usersData = await response.json();
-        loading.classList.add("d-none");
-        container.classList.remove("d-none");
+        if (loading) loading.classList.add("d-none");
+        if (container) container.classList.remove("d-none");
         renderUsers(usersData);
 
     } catch (error) {
-        loading.classList.add("d-none");
-        errorBox.textContent = error.message;
-        errorBox.classList.remove("d-none");
+        if (loading) loading.classList.add("d-none");
+        if (errorBox) {
+            errorBox.textContent = error.message;
+            errorBox.classList.remove("d-none");
+        }
     }
 }
 
 function renderUsers(users) {
     const tbody = document.getElementById("usersTableBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
 
+    const metricUsersEl = document.getElementById("metricTotalUsers");
+    if (metricUsersEl) metricUsersEl.textContent = users.length;
+
     users.forEach(user => {
-        const fullName = `${user.firstName} ${user.lastName}`;
-        const rolesHtml = (user.roles || []).map(r =>
-            `<span class="badge bg-primary me-1">${escapeHtml(r)}</span>`
-        ).join("");
-        const statusBadge = user.isActive
-            ? '<span class="badge bg-success">Aktiv</span>'
-            : '<span class="badge bg-secondary">Deaktiv</span>';
+        const firstName = user.firstName || user.FirstName || "";
+        const lastName = user.lastName || user.LastName || "";
+        const email = user.email || user.Email || "-";
+        const fullName = `${firstName} ${lastName}`.trim() || (email !== "-" ? email.split("@")[0] : "İstifadəçi");
+        const initials = (firstName && lastName)
+            ? `${firstName[0]}${lastName[0]}`.toUpperCase()
+            : (fullName[0] || "U").toUpperCase();
+
+        const rolesList = user.roles || user.Roles || [];
+        const rolesHtml = rolesList.map(r => {
+            const isAdmin = r.toLowerCase() === "admin";
+            return `<span class="badge-role ${isAdmin ? 'admin' : ''} me-1"><i class="bi ${isAdmin ? 'bi-shield-fill-check' : 'bi-person'} me-1"></i>${escapeHtml(r)}</span>`;
+        }).join("");
+
+        const isActive = user.isActive !== undefined ? user.isActive : (user.IsActive !== undefined ? user.IsActive : true);
+        const statusBadge = isActive
+            ? '<span class="badge-active"><i class="bi bi-check-circle-fill me-1"></i> Aktiv</span>'
+            : '<span class="badge-frozen"><i class="bi bi-x-circle-fill me-1"></i> Deaktiv</span>';
 
         const row = document.createElement("tr");
-        row.dataset.search = `${fullName} ${user.email}`.toLowerCase();
+        row.dataset.search = `${fullName} ${email} ${user.phoneNumber || ""}`.toLowerCase();
         row.innerHTML = `
-            <td>${escapeHtml(fullName)}</td>
-            <td>${escapeHtml(user.email)}</td>
-            <td>${escapeHtml(user.phoneNumber || "-")}</td>
-            <td>${rolesHtml || "-"}</td>
+            <td>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="user-avatar-mini">${initials}</div>
+                    <div>
+                        <div class="fw-bold" style="color: var(--dash-text-main); font-size: 0.95rem;">${escapeHtml(fullName)}</div>
+                        <small class="text-muted font-monospace" style="font-size: 0.75rem;">ID: ${escapeHtml((user.id || user.Id || "").slice(0, 8))}...</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-envelope text-muted"></i>
+                    <span class="fw-semibold" style="color: #334155;">${escapeHtml(email)}</span>
+                </div>
+            </td>
+            <td>
+                <span class="font-monospace text-muted">${escapeHtml(user.phoneNumber || user.PhoneNumber || "-")}</span>
+            </td>
+            <td>${rolesHtml || '<span class="text-muted">-</span>'}</td>
             <td>${statusBadge}</td>
         `;
         tbody.appendChild(row);
@@ -155,7 +245,8 @@ function renderUsers(users) {
 }
 
 function filterUsers() {
-    const query = document.getElementById("usersSearch").value.toLowerCase();
+    const searchEl = document.getElementById("usersSearch");
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : "";
     document.querySelectorAll("#usersTableBody tr").forEach(row => {
         row.classList.toggle("d-none", !row.dataset.search.includes(query));
     });
@@ -168,9 +259,9 @@ async function loadAccounts() {
     const errorBox = document.getElementById("accountsError");
     const container = document.getElementById("accountsTableContainer");
 
-    loading.classList.remove("d-none");
-    errorBox.classList.add("d-none");
-    container.classList.add("d-none");
+    if (loading) loading.classList.remove("d-none");
+    if (errorBox) errorBox.classList.add("d-none");
+    if (container) container.classList.add("d-none");
 
     try {
         const response = await apiFetch(`${API_BASE_URL}/admin/accounts`);
@@ -183,42 +274,60 @@ async function loadAccounts() {
         }
 
         accountsData = await response.json();
-        loading.classList.add("d-none");
-        container.classList.remove("d-none");
+        if (loading) loading.classList.add("d-none");
+        if (container) container.classList.remove("d-none");
         renderAccounts(accountsData);
 
     } catch (error) {
-        loading.classList.add("d-none");
-        errorBox.textContent = error.message;
-        errorBox.classList.remove("d-none");
+        if (loading) loading.classList.add("d-none");
+        if (errorBox) {
+            errorBox.textContent = error.message;
+            errorBox.classList.remove("d-none");
+        }
     }
 }
 
 function renderAccounts(accounts) {
     const tbody = document.getElementById("accountsTableBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
+
+    const metricAccsEl = document.getElementById("metricTotalAccounts");
+    if (metricAccsEl) metricAccsEl.textContent = accounts.length;
 
     accounts.forEach(account => {
         const typeLabel = getAccountTypeLabel(account.accountType);
         const isActive = account.status === 0 || account.status === "Active";
-        const statusLabel = isActive ? "Active" : "Frozen";
-        const statusClass = isActive ? "bg-success" : "bg-danger";
-        const actionLabel = isActive ? "Dondur" : "Aktivləşdir";
+        const statusBadge = isActive
+            ? '<span class="badge-active"><i class="bi bi-shield-check me-1"></i> Aktiv</span>'
+            : '<span class="badge-frozen"><i class="bi bi-snow me-1"></i> Dondurulub</span>';
+        
+        const actionBtnClass = isActive ? "btn-action-freeze" : "btn-action-unfreeze";
+        const actionLabel = isActive ? `<i class="bi bi-snow me-1"></i> Dondur` : `<i class="bi bi-unlock me-1"></i> Aktivləşdir`;
         const newStatus = isActive ? 1 : 0;
         const confirmMsg = isActive
-            ? "Bu hesabı dondurmaq istədiyinizə əminsiniz?"
-            : "Bu hesabı aktivləşdirmək istədiyinizə əminsiniz?";
+            ? "Bu hesabı dondurmaq istədiyinizə əminsiniz? Müştəri köçürmə edə bilməyəcək."
+            : "Bu hesabı yenidən aktivləşdirmək istədiyinizə əminsiniz?";
 
         const row = document.createElement("tr");
-        row.dataset.search = account.accountNumber.toLowerCase();
+        row.dataset.search = (account.accountNumber || "").toLowerCase();
         row.innerHTML = `
-            <td>${escapeHtml(account.accountNumber)}</td>
-            <td>${typeLabel}</td>
-            <td>${account.balance.toFixed(2)} AZN</td>
-            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
             <td>
-                <button class="btn btn-sm ${isActive ? "btn-outline-danger" : "btn-outline-success"} status-btn"
-                    data-id="${account.id}" data-status="${newStatus}" data-confirm="${escapeHtml(confirmMsg)}">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-credit-card text-success fs-5"></i>
+                    <span class="font-monospace fw-bold" style="color: var(--dash-text-main); font-size: 0.95rem;">${escapeHtml(account.accountNumber)}</span>
+                </div>
+            </td>
+            <td>
+                <span class="badge-role">${typeLabel}</span>
+            </td>
+            <td>
+                <span class="fw-bold text-success font-monospace" style="font-size: 1rem;">₼ ${Number(account.balance || 0).toFixed(2)}</span>
+            </td>
+            <td>${statusBadge}</td>
+            <td>
+                <button class="${actionBtnClass} status-btn"
+                    data-id="${account.id}" data-status="${newStatus}">
                     ${actionLabel}
                 </button>
             </td>
@@ -258,7 +367,8 @@ async function updateAccountStatus(id, status, confirmMsg) {
 }
 
 function filterAccounts() {
-    const query = document.getElementById("accountsSearch").value.toLowerCase();
+    const searchEl = document.getElementById("accountsSearch");
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : "";
     document.querySelectorAll("#accountsTableBody tr").forEach(row => {
         row.classList.toggle("d-none", !row.dataset.search.includes(query));
     });
@@ -266,12 +376,12 @@ function filterAccounts() {
 
 function getAccountTypeLabel(type) {
     const map = {
-        0: "Savings",
-        1: "Current",
-        "Savings": "Savings",
-        "Current": "Current"
+        0: "Cari Hesab",
+        1: "Yığım Hesabı",
+        "Savings": "Yığım Hesabı",
+        "Current": "Cari Hesab"
     };
-    return map[type] || String(type);
+    return map[type] || "Bank Hesabı";
 }
 
 // --- Loans Tab ---
@@ -282,10 +392,10 @@ async function loadLoans() {
     const container = document.getElementById("loansTableContainer");
     const emptyState = document.getElementById("loansEmpty");
 
-    loading.classList.remove("d-none");
-    errorBox.classList.add("d-none");
-    container.classList.add("d-none");
-    emptyState.classList.add("d-none");
+    if (loading) loading.classList.remove("d-none");
+    if (errorBox) errorBox.classList.add("d-none");
+    if (container) container.classList.add("d-none");
+    if (emptyState) emptyState.classList.add("d-none");
 
     try {
         const response = await apiFetch(`${API_BASE_URL}/loanapplication/pending`);
@@ -298,26 +408,32 @@ async function loadLoans() {
         }
 
         loansData = await response.json();
-        loading.classList.add("d-none");
+        if (loading) loading.classList.add("d-none");
 
-        if (loansData.length === 0) {
-            emptyState.classList.remove("d-none");
+        if (!loansData || loansData.length === 0) {
+            if (emptyState) emptyState.classList.remove("d-none");
             return;
         }
 
-        container.classList.remove("d-none");
+        if (container) container.classList.remove("d-none");
         renderLoans(loansData);
 
     } catch (error) {
-        loading.classList.add("d-none");
-        errorBox.textContent = error.message;
-        errorBox.classList.remove("d-none");
+        if (loading) loading.classList.add("d-none");
+        if (errorBox) {
+            errorBox.textContent = error.message;
+            errorBox.classList.remove("d-none");
+        }
     }
 }
 
 function renderLoans(loans) {
     const tbody = document.getElementById("loansTableBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
+
+    const metricLoansEl = document.getElementById("metricPendingLoans");
+    if (metricLoansEl) metricLoansEl.textContent = loans.length;
 
     loans.forEach(loan => {
         const formattedDate = formatDate(loan.createdAt);
@@ -325,13 +441,27 @@ function renderLoans(loans) {
         const row = document.createElement("tr");
         row.dataset.search = `${loan.userId || ""} ${loan.reason || ""}`.toLowerCase();
         row.innerHTML = `
-            <td>${(loan.amount ?? 0).toFixed(2)} AZN</td>
-            <td>${loan.term} ay</td>
-            <td>${escapeHtml(loan.reason)}</td>
-            <td>${formattedDate}</td>
             <td>
-                <button class="btn btn-sm btn-success me-1 approve-btn" data-id="${loan.id}">Təsdiqlə</button>
-                <button class="btn btn-sm btn-danger decline-btn" data-id="${loan.id}">Rədd et</button>
+                <span class="fw-bold text-success font-monospace" style="font-size: 1.05rem;">₼ ${Number(loan.amount ?? 0).toFixed(2)}</span>
+            </td>
+            <td>
+                <span class="fw-semibold" style="color: var(--dash-text-main);">${loan.term} ay</span>
+            </td>
+            <td>
+                <span class="text-secondary fw-medium">${escapeHtml(loan.reason || "-")}</span>
+            </td>
+            <td>
+                <span class="text-muted small font-monospace">${formattedDate}</span>
+            </td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn-action-approve approve-btn" data-id="${loan.id}">
+                        <i class="bi bi-check-lg me-1"></i> Təsdiqlə
+                    </button>
+                    <button class="btn-action-decline decline-btn" data-id="${loan.id}">
+                        <i class="bi bi-x-lg me-1"></i> İmtina
+                    </button>
+                </div>
             </td>
         `;
 
@@ -342,8 +472,8 @@ function renderLoans(loans) {
         });
 
         row.querySelector(".decline-btn").addEventListener("click", function () {
-            const reason = prompt("Zəhmət olmasa imtina səbəbini qeyd edin (məsələn: Gəlir kifayət deyil):");
-            if (reason === null) return; // Admin cancelled prompt
+            const reason = prompt("Zəhmət olmasa imtina səbəbini qeyd edin (məsələn: Aylıq gəlir kifayət deyil):");
+            if (reason === null) return;
             reviewLoan(loan.id, 2, reason);
         });
 
@@ -380,6 +510,7 @@ async function reviewLoan(id, status, rejectionReason = null) {
 }
 
 function formatDate(dateString) {
+    if (!dateString) return "";
     const dateObj = new Date(dateString);
     const datePart = dateObj.toLocaleDateString("az-AZ", {
         day: "2-digit",
@@ -394,13 +525,15 @@ function formatDate(dateString) {
 }
 
 function escapeHtml(text) {
+    if (!text) return "";
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
 }
 
 function filterLoans() {
-    const query = document.getElementById("loansSearch").value.toLowerCase();
+    const searchEl = document.getElementById("loansSearch");
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : "";
     document.querySelectorAll("#loansTableBody tr").forEach(row => {
         row.classList.toggle("d-none", !row.dataset.search.includes(query));
     });

@@ -44,6 +44,12 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         sessionStorage.setItem("fullName", data.fullName);
         sessionStorage.setItem("roles", JSON.stringify(data.roles));
 
+        try {
+            localStorage.removeItem("token");
+            localStorage.removeItem("fullName");
+            localStorage.removeItem("roles");
+        } catch (_) {}
+
         window.location.href = "dashboard.html";
 
     } catch (error) {

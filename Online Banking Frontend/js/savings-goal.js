@@ -1,398 +1,642 @@
-let allGoals = [];
+// ==========================================================================
+// ONLINEBANK — SAVINGS GOALS CONTROLLER (savings-goal.js)
+// Prime Pay Layout: Cards grid, dynamic progress, top-up, withdraw, delete & refund
+// ==========================================================================
+
+let userGoals = [];
 let userAccounts = [];
+let activeGoalForModal = null;
+let isBalanceHidden = false;
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
 
+    // 1. Auth Guard
     if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
-    
-    // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
-    if (roles.includes("Admin") && !roles.includes("Customer")) {
-        window.location.href = "dashboard.html";
-        return;
+    // 2. Profile, Date & Logout
+    setupUserProfile();
+    setupCurrentDate();
+    setupLogoutHandlers();
+
+    // 3. Eye Toggle for Balance
+    const eyeBtn = document.getElementById("toggleBalanceVisibilityBtn");
+    if (eyeBtn) {
+        eyeBtn.addEventListener("click", toggleBalanceVisibility);
     }
 
-    if (roles.includes("Admin")) {
-        const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert", "navSavingsGoal"];
-        restrictedNavIds.forEach(function (id) {
-            const el = document.getElementById(id);
-            if (el) el.style.display = "none";
-        });
-    }
+    // 4. Setup Modals (Create, Top-up, Withdraw)
+    setupCreateGoalModal(token);
+    setupTopUpModal(token);
+    setupWithdrawModal(token);
 
-    // İstifadəçinin kartlarını və hədəf qutularını yükləyirik
-    await loadUserAccounts(token);
-    await loadSavingsGoals(token);
+    // 5. Load Dynamic Data
+    await loadInitialData(token);
 
-    // Axtarış filtri
-    const searchInput = document.getElementById("searchGoalInput");
-    if (searchInput) {
-        searchInput.addEventListener("input", filterAndRenderGoals);
-    }
-
-    // 1. Yeni Qutu Yaratma Formu
-    const createGoalForm = document.getElementById("createGoalForm");
-    if (createGoalForm) {
-        createGoalForm.addEventListener("submit", handleCreateGoal);
-    }
-
-    // 2. Qutuya Pul Atma Formu
-    const topUpForm = document.getElementById("topUpForm");
-    if (topUpForm) {
-        topUpForm.addEventListener("submit", handleTopUp);
-    }
-
-    // 3. Qutudan Pul Çıxarma Formu
-    const withdrawForm = document.getElementById("withdrawForm");
-    if (withdrawForm) {
-        withdrawForm.addEventListener("submit", handleWithdraw);
-    }
+    // 6. Notifications check
+    loadUnreadNotifications(token);
 });
 
-// İstifadəçinin aktiv kartlarını çəkirik
-async function loadUserAccounts(token) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/account`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+// --- Profile & Identity ---
+function setupUserProfile() {
+    const fullName = getAuthFullName();
+    const roles = getAuthRoles();
+    const isAdmin = roles.includes("Admin");
+    const avatarLetter = fullName.charAt(0).toUpperCase();
 
-        if (!response.ok) throw new Error("Hesablar yüklənə bilmədi");
+    const nameEl = document.getElementById("userFullName");
+    const roleEl = document.getElementById("userRole");
+    const avatarEl = document.getElementById("userAvatar");
+    const adminNav = document.getElementById("adminNavWrapper");
 
-        userAccounts = await response.json();
-    } catch (error) {
-        console.error("Hesabların yüklənməsi xətası:", error);
+    if (nameEl) nameEl.textContent = fullName;
+    if (roleEl) roleEl.textContent = isAdmin ? "Administrator" : "Müştəri";
+    if (avatarEl) avatarEl.textContent = avatarLetter;
+
+    if (adminNav && isAdmin) {
+        adminNav.style.display = "block";
     }
 }
 
-// Bütün yığım qutularını yükləyirik
-async function loadSavingsGoals(token) {
-    const loadingState = document.getElementById("loadingState");
-    const emptyState = document.getElementById("emptyState");
-    const container = document.getElementById("goalsContainer");
+function setupCurrentDate() {
+    const dateEl = document.getElementById("currentDateDisplay");
+    if (!dateEl) return;
+    const now = new Date();
+    const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+    dateEl.textContent = `${months[now.getMonth()]} ${now.getFullYear()}`;
+}
 
-    if (loadingState) loadingState.classList.remove("d-none");
-    if (emptyState) emptyState.classList.add("d-none");
-    if (container) container.classList.add("d-none");
+function setupLogoutHandlers() {
+    const logout = (e) => {
+        e.preventDefault();
+        clearAuth();
+        window.location.href = "index.html";
+    };
+    const btn1 = document.getElementById("dashLogoutBtn");
+    const btn2 = document.getElementById("dropdownLogoutBtn");
+    if (btn1) btn1.addEventListener("click", logout);
+    if (btn2) btn2.addEventListener("click", logout);
+}
 
+// --- Load Dynamic Accounts & Goals ---
+async function loadInitialData(token) {
     try {
-        const res = await fetch(`${API_BASE_URL}/SavingsGoal`, {
+        // Step A: Load Accounts
+        const accRes = await fetch(`${API_BASE_URL}/account`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
-
-        if (res.status === 401) {
-            sessionStorage.clear();
-            window.location.href = "index.html";
-            return;
+        if (accRes.ok) {
+            userAccounts = await accRes.json();
+            populateAccountDropdowns(userAccounts);
         }
 
-        if (!res.ok) throw new Error("Qutular yüklənərkən xəta baş verdi");
+        // Step B: Load Goals
+        await loadGoals(token);
 
-        allGoals = await res.json();
-        
-        if (loadingState) loadingState.classList.add("d-none");
-        filterAndRenderGoals();
-
-    } catch (error) {
-        if (loadingState) loadingState.classList.add("d-none");
-        showGlobalAlert(error.message, "danger");
+    } catch (err) {
+        console.error("Məlumat yükləmə xətası:", err);
     }
 }
 
-// Qutuları ekranda göstərmək
-function filterAndRenderGoals() {
-    const searchInput = document.getElementById("searchGoalInput");
-    const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
-    const container = document.getElementById("goalsContainer");
-    const emptyState = document.getElementById("emptyState");
+async function loadGoals(token) {
+    const container = document.getElementById("goalsCardsContainer");
+    try {
+        const res = await fetch(`${API_BASE_URL}/savingsgoal`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
 
-    let filtered = allGoals;
-    if (query) {
-        filtered = filtered.filter(g => g.title.toLowerCase().includes(query));
+        if (!res.ok) {
+            if (res.status === 401) {
+                clearAuth();
+                window.location.href = "index.html";
+                return;
+            }
+            throw new Error("Yığım qutuları alına bilmədi.");
+        }
+
+        userGoals = await res.json();
+        renderOverviewMetrics(userGoals);
+        renderGoalsCards(userGoals, token);
+
+    } catch (err) {
+        if (container) {
+            container.innerHTML = `<div class="col-12 text-center text-danger py-4">${err.message}</div>`;
+        }
     }
+}
+
+function populateAccountDropdowns(accounts) {
+    const topUpSelect = document.getElementById("topUpAccountSelect");
+    const withdrawSelect = document.getElementById("withdrawAccountSelect");
+
+    if (topUpSelect) topUpSelect.innerHTML = "";
+    if (withdrawSelect) withdrawSelect.innerHTML = "";
+
+    const activeAccounts = accounts.filter(a => a.status === 0);
+
+    activeAccounts.forEach(acc => {
+        const typeName = acc.accountType === 0 ? "Əmanət" : "Cari";
+        const num = acc.accountNumber ? acc.accountNumber.slice(-4) : acc.id;
+        const text = `${typeName} Hesab (*${num}) — Balans: ₼ ${formatMoney(acc.balance)}`;
+
+        if (topUpSelect) {
+            const opt1 = document.createElement("option");
+            opt1.value = acc.id;
+            opt1.textContent = text;
+            topUpSelect.appendChild(opt1);
+        }
+
+        if (withdrawSelect) {
+            const opt2 = document.createElement("option");
+            opt2.value = acc.id;
+            opt2.textContent = text;
+            withdrawSelect.appendChild(opt2);
+        }
+    });
+}
+
+// --- Render Overview Metrics ---
+function renderOverviewMetrics(goals) {
+    let totalSaved = 0;
+    let totalTarget = 0;
+
+    goals.forEach(g => {
+        totalSaved += (Number(g.currentAmount) || 0);
+        totalTarget += (Number(g.targetAmount) || 0);
+    });
+
+    const avgProgress = totalTarget > 0 ? Math.min(100, Math.round((totalSaved / totalTarget) * 100)) : 0;
+
+    const savedEl = document.getElementById("overviewTotalSaved");
+    const targetEl = document.getElementById("overviewTotalTarget");
+    const progressEl = document.getElementById("overviewAvgProgress");
+
+    if (savedEl) savedEl.textContent = isBalanceHidden ? "••••••" : `${formatMoney(totalSaved)} ₼`;
+    if (targetEl) targetEl.textContent = `${formatMoney(totalTarget)} ₼`;
+    if (progressEl) progressEl.textContent = `${avgProgress}%`;
+}
+
+// --- Render Prime Pay Goal Cards ---
+function renderGoalsCards(goals, token) {
+    const container = document.getElementById("goalsCardsContainer");
+    if (!container) return;
 
     container.innerHTML = "";
 
-    if (!filtered || filtered.length === 0) {
-        container.classList.add("d-none");
-        emptyState.classList.remove("d-none");
+    if (!goals || goals.length === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-piggy-bank fs-1 d-block mb-3 text-muted"></i>
+                <h5 class="text-white fw-bold">Aktiv Yığım Qutunuz Yoxdur</h5>
+                <p class="small text-muted mb-3">Yeni hədəf təyin edin, müntəzəm vəsait toplayın və arzularınızı reallaşdırın.</p>
+                <button type="button" class="btn-action-lime px-4 py-2" data-bs-toggle="modal" data-bs-target="#createGoalModal">
+                    <i class="bi bi-plus-lg me-1"></i> İlk Hədəf Qutusunu Açın
+                </button>
+            </div>
+        `;
         return;
     }
 
-    emptyState.classList.add("d-none");
-    container.classList.remove("d-none");
-
-    filtered.forEach(goal => {
-        const percent = Math.min(goal.progressPercentage || 0, 100);
-        const isCompleted = goal.currentAmount >= goal.TargetAmount || percent >= 100;
-        
-        const badgeHtml = isCompleted 
-            ? `<span class="badge bg-success text-white px-2.5 py-1.5" style="border-radius: 8px;">Tamamlandı 🎉</span>`
-            : `<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5" style="border-radius: 8px;">${percent}%</span>`;
-
-        const progressBarClass = isCompleted ? "bg-success" : "bg-primary";
-
-        const card = document.createElement("div");
-        card.className = "col-md-6 col-lg-4";
-        card.innerHTML = `
-            <div class="card p-4 border-0 shadow-sm h-100 d-flex flex-column justify-content-between" style="border-radius: 20px; transition: transform 0.2s, box-shadow 0.2s;">
-                <div>
-                    <!-- Header -->
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center justify-content-center text-primary rounded-circle" style="width: 40px; height: 40px; background: rgba(79, 70, 229, 0.12);">
-                                <i class="bi bi-piggy-bank fs-5"></i>
-                            </div>
-                            <h6 class="fw-bold text-white mb-0">${escapeHtml(goal.title)}</h6>
-                        </div>
-                        ${badgeHtml}
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="progress mb-3" style="height: 10px; border-radius: 6px; background-color: rgba(255, 255, 255, 0.08);">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated ${progressBarClass}" role="progressbar" style="width: ${percent}%; border-radius: 6px;"></div>
-                    </div>
-
-                    <!-- Amounts Info Box -->
-                    <div class="row g-2 p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
-                        <div class="col-6">
-                            <span class="text-muted small d-block" style="font-size: 0.75rem;">Yığılan</span>
-                            <span class="fw-bold text-white fs-6">${goal.currentAmount.toFixed(2)} ₼</span>
-                        </div>
-                        <div class="col-6 border-start" style="border-color: rgba(255, 255, 255, 0.08) !important;">
-                            <span class="text-muted small d-block" style="font-size: 0.75rem;">Hədəf</span>
-                            <span class="fw-bold text-primary fs-6">${goal.targetAmount.toFixed(2)} ₼</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="d-flex gap-2 pt-2 border-top" style="border-color: rgba(255, 255, 255, 0.08) !important;">
-                    <button class="btn btn-sm btn-success flex-grow-1 py-2 topup-btn d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-weight: 600;">
-                        <i class="bi bi-plus-circle"></i> Pul At
-                    </button>
-                    <button class="btn btn-sm btn-warning flex-grow-1 py-2 withdraw-btn text-dark d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-weight: 600;" ${goal.currentAmount <= 0 ? 'disabled' : ''}>
-                        <i class="bi bi-arrow-down-circle"></i> Çıxar
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger px-2.5 py-2 delete-btn" style="border-radius: 10px;" title="Qutunu Sil">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-
-        card.querySelector(".topup-btn").addEventListener("click", () => openTopUpModal(goal));
-        card.querySelector(".withdraw-btn").addEventListener("click", () => openWithdrawModal(goal));
-        card.querySelector(".delete-btn").addEventListener("click", () => deleteSavingsGoal(goal));
-
+    goals.forEach(goal => {
+        const card = createPrimeGoalCard(goal, token);
         container.appendChild(card);
     });
 }
 
-// 1. Create Goal
-async function handleCreateGoal(e) {
-    e.preventDefault();
-    const token = sessionStorage.getItem("token");
-    const errorBox = document.getElementById("createGoalErrorBox");
-    if (errorBox) errorBox.classList.add("d-none");
+function createPrimeGoalCard(goal, token) {
+    const card = document.createElement("div");
+    
+    const target = Number(goal.targetAmount) || 0;
+    const current = Number(goal.currentAmount) || 0;
+    const percent = Math.min(100, Math.max(0, Math.round(goal.progressPercentage || (target > 0 ? (current / target) * 100 : 0))));
+    const remaining = Math.max(0, target - current);
+    const isCompleted = current >= target && target > 0;
 
-    const title = document.getElementById("goalTitleInput").value.trim();
-    const targetAmount = parseFloat(document.getElementById("goalTargetInput").value);
+    card.className = `goal-card-prime ${isCompleted ? 'completed' : ''}`;
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/SavingsGoal`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ title, targetAmount })
-        });
+    // Category style mapping
+    const titleLower = (goal.title || "").toLowerCase();
+    let categoryClass = "general";
+    let iconBi = "bi-piggy-bank";
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Qutu yaradılarkən xəta baş verdi.");
-
-        bootstrap.Modal.getInstance(document.getElementById("createGoalModal")).hide();
-        document.getElementById("createGoalForm").reset();
-
-        showGlobalAlert("Yeni yığım qutunuz uğurla yaradıldı! 🎯", "success");
-        await loadSavingsGoals(token);
-
-    } catch (error) {
-        if (errorBox) {
-            errorBox.textContent = error.message;
-            errorBox.classList.remove("d-none");
-        }
+    if (titleLower.includes("tətil") || titleLower.includes("vacation")) {
+        categoryClass = "vacation";
+        iconBi = "bi-sun-fill";
+    } else if (titleLower.includes("avto") || titleLower.includes("car")) {
+        categoryClass = "car";
+        iconBi = "bi-car-front-fill";
+    } else if (titleLower.includes("fond") || titleLower.includes("emergency")) {
+        categoryClass = "emergency";
+        iconBi = "bi-shield-check";
+    } else if (titleLower.includes("təhsil") || titleLower.includes("education")) {
+        categoryClass = "education";
+        iconBi = "bi-mortarboard-fill";
+    } else if (titleLower.includes("invest")) {
+        categoryClass = "investment";
+        iconBi = "bi-graph-up-arrow";
     }
+
+    const savedFormatted = isBalanceHidden ? "••••" : formatMoney(current);
+    const remainingFormatted = isBalanceHidden ? "••••" : formatMoney(remaining);
+
+    card.innerHTML = `
+        <div>
+            <!-- Header Top -->
+            <div class="goal-header-top">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="goal-icon-box ${categoryClass}">
+                        <i class="bi ${iconBi}"></i>
+                    </div>
+                    <div>
+                        <h4 class="goal-title-h4">${escapeHtml(goal.title)}</h4>
+                        <span class="text-muted small">${isCompleted ? 'Hədəf tamamlandı! 🎯' : 'Aktiv Yığım'}</span>
+                    </div>
+                </div>
+                <span class="goal-badge-percent">${percent}%</span>
+            </div>
+
+            <!-- Amounts Flex -->
+            <div class="goal-amounts-flex">
+                <div class="goal-saved-val">₼ ${savedFormatted}</div>
+                <div class="goal-target-sub">Hədəf: <strong>₼ ${formatMoney(target)}</strong></div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="goal-progress-wrap">
+                <div class="goal-progress-fill" style="width: ${percent}%;"></div>
+            </div>
+
+            <!-- Meta Footer -->
+            <div class="goal-meta-footer">
+                <span>Qalan: <strong>₼ ${remainingFormatted}</strong></span>
+                <span>ID: #${goal.id}</span>
+            </div>
+        </div>
+
+        <!-- 3 Quick Action Buttons: Top Up, Withdraw, Delete -->
+        <div class="goal-actions-group">
+            <button type="button" class="btn-goal-action btn-topup">
+                <i class="bi bi-plus-lg text-success"></i> Artır
+            </button>
+            <button type="button" class="btn-goal-action btn-withdraw" ${current <= 0 ? 'disabled style="opacity:0.5;"' : ''}>
+                <i class="bi bi-dash-lg text-info"></i> Çıxar
+            </button>
+            <button type="button" class="btn-goal-action delete btn-delete" title="Qutunu Ləğv Et (Vəsait karta qayıdır)">
+                <i class="bi bi-trash3 text-danger"></i>
+            </button>
+        </div>
+    `;
+
+    // Event: Top Up
+    card.querySelector(".btn-topup").addEventListener("click", () => {
+        openTopUpModal(goal);
+    });
+
+    // Event: Withdraw
+    card.querySelector(".btn-withdraw").addEventListener("click", () => {
+        if (current > 0) {
+            openWithdrawModal(goal);
+        }
+    });
+
+    // Event: Delete Goal (Safe refund via backend)
+    card.querySelector(".btn-delete").addEventListener("click", () => {
+        confirmDeleteGoal(goal, token);
+    });
+
+    return card;
 }
 
-// 2. Open Top-Up Modal
+// --- Create Goal Modal ---
+function setupCreateGoalModal(token) {
+    const form = document.getElementById("createGoalForm");
+    const alertBox = document.getElementById("createGoalAlert");
+    const submitBtn = document.getElementById("btnSubmitCreateGoal");
+    const titleInput = document.getElementById("goalTitleInput");
+    const presetPills = document.querySelectorAll(".goal-preset-pill");
+
+    presetPills.forEach(pill => {
+        pill.addEventListener("click", function () {
+            if (titleInput) {
+                titleInput.value = this.dataset.title;
+            }
+        });
+    });
+
+    if (!form) return;
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const title = titleInput.value.trim();
+        const targetAmount = parseFloat(document.getElementById("goalTargetAmountInput").value);
+
+        if (!title || isNaN(targetAmount) || targetAmount <= 0) {
+            showAlert(alertBox, "Hədəfin adını və düzgün hədəf məbləğini daxil edin.", "danger");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Yaradılır...';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/savingsgoal`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: title,
+                    targetAmount: targetAmount
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || "Yığım qutusu yaradıla bilmədi.");
+            }
+
+            showAlert(alertBox, "Yeni yığım qutunuz uğurla açıldı!", "success");
+            form.reset();
+
+            setTimeout(async () => {
+                const modalEl = document.getElementById("createGoalModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                alertBox.classList.add("d-none");
+                await loadGoals(token);
+            }, 1000);
+
+        } catch (err) {
+            showAlert(alertBox, err.message, "danger");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-check2-circle"></i> Qutunu Aç';
+        }
+    });
+}
+
+// --- Top Up Modal Logic ---
 function openTopUpModal(goal) {
-    document.getElementById("topUpGoalId").value = goal.id;
-    document.getElementById("topUpGoalTitleDisplay").textContent = goal.title;
+    activeGoalForModal = goal;
+    document.getElementById("topUpGoalTitleDisplay").textContent = `${goal.title} (Hədəf: ₼ ${formatMoney(goal.targetAmount)})`;
     document.getElementById("topUpAmountInput").value = "";
-    
-    const errorBox = document.getElementById("topUpErrorBox");
-    if (errorBox) errorBox.classList.add("d-none");
+    document.getElementById("topUpGoalAlert").classList.add("d-none");
 
-    const select = document.getElementById("topUpAccountSelect");
-    select.innerHTML = '<option value="" disabled selected>Ödəniş üçün hesab seçin</option>';
-    
-    userAccounts.forEach(acc => {
-        const typeName = acc.accountType === 0 ? "Əmanət" : "Cari";
-        select.innerHTML += `<option value="${acc.id}">${typeName} - ${acc.accountNumber} (Balans: ${acc.balance.toFixed(2)} ₼)</option>`;
-    });
-
-    const modal = new bootstrap.Modal(document.getElementById("topUpModal"));
+    const modal = new bootstrap.Modal(document.getElementById("topUpGoalModal"));
     modal.show();
 }
 
-// Handle Top-Up Submit
-async function handleTopUp(e) {
-    e.preventDefault();
-    const token = sessionStorage.getItem("token");
-    const goalId = document.getElementById("topUpGoalId").value;
-    const accountId = parseInt(document.getElementById("topUpAccountSelect").value);
-    const amount = parseFloat(document.getElementById("topUpAmountInput").value);
-    const errorBox = document.getElementById("topUpErrorBox");
+function setupTopUpModal(token) {
+    const form = document.getElementById("topUpGoalForm");
+    const alertBox = document.getElementById("topUpGoalAlert");
+    const submitBtn = document.getElementById("btnSubmitTopUp");
+    const amountInput = document.getElementById("topUpAmountInput");
+    const quickPills = document.querySelectorAll(".topup-quick-pill");
 
-    if (errorBox) errorBox.classList.add("d-none");
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/SavingsGoal/${goalId}/topup`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ accountId, amount })
+    quickPills.forEach(pill => {
+        pill.addEventListener("click", function () {
+            amountInput.value = parseFloat(this.dataset.amt).toFixed(2);
         });
+    });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Pul əlavə edilərkən xəta baş verdi.");
+    if (!form) return;
 
-        bootstrap.Modal.getInstance(document.getElementById("topUpModal")).hide();
-        document.getElementById("topUpForm").reset();
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-        showGlobalAlert(`${amount.toFixed(2)} AZN qutuya uğurla əlavə edildi! 💸`, "success");
-        await loadUserAccounts(token);
-        await loadSavingsGoals(token);
+        if (!activeGoalForModal) return;
 
-    } catch (error) {
-        if (errorBox) {
-            errorBox.textContent = error.message;
-            errorBox.classList.remove("d-none");
+        const accountId = parseInt(document.getElementById("topUpAccountSelect").value);
+        const amount = parseFloat(amountInput.value);
+
+        if (!accountId || isNaN(amount) || amount <= 0) {
+            showAlert(alertBox, "Zəhmət olmasa hesabı və düzgün məbləği seçin.", "danger");
+            return;
         }
-    }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Köçürülür...';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/savingsgoal/${activeGoalForModal.id}/topup`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    accountId: accountId,
+                    amount: amount
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || "Qutuya vəsait əlavə edilə bilmədi.");
+            }
+
+            showAlert(alertBox, `Uğurlu! ${formatMoney(amount)} ₼ qutuya əlavə edildi.`, "success");
+
+            setTimeout(async () => {
+                const modalEl = document.getElementById("topUpGoalModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                alertBox.classList.add("d-none");
+                await loadGoals(token);
+            }, 1000);
+
+        } catch (err) {
+            showAlert(alertBox, err.message, "danger");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-arrow-down-circle"></i> Qutuya Köçür';
+        }
+    });
 }
 
-// 3. Open Withdraw Modal
+// --- Withdraw Modal Logic ---
 function openWithdrawModal(goal) {
-    document.getElementById("withdrawGoalId").value = goal.id;
-    document.getElementById("withdrawGoalTitleDisplay").textContent = goal.title;
-    document.getElementById("withdrawGoalCurrentDisplay").textContent = `${goal.currentAmount.toFixed(2)} AZN`;
-    document.getElementById("withdrawAmountInput").value = "";
-    document.getElementById("withdrawAmountInput").max = goal.currentAmount;
+    activeGoalForModal = goal;
+    document.getElementById("withdrawGoalAvailableDisplay").textContent = `₼ ${formatMoney(goal.currentAmount)}`;
+    const amtInput = document.getElementById("withdrawAmountInput");
+    amtInput.value = "";
+    amtInput.max = goal.currentAmount;
+    document.getElementById("withdrawGoalAlert").classList.add("d-none");
 
-    const errorBox = document.getElementById("withdrawErrorBox");
-    if (errorBox) errorBox.classList.add("d-none");
+    // Withdraw all button
+    const btnAll = document.getElementById("btnWithdrawAll");
+    if (btnAll) {
+        btnAll.onclick = () => {
+            amtInput.value = Number(goal.currentAmount).toFixed(2);
+        };
+    }
 
-    const select = document.getElementById("withdrawAccountSelect");
-    select.innerHTML = '<option value="" disabled selected>Pulun köçəcəyi hesabı seçin</option>';
-    
-    userAccounts.forEach(acc => {
-        const typeName = acc.accountType === 0 ? "Əmanət" : "Cari";
-        select.innerHTML += `<option value="${acc.id}">${typeName} - ${acc.accountNumber} (Balans: ${acc.balance.toFixed(2)} ₼)</option>`;
-    });
-
-    const modal = new bootstrap.Modal(document.getElementById("withdrawModal"));
+    const modal = new bootstrap.Modal(document.getElementById("withdrawGoalModal"));
     modal.show();
 }
 
-// Handle Withdraw Submit
-async function handleWithdraw(e) {
-    e.preventDefault();
-    const token = sessionStorage.getItem("token");
-    const goalId = document.getElementById("withdrawGoalId").value;
-    const accountId = parseInt(document.getElementById("withdrawAccountSelect").value);
-    const amount = parseFloat(document.getElementById("withdrawAmountInput").value);
-    const errorBox = document.getElementById("withdrawErrorBox");
+function setupWithdrawModal(token) {
+    const form = document.getElementById("withdrawGoalForm");
+    const alertBox = document.getElementById("withdrawGoalAlert");
+    const submitBtn = document.getElementById("btnSubmitWithdraw");
+    const amountInput = document.getElementById("withdrawAmountInput");
 
-    if (errorBox) errorBox.classList.add("d-none");
+    if (!form) return;
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/SavingsGoal/${goalId}/withdraw`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ accountId, amount })
-        });
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Pul çıxarılarkən xəta baş verdi.");
+        if (!activeGoalForModal) return;
 
-        bootstrap.Modal.getInstance(document.getElementById("withdrawModal")).hide();
-        document.getElementById("withdrawForm").reset();
+        const accountId = parseInt(document.getElementById("withdrawAccountSelect").value);
+        const amount = parseFloat(amountInput.value);
 
-        showGlobalAlert(`${amount.toFixed(2)} AZN kartınıza uğurla köçürüldü! 💳`, "success");
-        await loadUserAccounts(token);
-        await loadSavingsGoals(token);
-
-    } catch (error) {
-        if (errorBox) {
-            errorBox.textContent = error.message;
-            errorBox.classList.remove("d-none");
+        if (!accountId || isNaN(amount) || amount <= 0) {
+            showAlert(alertBox, "Düzgün hesab və çıxarılacaq məbləğ seçin.", "danger");
+            return;
         }
-    }
+
+        if (amount > (Number(activeGoalForModal.currentAmount) || 0)) {
+            showAlert(alertBox, "Qutudakı məbləğdən artıq vəsait çıxara bilməzsiniz.", "danger");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Geri qaytarılır...';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/savingsgoal/${activeGoalForModal.id}/withdraw`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    accountId: accountId,
+                    amount: amount
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || "Vəsaiti çıxarmaq mümkün olmadı.");
+            }
+
+            showAlert(alertBox, `Uğurlu! ${formatMoney(amount)} ₼ hesabınıza qaytarıldı.`, "success");
+
+            setTimeout(async () => {
+                const modalEl = document.getElementById("withdrawGoalModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                alertBox.classList.add("d-none");
+                await loadGoals(token);
+            }, 1000);
+
+        } catch (err) {
+            showAlert(alertBox, err.message, "danger");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-arrow-up-right"></i> Hesaba Qaytar';
+        }
+    });
 }
 
-// 4. Delete Goal (Təhlükəsiz Silmə / Auto-Refund)
-async function deleteSavingsGoal(goal) {
-    const token = sessionStorage.getItem("token");
-    let confirmMsg = `"${goal.title}" adlı yığım qutusunu silmək istədiyinizə əminsiniz?`;
-    
-    if (goal.currentAmount > 0) {
-        confirmMsg = `Bu qutuda ${goal.currentAmount.toFixed(2)} AZN vəsait var!\nQutunu sildikdə bu məbləğ avtomatik olaraq aktiv kartınıza geri qaytarılacaq.\n\nSilmək istədiyinizə əminsiniz?`;
+// --- Delete Goal with Safe Refund ---
+async function confirmDeleteGoal(goal, token) {
+    const current = Number(goal.currentAmount) || 0;
+    let msg = `"${goal.title}" yığım qutusunu ləğv etmək istədiyinizə əminsiniz?`;
+    if (current > 0) {
+        msg += `\n\nQutudakı ${formatMoney(current)} ₼ məbləğ avtomatik olaraq aktiv bank hesabınıza qaytarılacaq və heç bir vəsait itməyəcək.`;
     }
 
-    if (!confirm(confirmMsg)) return;
+    if (!confirm(msg)) return;
 
     try {
-        const res = await fetch(`${API_BASE_URL}/SavingsGoal/${goal.id}`, {
+        const res = await fetch(`${API_BASE_URL}/savingsgoal/${goal.id}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Qutu silinərkən xəta baş verdi");
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || "Qutu silinə bilmədi.");
+        }
 
-        showGlobalAlert(data.message || "Qutu uğurla silindi.", "success");
-        await loadUserAccounts(token);
-        await loadSavingsGoals(token);
+        alert("Yığım qutusu uğurla silindi və qalıq məbləğ hesabınıza qaytarıldı.");
+        await loadGoals(token);
 
-    } catch (error) {
-        showGlobalAlert(error.message, "danger");
+    } catch (err) {
+        alert(err.message);
     }
 }
 
-function showGlobalAlert(message, type) {
-    const alertBox = document.getElementById("globalAlertBox");
-    if (!alertBox) return;
-    alertBox.textContent = message;
-    alertBox.className = `alert alert-${type}`;
-    alertBox.classList.remove("d-none");
-    setTimeout(() => alertBox.classList.add("d-none"), 4000);
+// --- Toggle Balance Visibility Eye ---
+function toggleBalanceVisibility() {
+    isBalanceHidden = !isBalanceHidden;
+    const icon = document.getElementById("toggleEyeIcon");
+    if (icon) {
+        icon.className = isBalanceHidden ? "bi bi-eye-slash" : "bi bi-eye";
+    }
+    renderOverviewMetrics(userGoals);
+    renderGoalsCards(userGoals, getAuthToken());
 }
 
-function escapeHtml(text) {
-    if (!text) return "";
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
+// --- Formatters & Helpers ---
+function formatMoney(val) {
+    return Number(val || 0).toLocaleString('az-AZ', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function showAlert(box, msg, type) {
+    if (!box) return;
+    box.className = `alert alert-${type} mb-3`;
+    box.textContent = msg;
+    box.classList.remove("d-none");
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, function (m) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m];
+    });
+}
+
+// --- Notifications Badge ---
+async function loadUnreadNotifications(token) {
+    try {
+        const res = await fetch(`${API_BASE_URL}/notification/unread`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const notifications = await res.json();
+            const count = notifications ? notifications.length : 0;
+            const badge = document.getElementById("sidebarNotificationBadge");
+            const dot = document.getElementById("unreadBadgeDot");
+
+            if (count > 0) {
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = "inline-block";
+                }
+                if (dot) {
+                    dot.style.display = "block";
+                }
+            }
+        }
+    } catch (e) {
+        // Silent
+    }
 }

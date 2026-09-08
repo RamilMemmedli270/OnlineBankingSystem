@@ -1,283 +1,654 @@
-let allAccounts = [];
+// ==========================================================================
+// ONLINEBANK — ACCOUNTS & CARDS CONTROLLER (accounts.js)
+// F2: Multiple account types (Savings, Current), balance management,
+// in-place transfers, deposit, copy account number, dynamic cards carousel
+// ==========================================================================
 
-document.addEventListener("DOMContentLoaded", function () {
-    const token = sessionStorage.getItem("token");
+let userAccounts = [];
+let selectedAccountId = null;
+let isBalanceHidden = false;
 
+document.addEventListener("DOMContentLoaded", async function () {
+    const token = getAuthToken();
+
+    // 1. Auth Guard
     if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    // --- Admin üçün sidebar məhdudiyyəti və direct URL girişindən qorunma ---
-    const roles = JSON.parse(sessionStorage.getItem("roles") || "[]");
+    // 2. Profile, Date & Logout
+    setupUserProfile();
+    setupCurrentDate();
+    setupLogoutHandlers();
 
-    // Admin bu səhifəyə birbaşa URL ilə daxil olmağa çalışarsa, dashboard-a yönləndir
-    if (roles.includes("Admin") && !roles.includes("Customer")) {
-        window.location.href = "dashboard.html";
+    // 3. Eye Toggle for Balance
+    const eyeBtn = document.getElementById("toggleBalanceVisibilityBtn");
+    if (eyeBtn) {
+        eyeBtn.addEventListener("click", toggleBalanceVisibility);
+    }
+
+    // 4. Setup Modals (Create Account & Deposit)
+    setupCreateAccountModal(token);
+    setupDepositModal(token);
+
+    // 5. Setup Quick In-Place Transfer
+    setupQuickTransfer(token);
+
+    // 6. Copy Account Number Button
+    setupCopyButton();
+
+    // 7. Load Dynamic Accounts
+    await loadAccounts(token);
+
+    // 8. Notifications check
+    loadUnreadNotifications(token);
+});
+
+// --- Profile & Identity ---
+function setupUserProfile() {
+    const fullName = getAuthFullName();
+    const roles = getAuthRoles();
+    const isAdmin = roles.includes("Admin");
+    const avatarLetter = fullName.charAt(0).toUpperCase();
+
+    const nameEl = document.getElementById("userFullName");
+    const roleEl = document.getElementById("userRole");
+    const avatarEl = document.getElementById("userAvatar");
+    const adminNav = document.getElementById("adminNavWrapper");
+
+    if (nameEl) nameEl.textContent = fullName;
+    if (roleEl) roleEl.textContent = isAdmin ? "Administrator" : "Müştəri";
+    if (avatarEl) avatarEl.textContent = avatarLetter;
+
+    if (adminNav && isAdmin) {
+        adminNav.style.display = "block";
+    }
+}
+
+function setupCurrentDate() {
+    const dateEl = document.getElementById("currentDateDisplay");
+    if (!dateEl) return;
+    const now = new Date();
+    const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+    dateEl.textContent = `${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+
+function setupLogoutHandlers() {
+    const logout = (e) => {
+        e.preventDefault();
+        clearAuth();
+        window.location.href = "index.html";
+    };
+    const btn1 = document.getElementById("dashLogoutBtn");
+    const btn2 = document.getElementById("dropdownLogoutBtn");
+    if (btn1) btn1.addEventListener("click", logout);
+    if (btn2) btn2.addEventListener("click", logout);
+}
+
+// --- Load Dynamic Accounts from API ---
+async function loadAccounts(token) {
+    try {
+        const res = await fetch(`${API_BASE_URL}/account`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                clearAuth();
+                window.location.href = "index.html";
+                return;
+            }
+            throw new Error("Hesablar alına bilmədi.");
+        }
+
+        userAccounts = await res.json();
+
+        if (!userAccounts || userAccounts.length === 0) {
+            renderEmptyAccountsState();
+            return;
+        }
+
+        // Set default selected account if not set or not existing
+        if (!selectedAccountId || !userAccounts.find(a => a.id === selectedAccountId)) {
+            selectedAccountId = userAccounts[0].id;
+        }
+
+        // Render Cards Slider & Details
+        renderCardsSlider(userAccounts);
+        updateSelectedAccountDetails();
+        populateTransferSelects(userAccounts);
+
+    } catch (err) {
+        console.error("Hesabları yükləmə xətası:", err);
+    }
+}
+
+function renderEmptyAccountsState() {
+    const container = document.getElementById("accountsCardsContainer");
+    if (container) {
+        container.innerHTML = `
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-credit-card-2-front fs-1 d-block mb-3 text-muted"></i>
+                <h5 class="text-white fw-bold">Heç bir bank hesabınız yoxdur</h5>
+                <p class="small text-muted mb-3">Gündəlik xərclər və ya yığım üçün dərhal ilk hesabınızı açın.</p>
+                <button type="button" class="btn-action-lime px-4 py-2" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+                    <i class="bi bi-plus-lg me-1"></i> İlk Hesabınızı Açın
+                </button>
+            </div>
+        `;
+    }
+}
+
+// --- Render Bank Cards (Matching Vaultix Screenshot) ---
+function renderCardsSlider(accounts) {
+    const container = document.getElementById("accountsCardsContainer");
+    if (!container) return;
+
+    container.innerHTML = "";
+    const fullName = localStorage.getItem("fullName") || "MÜŞTƏRİ";
+
+    // Card color themes for variety (matching screenshot: purple, blue, dark)
+    const themes = ['theme-purple', 'theme-blue', 'theme-dark'];
+
+    accounts.forEach((acc, idx) => {
+        const isSelected = acc.id === selectedAccountId;
+        const themeClass = themes[idx % themes.length];
+        const isSavings = acc.accountType === 0;
+        const typeLabel = isSavings ? "Əmanət" : "Cari";
+        const network = isSavings ? "Mastercard" : "VISA";
+        const num = acc.accountNumber || `ACC-${acc.id}`;
+        
+        let maskedNum = "•••• •••• •••• ••••";
+        if (num.length >= 12) {
+            maskedNum = `${num.slice(0, 4)} ${num.slice(4, 8)} ${num.slice(8, 12)} ${num.slice(-4)}`;
+        } else {
+            maskedNum = `5355 0348 5945 ${String(acc.id).padStart(4, '0')}`;
+        }
+
+        const balFormatted = formatMoney(acc.balance);
+
+        const card = document.createElement("div");
+        card.className = `bank-card-selectable ${themeClass} ${isSelected ? 'active-card' : ''}`;
+        card.dataset.accountId = acc.id;
+
+        card.innerHTML = `
+            <span class="card-selected-badge">✓ Seçilib</span>
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="small fw-bold text-uppercase" style="letter-spacing: 1px; opacity: 0.85;">${typeLabel} • OnlineBank</span>
+                <span class="small fw-bold font-monospace bg-black bg-opacity-25 px-2 py-1 rounded">₼ ${isBalanceHidden ? '••••' : balFormatted}</span>
+            </div>
+
+            <div class="card-chip-box mb-3"></div>
+
+            <div class="card-number-embossed fs-5 mb-3" style="letter-spacing: 2px;">
+                ${maskedNum}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-end">
+                <div>
+                    <div class="card-label-small" style="font-size: 0.65rem; opacity: 0.7;">Kart Sahibi</div>
+                    <div class="fw-bold small text-uppercase">${escapeHtml(fullName)}</div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold font-monospace" style="font-size: 0.75rem; opacity: 0.8;">12/29</div>
+                    <div class="fw-bold fst-italic" style="font-size: 1.1rem; letter-spacing: 1px;">${network}</div>
+                </div>
+            </div>
+        `;
+
+        // Card Selection Event
+        card.addEventListener("click", function () {
+            selectedAccountId = acc.id;
+            document.querySelectorAll(".bank-card-selectable").forEach(c => c.classList.remove("active-card"));
+            this.classList.add("active-card");
+            updateSelectedAccountDetails();
+            populateTransferSelects(userAccounts);
+        });
+
+        container.appendChild(card);
+    });
+}
+
+// --- Update Account Details Panel (Left Column) ---
+function updateSelectedAccountDetails() {
+    const acc = userAccounts.find(a => a.id === selectedAccountId);
+    if (!acc) return;
+
+    const typeEl = document.getElementById("detailAccountType");
+    const numEl = document.getElementById("detailAccountNumber");
+    const idEl = document.getElementById("detailAccountId");
+    const balEl = document.getElementById("detailAccountBalance");
+    const statusEl = document.getElementById("detailAccountStatusBadge");
+    const dateEl = document.getElementById("detailAccountCreated");
+    const depositBtn = document.getElementById("btnDepositSelected");
+
+    const isSavings = acc.accountType === 0;
+    if (typeEl) typeEl.textContent = isSavings ? "Əmanət Hesabı (Savings)" : "Cari Hesab (Checking / Current)";
+    if (numEl) {
+        numEl.textContent = acc.accountNumber || `AZ28OBBK${String(acc.id).padStart(16, '0')}`;
+        numEl.dataset.fullNumber = acc.accountNumber || `AZ28OBBK${String(acc.id).padStart(16, '0')}`;
+    }
+    if (idEl) idEl.textContent = `#${acc.id}`;
+    if (balEl) {
+        balEl.textContent = isBalanceHidden ? "••••••" : `${formatMoney(acc.balance)} ₼`;
+    }
+
+    if (statusEl) {
+        if (acc.status === 1) { // Frozen
+            statusEl.textContent = "Dondurulub (Frozen)";
+            statusEl.className = "badge bg-danger-subtle text-danger small px-2 py-1";
+        } else {
+            statusEl.textContent = "Aktiv (Active)";
+            statusEl.className = "badge bg-success-subtle text-success small px-2 py-1";
+        }
+    }
+
+    if (dateEl) {
+        dateEl.textContent = formatDate(acc.createdAt || new Date().toISOString());
+    }
+
+    // Deposit Button Pre-selection
+    if (depositBtn) {
+        depositBtn.onclick = () => {
+            const modalSelect = document.getElementById("depositTargetAccountSelect");
+            if (modalSelect) modalSelect.value = acc.id;
+            const depositModal = new bootstrap.Modal(document.getElementById("depositModal"));
+            depositModal.show();
+        };
+    }
+}
+
+// --- Copy Account Number Button ---
+function setupCopyButton() {
+    const btn = document.getElementById("copyAccNumberBtn");
+    if (!btn) return;
+
+    btn.addEventListener("click", function () {
+        const numEl = document.getElementById("detailAccountNumber");
+        const fullNum = numEl ? (numEl.dataset.fullNumber || numEl.textContent) : "";
+        if (fullNum) {
+            navigator.clipboard.writeText(fullNum).then(() => {
+                btn.innerHTML = '<i class="bi bi-check text-success"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="bi bi-copy"></i>';
+                }, 1500);
+            });
+        }
+    });
+}
+
+// --- Quick In-Place Transfer (Right Column) ---
+function populateTransferSelects(accounts) {
+    const fromSelect = document.getElementById("quickFromAccountSelect");
+    const toSelect = document.getElementById("quickToAccountSelect");
+    if (!fromSelect || !toSelect) return;
+
+    fromSelect.innerHTML = "";
+    toSelect.innerHTML = "";
+
+    accounts.forEach(acc => {
+        const typeLabel = acc.accountType === 0 ? "Əmanət" : "Cari";
+        const num = acc.accountNumber ? acc.accountNumber.slice(-4) : acc.id;
+        const opt = document.createElement("option");
+        opt.value = acc.id;
+        opt.textContent = `${typeLabel} (*${num}) — ₼ ${formatMoney(acc.balance)}`;
+        fromSelect.appendChild(opt);
+    });
+
+    // Set selected card as From Account
+    if (selectedAccountId) {
+        fromSelect.value = selectedAccountId;
+    }
+
+    // Populate To Account with remaining accounts
+    updateToAccountSelect();
+
+    fromSelect.onchange = function () {
+        selectedAccountId = parseInt(this.value);
+        document.querySelectorAll(".bank-card-selectable").forEach(c => {
+            if (parseInt(c.dataset.accountId) === selectedAccountId) {
+                c.classList.add("active-card");
+            } else {
+                c.classList.remove("active-card");
+            }
+        });
+        updateSelectedAccountDetails();
+        updateToAccountSelect();
+    };
+}
+
+function updateToAccountSelect() {
+    const fromSelect = document.getElementById("quickFromAccountSelect");
+    const toSelect = document.getElementById("quickToAccountSelect");
+    if (!fromSelect || !toSelect) return;
+
+    const fromId = parseInt(fromSelect.value);
+    toSelect.innerHTML = '<option value="" disabled selected>Digər hesabınızı seçin...</option>';
+
+    const candidates = userAccounts.filter(a => a.id !== fromId && a.status === 0);
+    if (candidates.length === 0) {
+        const opt = document.createElement("option");
+        opt.disabled = true;
+        opt.textContent = "Köçürmə üçün başqa aktiv hesabınız yoxdur";
+        toSelect.appendChild(opt);
         return;
     }
 
-    if (roles.includes("Admin")) {
-        const restrictedNavIds = ["navAccounts", "navTransfer", "navTransactions", "navLoans", "navNotifications", "navBalanceAlert"];
-        restrictedNavIds.forEach(function (id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.style.display = "none";
+    candidates.forEach(acc => {
+        const typeLabel = acc.accountType === 0 ? "Əmanət" : "Cari";
+        const num = acc.accountNumber ? acc.accountNumber.slice(-4) : acc.id;
+        const opt = document.createElement("option");
+        opt.value = acc.accountNumber;
+        opt.textContent = `${typeLabel} Hesab (*${num}) — Qalıq: ₼ ${formatMoney(acc.balance)}`;
+        toSelect.appendChild(opt);
+    });
+}
+
+function setupQuickTransfer(token) {
+    const form = document.getElementById("quickTransferForm");
+    const amountInput = document.getElementById("quickAmountInput");
+    const alertBox = document.getElementById("quickTransferAlert");
+    const submitBtn = document.getElementById("quickTransferSubmitBtn");
+    const quickPills = document.querySelectorAll(".quick-amt-pill");
+
+    if (!form) return;
+
+    // Quick Amount Pills
+    quickPills.forEach(pill => {
+        pill.addEventListener("click", function () {
+            const amtType = this.dataset.amt;
+            const fromAcc = userAccounts.find(a => a.id === selectedAccountId);
+            if (amtType === "max") {
+                if (fromAcc) {
+                    amountInput.value = Math.max(0, Number(fromAcc.balance) || 0).toFixed(2);
+                }
+            } else {
+                amountInput.value = parseFloat(amtType).toFixed(2);
             }
         });
-    }
-    // --- /Admin məhdudiyyəti ---
+    });
 
-    loadAccounts();
-
-    const typeFilterSelect = document.getElementById("accountTypeFilter");
-    if (typeFilterSelect) {
-        typeFilterSelect.addEventListener("change", function () {
-            filterAndRenderAccounts();
-        });
-    }
-
-    const searchInput = document.getElementById("searchInput");
-    if (searchInput) {
-        searchInput.addEventListener("input", function () {
-            filterAndRenderAccounts();
-        });
-    }
-
-    document.getElementById("createAccountForm").addEventListener("submit", async function (e) {
+    // Form Submit
+    form.addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        const accountType = parseInt(document.getElementById("accountType").value);
-        const modalErrorBox = document.getElementById("modalErrorBox");
-        modalErrorBox.classList.add("d-none");
+        const fromId = parseInt(document.getElementById("quickFromAccountSelect").value);
+        const toAccountNumber = document.getElementById("quickToAccountSelect").value;
+        const amount = parseFloat(amountInput.value);
+
+        if (!fromId || !toAccountNumber || isNaN(amount) || amount <= 0) {
+            showAlert(alertBox, "Zəhmət olmasa hesabı və düzgün məbləği daxil edin.", "danger");
+            return;
+        }
+
+        const fromAcc = userAccounts.find(a => a.id === fromId);
+        if (fromAcc && fromAcc.status === 1) {
+            showAlert(alertBox, "Göndərən hesab dondurulub! Əməliyyat aparıla bilməz.", "danger");
+            return;
+        }
+
+        if (fromAcc && amount > (Number(fromAcc.balance) || 0)) {
+            showAlert(alertBox, `Balansınız kifayət etmir! Mövcud: ${formatMoney(fromAcc.balance)} ₼`, "danger");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Köçürülür...';
 
         try {
-            const response = await fetch(`${API_BASE_URL}/account`, {
+            const res = await fetch(`${API_BASE_URL}/transaction/transfer`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ accountType })
+                body: JSON.stringify({
+                    fromAccountId: fromId,
+                    toAccountNumber: toAccountNumber,
+                    amount: amount,
+                    description: "Şəxsi Hesablararası Daxili Köçürmə"
+                })
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Hesab yaradılarkən xəta baş verdi");
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || "Köçürmə uğursuz oldu.");
             }
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById("createAccountModal"));
-            modal.hide();
-            document.getElementById("createAccountForm").reset();
+            showAlert(alertBox, `Uğurlu! ${formatMoney(amount)} ₼ hesablar arasında köçürüldü.`, "success");
+            amountInput.value = "";
 
-            loadAccounts();
+            // Refresh account balances
+            await loadAccounts(token);
 
-        } catch (error) {
-            modalErrorBox.textContent = error.message;
-            modalErrorBox.classList.remove("d-none");
+            setTimeout(() => {
+                alertBox.classList.add("d-none");
+            }, 3000);
+
+        } catch (err) {
+            showAlert(alertBox, err.message, "danger");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-arrow-right-circle me-2"></i><span>Vəsaiti Köçür (Transfer Funds)</span>';
         }
     });
+}
 
-    // Quick Amount Buttons click handler
-    document.addEventListener("click", function (e) {
-        if (e.target && e.target.classList.contains("quick-amount-btn")) {
-            const val = e.target.getAttribute("data-value");
-            const amountInput = document.getElementById("depositAmount");
-            if (amountInput) {
-                amountInput.value = val;
+// --- Create Account Modal ---
+function setupCreateAccountModal(token) {
+    const form = document.getElementById("createAccountModalForm");
+    const alertBox = document.getElementById("createAccModalAlert");
+    const submitBtn = document.getElementById("createAccSubmitBtn");
+
+    if (!form) return;
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const accountType = parseInt(document.getElementById("newAccType").value);
+        const initialBalance = parseFloat(document.getElementById("newAccInitialBalance").value) || 0;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Açılır...';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/account`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    accountType: accountType,
+                    initialBalance: initialBalance
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || "Hesab açıla bilmədi.");
             }
+
+            const createdAcc = await res.json().catch(() => null);
+            showAlert(alertBox, "Yeni bank hesabı uğurla açıldı!", "success");
+            form.reset();
+
+            if (createdAcc && createdAcc.id) {
+                selectedAccountId = createdAcc.id;
+            }
+
+            setTimeout(async () => {
+                const modalEl = document.getElementById("createAccountModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                alertBox.classList.add("d-none");
+                await loadAccounts(token);
+            }, 1000);
+
+        } catch (err) {
+            showAlert(alertBox, err.message, "danger");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-plus-lg"></i> Hesab Aç';
         }
     });
-});
+}
 
-async function loadAccounts() {
-    const token = sessionStorage.getItem("token");
-    const container = document.getElementById("accountsContainer");
-    const emptyState = document.getElementById("emptyState");
-    const errorBox = document.getElementById("errorBox");
+// --- Deposit Modal ---
+function setupDepositModal(token) {
+    const form = document.getElementById("depositModalForm");
+    const select = document.getElementById("depositTargetAccountSelect");
+    const alertBox = document.getElementById("depositModalAlert");
+    const submitBtn = document.getElementById("depositModalSubmitBtn");
 
-    errorBox.classList.add("d-none");
-    container.innerHTML = "";
+    if (!form) return;
 
+    // Populate Target Account options
+    const populateDepositSelect = () => {
+        if (!select) return;
+        select.innerHTML = "";
+        userAccounts.forEach(acc => {
+            const typeLabel = acc.accountType === 0 ? "Əmanət" : "Cari";
+            const num = acc.accountNumber ? acc.accountNumber.slice(-4) : acc.id;
+            const opt = document.createElement("option");
+            opt.value = acc.id;
+            opt.textContent = `${typeLabel} Hesab (*${num}) — Balans: ₼ ${formatMoney(acc.balance)}`;
+            select.appendChild(opt);
+        });
+        if (selectedAccountId) {
+            select.value = selectedAccountId;
+        }
+    };
+
+    const modalEl = document.getElementById("depositModal");
+    if (modalEl) {
+        modalEl.addEventListener("show.bs.modal", populateDepositSelect);
+    }
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const accountId = parseInt(select.value);
+        const amount = parseFloat(document.getElementById("depositModalAmount").value);
+        const description = document.getElementById("depositModalDescription").value.trim();
+
+        if (!accountId || isNaN(amount) || amount <= 0) {
+            showAlert(alertBox, "Düzgün məbləğ seçin.", "danger");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>İcra olunur...';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/transaction/deposit`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    accountId: accountId,
+                    amount: amount,
+                    description: description || "Hesab Balansını Artırma (Mədaxil)"
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || "Mədaxil əməliyyatı baş tutmadı.");
+            }
+
+            showAlert(alertBox, `Uğurlu! ${formatMoney(amount)} ₼ hesaba mədaxil edildi.`, "success");
+            form.reset();
+
+            setTimeout(async () => {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                alertBox.classList.add("d-none");
+                await loadAccounts(token);
+            }, 1000);
+
+        } catch (err) {
+            showAlert(alertBox, err.message, "danger");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-check2-circle"></i> Təsdiq et';
+        }
+    });
+}
+
+// --- Toggle Balance Visibility Eye ---
+function toggleBalanceVisibility() {
+    isBalanceHidden = !isBalanceHidden;
+    const icon = document.getElementById("toggleEyeIcon");
+    if (icon) {
+        icon.className = isBalanceHidden ? "bi bi-eye-slash" : "bi bi-eye";
+    }
+    renderCardsSlider(userAccounts);
+    updateSelectedAccountDetails();
+}
+
+// --- Formatters & Helpers ---
+function formatMoney(val) {
+    return Number(val || 0).toLocaleString('az-AZ', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function formatDate(iso) {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+function showAlert(box, msg, type) {
+    if (!box) return;
+    box.className = `alert alert-${type} mt-3`;
+    box.textContent = msg;
+    box.classList.remove("d-none");
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, function (m) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m];
+    });
+}
+
+// --- Notifications Badge ---
+async function loadUnreadNotifications(token) {
     try {
-        const response = await fetch(`${API_BASE_URL}/account`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
+        const res = await fetch(`${API_BASE_URL}/notification/unread`, {
+            headers: { "Authorization": `Bearer ${token}` }
         });
+        if (res.ok) {
+            const notifications = await res.json();
+            const count = notifications ? notifications.length : 0;
+            const badge = document.getElementById("sidebarNotificationBadge");
+            const dot = document.getElementById("unreadBadgeDot");
 
-        if (!response.ok) {
-            throw new Error("Hesablar yüklənərkən xəta baş verdi");
-        }
-
-        allAccounts = await response.json();
-        filterAndRenderAccounts();
-
-    } catch (error) {
-        errorBox.textContent = error.message;
-        errorBox.classList.remove("d-none");
-    }
-}
-
-function filterAndRenderAccounts() {
-    const filterSelect = document.getElementById("accountTypeFilter");
-    const filterValue = filterSelect ? filterSelect.value : "all";
-    
-    const searchInput = document.getElementById("searchInput");
-    const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
-    
-    let filtered = allAccounts;
-    if (filterValue !== "all") {
-        const typeNum = parseInt(filterValue);
-        filtered = allAccounts.filter(a => a.accountType === typeNum);
-    }
-    
-    if (query) {
-        filtered = filtered.filter(a => {
-            const typeLabel = a.accountType === 0 ? "əmanət" : "cari";
-            return (a.accountNumber && a.accountNumber.toLowerCase().includes(query)) || 
-                   typeLabel.includes(query);
-        });
-    }
-    
-    renderAccounts(filtered);
-}
-
-function renderAccounts(accounts) {
-    const container = document.getElementById("accountsContainer");
-    const emptyState = document.getElementById("emptyState");
-    
-    container.innerHTML = "";
-
-    if (!accounts || accounts.length === 0) {
-        emptyState.classList.remove("d-none");
-        return;
-    }
-
-    emptyState.classList.add("d-none");
-
-    accounts.forEach(account => {
-        const typeLabel = account.accountType === 0 ? "Əmanət" : "Cari";
-        const statusLabel = account.status === 0 ? "Aktiv" : "Bloklanmış";
-        const statusClass = account.status === 0 ? "bg-success" : "bg-danger";
-
-        // Modern Neobank Card Gradients
-        const cardGradient = account.accountType === 0 
-            ? "linear-gradient(135deg, #1e293b 0%, #4361ee 100%)" // Savings: Slate to Blue
-            : "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)"; // Current: Indigo to Cyan
-
-        // Format masked card number (e.g. **** 2624)
-        const maskedAccNumber = maskAccountNumber(account.accountNumber);
-
-        const card = document.createElement("div");
-        card.className = "col-md-6 col-lg-4 mb-4";
-        card.innerHTML = `
-            <div class="card account-card shadow-lg text-white border-0 position-relative overflow-hidden" style="background: ${cardGradient}; border-radius: 16px; min-height: 230px; transition: transform 0.2s, box-shadow 0.2s;">
-                <!-- Texture overlay -->
-                <div class="position-absolute w-100 h-100" style="background: linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0)); top: 0; left: 0; pointer-events: none; z-index: 1;"></div>
-                
-                <div class="card-body d-flex flex-column justify-content-between p-4 position-relative" style="z-index: 2; height: 100%;">
-                    <!-- Top Row: Logo & Badges -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold tracking-wider" style="font-size: 1.1rem; opacity: 0.95; letter-spacing: 1px;">🪙 QəpikPay</span>
-                        <div class="d-flex gap-2">
-                            <span class="badge" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); font-weight: 500; font-size: 0.75rem;">${typeLabel}</span>
-                            <span class="badge ${statusClass}" style="font-size: 0.75rem;">${statusLabel}</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Middle Row: Chip & Masked Account Number -->
-                    <div class="mb-2">
-                        <!-- Golden Sim Card Chip -->
-                        <div class="mb-2" style="width: 40px; height: 28px; background: linear-gradient(135deg, #facc15 0%, #eab308 100%); border-radius: 6px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);"></div>
-                        
-                        <p class="mb-0 text-uppercase tracking-wider text-white-50" style="font-size: 0.65rem; letter-spacing: 1px;">Hesab Nömrəsi</p>
-                        <p class="fs-5 fw-bold mb-0 font-monospace tracking-widest text-white" style="letter-spacing: 1px;">${maskedAccNumber}</p>
-                    </div>
-                    
-                    <!-- Bottom Row: Balance & Action Buttons -->
-                    <div class="mt-2">
-                        <div class="d-flex justify-content-between align-items-end mb-3">
-                            <div>
-                                <p class="mb-0 text-uppercase tracking-wider text-white-50" style="font-size: 0.65rem; letter-spacing: 1px;">Balans</p>
-                                <h3 class="fw-bold mb-0 text-white" style="font-size: 1.45rem;">${account.balance.toFixed(2)} AZN</h3>
-                            </div>
-                            <!-- Modern logo circles -->
-                            <div class="d-flex" style="opacity: 0.75;">
-                                <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 50%; margin-right: -8px; backdrop-filter: blur(2px);"></div>
-                                <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 50%; backdrop-filter: blur(2px);"></div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons inside Card -->
-                        <div class="d-flex gap-2" style="position: relative; z-index: 10;">
-                            <a href="transfer.html?from=${account.id}" class="btn btn-sm btn-outline-light flex-grow-1" style="border-radius: 10px; font-size: 0.8rem; font-weight: 600;"><i class="bi bi-arrow-left-right"></i> Köçür</a>
-                            ${account.status === 0 ? `<button class="btn btn-sm btn-light flex-grow-1" onclick="openDepositModal(${account.id}, '${account.accountNumber}')" style="border-radius: 10px; font-size: 0.8rem; font-weight: 600; color: var(--text-dark);"><i class="bi bi-wallet2"></i> Pul Yüklə</button>` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-let depositModalInstance = null;
-
-function openDepositModal(accountId, accountNumber) {
-    document.getElementById("depositAccountId").value = accountId;
-    document.getElementById("depositAccountNumber").value = accountNumber;
-    document.getElementById("depositAmount").value = "";
-    document.getElementById("depositDescription").value = "";
-    document.getElementById("depositModalErrorBox").classList.add("d-none");
-
-    if (!depositModalInstance) {
-        depositModalInstance = new bootstrap.Modal(document.getElementById("depositModal"));
-    }
-    depositModalInstance.show();
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const depositForm = document.getElementById("depositForm");
-    if (depositForm) {
-        depositForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const token = sessionStorage.getItem("token");
-
-            const accountId = parseInt(document.getElementById("depositAccountId").value);
-            const amount = parseFloat(document.getElementById("depositAmount").value);
-            const description = document.getElementById("depositDescription").value;
-            const depositModalErrorBox = document.getElementById("depositModalErrorBox");
-            depositModalErrorBox.classList.add("d-none");
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/transaction/deposit`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ accountId, amount, description })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || "Pul yüklənərkən xəta baş verdi");
+            if (count > 0) {
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = "inline-block";
                 }
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById("depositModal"));
-                modal.hide();
-                depositForm.reset();
-
-                loadAccounts();
-
-            } catch (error) {
-                depositModalErrorBox.textContent = error.message;
-                depositModalErrorBox.classList.remove("d-none");
+                if (dot) {
+                    dot.style.display = "block";
+                }
             }
-        });
+        }
+    } catch (e) {
+        // Silent error handling for notifications
     }
-});
+}

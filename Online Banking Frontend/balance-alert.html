@@ -3,140 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QəpikPay | Balans Xəbərdarlığı</title>
+    <title>OnlineBank | Balans Xəbərdarlıqları (Alert Settings)</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Unified Project Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="dashboard-body">
 
-    <div class="d-flex">
-        <!-- QəpikPay Dark Sidebar (Fixed Width) -->
-        <div class="invest-sidebar">
-            <div>
-                <div class="sidebar-logo mb-4">
-                    <div class="sidebar-brand-icon">🪙</div>
-                    <div class="d-flex flex-column">
-                        <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; color: #fff;">QəpikPay</span>
-                        <span style="font-size: 0.65rem; color: #f59e0b; font-weight: 600; letter-spacing: 0.2px;">"Son qəpiyinə qədər!"</span>
-                    </div>
+    <!-- ======================================================================
+         1. LEFT SIDEBAR NAVIGATION (Zentro Structure)
+         ====================================================================== -->
+    <aside class="dash-sidebar" id="dashSidebar">
+        <div>
+            <!-- Brand Logo -->
+            <a href="dashboard.html" class="sidebar-brand">
+                <div class="brand-icon-box">
+                    <i class="bi bi-shield-check"></i>
                 </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> İdarəetmə Paneli</a>
-                    </li>
-                    <li class="nav-item" id="navAccounts">
-                        <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
-                    </li>
-                    <li class="nav-item" id="navTransfer">
-                        <a class="nav-link" href="transfer.html"><i class="bi bi-arrow-left-right"></i> Köçürmə</a>
-                    </li>
-                    <li class="nav-item" id="navTransactions">
-                        <a class="nav-link" href="transactions.html"><i class="bi bi-clock-history"></i> Əməliyyatlar</a>
-                    </li>
-                    <li class="nav-item" id="navLoans">
-                        <a class="nav-link" href="loans.html"><i class="bi bi-cash-coin"></i> Kreditlər</a>
-                    </li>
-                    <li class="nav-item" id="navNotifications">
-                        <a class="nav-link" href="notifications.html"><i class="bi bi-bell"></i> Bildirişlər</a>
-                    </li>
-                    <li class="nav-item" id="navBalanceAlert">
-                        <a class="nav-link active" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
-                    </li>
-                    <li class="nav-item" id="navSavingsGoal">
-                        <a class="nav-link" href="savings-goal.html"><i class="bi bi-bullseye"></i> Yığım Hədəfi</a>
-                    </li>
-                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
-                        <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
-                    </li>
-                </ul>
+                <span>OnlineBank</span>
+            </a>
+
+            <!-- Section 1: Əsas Menyu -->
+            <div class="sidebar-section-title">ƏSAS MENYU</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="dashboard.html" class="sidebar-link">
+                        <i class="bi bi-grid-fill"></i>
+                        <span>İdarəetmə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transfer.html" class="sidebar-link">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Köçürmələr</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="sidebar-link">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Əməliyyatlar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="accounts.html" class="sidebar-link">
+                        <i class="bi bi-credit-card-2-front"></i>
+                        <span>Kartlar & Hesablar</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Section 2: Dəstək & Xidmətlər -->
+            <div class="sidebar-section-title mt-4">XİDMƏTLƏR & DƏSTƏK</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="loans.html" class="sidebar-link">
+                        <i class="bi bi-bank"></i>
+                        <span>Kreditlər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="savings-goal.html" class="sidebar-link">
+                        <i class="bi bi-piggy-bank"></i>
+                        <span>Yığım Qutuları</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notifications.html" class="sidebar-link">
+                        <i class="bi bi-bell"></i>
+                        <span>Bildirişlər</span>
+                        <span class="badge-nav" id="sidebarNotificationBadge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li id="adminNavWrapper" style="display: none;">
+                    <a href="admin.html" class="sidebar-link text-warning">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Admin Paneli</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Sidebar Footer (Active Link: Tənzimləmələr) -->
+        <div class="sidebar-footer">
+            <a href="balance-alert.html" class="sidebar-link active">
+                <i class="bi bi-gear-fill"></i>
+                <span>Tənzimləmələr</span>
+            </a>
+            <a href="#" class="sidebar-link text-danger" id="dashLogoutBtn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Çıxış</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ======================================================================
+         2. MAIN CONTENT: BALANCE ALERT SETTINGS (Desktop Web Banking Layout)
+         ====================================================================== -->
+    <main class="dash-main">
+
+        <!-- Topbar Toolbar -->
+        <header class="dash-topbar">
+            <!-- Header Title -->
+            <div>
+                <h1 class="h4 fw-bold text-white mb-1">
+                    <i class="bi bi-sliders text-success me-2"></i>Balans Xəbərdarlığı Tənzimləmələri
+                </h1>
+                <p class="text-muted small mb-0">Hesablarınız üzrə kritik balans hədlərini və maliyyə bildirişlərini fərdiləşdirin.</p>
             </div>
-            
-            <!-- Sidebar profile details -->
-            <div class="sidebar-profile-card">
-                <div class="profile-avatar" id="sidebarAvatar">U</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="sidebarName">İstifadəçi</div>
-                    <div class="profile-sub" id="sidebarRole">Müştəri</div>
-                    <a href="accounts.html" class="profile-link text-decoration-none mt-1 d-block" style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">Hesablarımı İdarə et →</a>
+
+            <!-- Right Actions -->
+            <div class="topbar-actions">
+                <!-- Date Pill -->
+                <div class="date-pill-btn">
+                    <i class="bi bi-calendar3"></i>
+                    <span id="currentDateDisplay">Bu ay</span>
+                </div>
+
+                <!-- Eye Toggle -->
+                <button class="icon-btn" id="toggleBalanceVisibilityBtn" title="Balansları Gizlət / Göstər">
+                    <i class="bi bi-eye" id="toggleEyeIcon"></i>
+                </button>
+
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="icon-btn" title="Bildirişlər">
+                    <i class="bi bi-bell"></i>
+                    <span class="badge-dot" id="unreadBadgeDot" style="display: none;"></span>
+                </a>
+
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <div class="user-profile-badge" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar-circle" id="userAvatar">U</div>
+                        <div class="user-meta-info d-none d-md-flex">
+                            <span class="name" id="userFullName">İstifadəçi</span>
+                            <span class="role" id="userRole">Müştəri</span>
+                        </div>
+                        <i class="bi bi-chevron-down ms-1 text-muted small"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end">
+                        <li><a class="dropdown-item-dark" href="accounts.html"><i class="bi bi-wallet2"></i> Hesablarım</a></li>
+                        <li><a class="dropdown-item-dark" href="balance-alert.html"><i class="bi bi-bell"></i> Balans Xəbərdarlıqları</a></li>
+                        <li><hr class="dropdown-divider-dark"></li>
+                        <li><a class="dropdown-item-dark text-danger" href="#" id="dropdownLogoutBtn"><i class="bi bi-box-arrow-right"></i> Sistemdən Çıxış</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Account Selection Bar (Account seçimi) -->
+        <div class="card bg-dark border-secondary p-3 mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label-muted mb-0"><i class="bi bi-credit-card-2-front me-1"></i> Hesab Seçimi (Account):</label>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-select dark-select" id="alertAccountSelect">
+                        <option value="" disabled selected>Hesablar yüklənir...</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-end">
+                    <span class="text-muted small">Cari Balans: </span>
+                    <strong class="text-success font-monospace" id="selectedAccBalanceDisplay">0.00 ₼</strong>
                 </div>
             </div>
         </div>
 
-        <!-- Flex Main Content Area -->
-        <div class="flex-grow-1 main-content-wrapper">
-            
-            <!-- Top Row: Notifications & Logout -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="search-container flex-grow-1">
-                    <!-- Placeholder search -->
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Axtarış...">
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-danger btn-sm px-3 py-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
-                </div>
-            </div>
-
-            <!-- Header greeting -->
-            <div class="mb-4 pb-2">
-                <h2 class="fw-bold text-white mb-1">Balans Xəbərdarlığı</h2>
-                <p class="text-muted small">Aşağı balans xəbərdarlığı ayarlarınızı tənzimləyin.</p>
-            </div>
-
-            <!-- Loading State -->
-            <div id="loadingState" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-2">Yüklənir...</p>
-            </div>
-
-            <!-- Alert Settings Form Container -->
-            <div id="formContainer" class="d-none">
-                <div class="card p-4 col-md-8 col-lg-6 border-0 shadow-sm" style="border-radius: 20px;">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <div class="d-flex align-items-center justify-content-center text-primary rounded-circle" style="width: 42px; height: 42px; background: rgba(79, 70, 229, 0.15);">
-                            <i class="bi bi-bell-fill" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <h5 class="fw-bold text-white mb-0">Balans Xəbərdarlığı</h5>
-                    </div>
-                    
-                    <p class="text-muted small mb-4">
-                        Hesabınızın balansı təyin etdiyiniz həddən aşağı düşdükdə sizə dərhal təhlükəsizlik bildirişi göndəriləcək.
-                    </p>
-
-                    <div id="alertBox" class="alert d-none" role="alert" style="border-radius: 12px; font-size: 0.95rem;"></div>
-
+        <!-- 2 Columns Grid: Alert Settings Form + Recent Alerts Feed -->
+        <div class="row g-4">
+            <!-- Left Column (8 cols): Toggle Settings List -->
+            <div class="col-lg-8">
+                <div class="alert-setting-card">
                     <form id="balanceAlertForm">
-                        <div class="mb-4">
-                            <label for="threshold" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Aşağı balans həddi (AZN)</label>
-                            <div class="input-group input-group-unified">
-                                <span class="input-group-text text-muted">₼</span>
-                                <input type="number" class="form-control" id="threshold" min="0" step="0.01" placeholder="0.00" style="padding: 10px 14px; font-weight: 500;" required>
+                        <div id="saveAlertStatus" class="alert d-none mb-4" role="alert"></div>
+
+                        <!-- 1. Balance drops below threshold (F7 Core Feature) -->
+                        <div class="alert-setting-row">
+                            <div class="alert-setting-left">
+                                <div class="alert-icon-box text-warning">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
+                                <div class="w-100">
+                                    <div class="alert-setting-title">Aşağı Balans Xəbərdarlığı (Balance drops below threshold)</div>
+                                    <div class="alert-setting-sub">Hesabınızdakı vəsait bu kritik həddən aşağı düşdükdə dərhal SMS və sistem bildirişi göndərilir.</div>
+
+                                    <!-- Threshold Input & Quick Pills -->
+                                    <div class="mt-2" id="thresholdInputWrap">
+                                        <div class="input-group" style="max-width: 280px;">
+                                            <span class="input-group-text bg-dark border-secondary text-muted">Hədd (₼)</span>
+                                            <input type="number" step="1" min="1" max="10000" class="form-control dark-input font-monospace fw-bold" id="thresholdAmountInput" value="50">
+                                            <span class="input-group-text bg-dark border-secondary text-white fw-bold">AZN</span>
+                                        </div>
+
+                                        <div class="quick-amt-pills-row mt-2">
+                                            <button type="button" class="quick-amt-pill threshold-pill" data-amt="25">25 ₼</button>
+                                            <button type="button" class="quick-amt-pill threshold-pill active" data-amt="50">50 ₼</button>
+                                            <button type="button" class="quick-amt-pill threshold-pill" data-amt="100">100 ₼</button>
+                                            <button type="button" class="quick-amt-pill threshold-pill" data-amt="250">250 ₼</button>
+                                            <button type="button" class="quick-amt-pill threshold-pill" data-amt="500">500 ₼</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Toggle ON/OFF -->
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input lime-switch" type="checkbox" id="lowBalanceToggle" checked>
                             </div>
                         </div>
-                        <div class="mb-4 form-check form-switch p-0 d-flex justify-content-between align-items-center">
-                            <div>
-                                <label class="form-check-label fw-semibold text-white mb-0" for="isEnabled" style="font-size: 0.9rem; cursor: pointer;">Bildirişləri Aktivləşdir</label>
-                                <div class="text-muted" style="font-size: 0.75rem;">Hədd keçildikdə sistem sizə avtomatik bildiriş göndərsin</div>
+
+                        <!-- 2. Large Deposit (İri Həcmli Mədaxil) -->
+                        <div class="alert-setting-row">
+                            <div class="alert-setting-left">
+                                <div class="alert-icon-box text-success">
+                                    <i class="bi bi-arrow-down-left-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="alert-setting-title">İri Həcmli Mədaxil (Large deposit)</div>
+                                    <div class="alert-setting-sub">Hesabınıza 1,000 ₼ və daha yuxarı məbləğdə vəsait köçürüldükdə anlıq xəbərdarlıq alırsınız.</div>
+                                </div>
                             </div>
-                            <input type="checkbox" class="form-check-input ms-0" id="isEnabled" role="switch" style="width: 44px; height: 22px; cursor: pointer;">
+                            <!-- Toggle ON/OFF -->
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input lime-switch" type="checkbox" id="largeDepositToggle" checked>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2.5 d-flex align-items-center justify-content-center gap-2" id="saveBtn" style="border-radius: 12px; font-weight: 600;">
-                            <i class="bi bi-save"></i> Ayarları Yadda Saxla
-                        </button>
+
+                        <!-- 3. Large Withdrawal (İri Həcmli Məxaric / Təhlükəsizlik) -->
+                        <div class="alert-setting-row">
+                            <div class="alert-setting-left">
+                                <div class="alert-icon-box text-danger">
+                                    <i class="bi bi-shield-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="alert-setting-title">İri Həcmli Məxaric (Large withdrawal)</div>
+                                    <div class="alert-setting-sub">500 ₼ və daha yuxarı xərcləmələr və ya köçürmələr zamanı təhlükəsizlik bildirişi təqdim olunur.</div>
+                                </div>
+                            </div>
+                            <!-- Toggle ON/OFF -->
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input lime-switch" type="checkbox" id="largeWithdrawToggle" checked>
+                            </div>
+                        </div>
+
+                        <!-- 4. Scheduled Payment (Planlaşdırılmış Ödənişlər) -->
+                        <div class="alert-setting-row">
+                            <div class="alert-setting-left">
+                                <div class="alert-icon-box text-info">
+                                    <i class="bi bi-calendar2-check-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="alert-setting-title">Planlaşdırılmış Ödənişlər (Scheduled payment)</div>
+                                    <div class="alert-setting-sub">Kredit və ya avtomatik ödəniş tarixindən 3 gün öncə balansın yoxlanılması və ödəniş xatırlatması.</div>
+                                </div>
+                            </div>
+                            <!-- Toggle ON/OFF -->
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input lime-switch" type="checkbox" id="scheduledPaymentToggle" checked>
+                            </div>
+                        </div>
+
+                        <!-- 5. Statement Availability (Hesab Çıxarışı Hazır Olduqda) -->
+                        <div class="alert-setting-row">
+                            <div class="alert-setting-left">
+                                <div class="alert-icon-box text-primary">
+                                    <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="alert-setting-title">Aylıq Çıxarış Hazır Olduqda (Statement availability)</div>
+                                    <div class="alert-setting-sub">Hər ayın sonunda rəsmi A4 bank çıxarışı sistemdə formalaşdıqda dərhal xəbərdarlıq alırsınız.</div>
+                                </div>
+                            </div>
+                            <!-- Toggle ON/OFF -->
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input lime-switch" type="checkbox" id="statementReadyToggle" checked>
+                            </div>
+                        </div>
+
+                        <!-- Save Changes Button -->
+                        <div class="pt-4 border-top border-secondary border-opacity-25 d-flex justify-content-end">
+                            <button type="submit" class="btn-action-lime px-5 py-3 fs-6" id="btnSaveAlertSettings">
+                                <i class="bi bi-check2-circle me-1"></i>
+                                <span>Dəyişiklikləri Saxla (Save Changes)</span>
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
 
+            <!-- Right Column (4 cols): Recent Alerts Feed -->
+            <div class="col-lg-4">
+                <div class="recent-activity-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="h6 fw-bold text-white mb-0">
+                            <i class="bi bi-bell-fill text-success me-2"></i>Son Bildirişlər
+                        </h4>
+                        <a href="notifications.html" class="view-all-link">Hamısı →</a>
+                    </div>
+
+                    <div id="recentAlertsList">
+                        <div class="text-center py-4 text-muted small">
+                            <div class="spinner-border spinner-border-sm text-success me-1"></div>
+                            Bildirişlər yüklənir...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Tip -->
+                <div class="info-tip-card mt-3">
+                    <i class="bi bi-shield-check fs-5"></i>
+                    <div>
+                        <strong class="text-white d-block mb-1">24/7 Təhlükəsiz Nəzarət</strong>
+                        OnlineBank bildiriş sistemi balansınızı daimi monitorinq edir və gözlənilməz kəsintilərin qarşısını almağa kömək edir.
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Hidden full name display for dashboard.js compatibility -->
-    <span id="fullNameDisplay" style="display: none;"></span>
+    </main>
 
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Configuration & Helpers -->
     <script src="js/config.js"></script>
-    <script src="js/dashboard.js"></script>
+
+    <!-- Balance Alert Controller -->
     <script src="js/balance-alert.js"></script>
 </body>
 </html>

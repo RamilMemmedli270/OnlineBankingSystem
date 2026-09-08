@@ -3,243 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QəpikPay | Yığım Qutuları</title>
+    <title>OnlineBank | Yığım Qutuları (Prime Pay Goals)</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Unified Project Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="dashboard-body">
 
-    <div class="d-flex">
-        <!-- QəpikPay Dark Sidebar -->
-        <div class="invest-sidebar">
+    <!-- ======================================================================
+         1. LEFT SIDEBAR NAVIGATION (Zentro Structure)
+         ====================================================================== -->
+    <aside class="dash-sidebar" id="dashSidebar">
+        <div>
+            <!-- Brand Logo -->
+            <a href="dashboard.html" class="sidebar-brand">
+                <div class="brand-icon-box">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <span>OnlineBank</span>
+            </a>
+
+            <!-- Section 1: Əsas Menyu -->
+            <div class="sidebar-section-title">ƏSAS MENYU</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="dashboard.html" class="sidebar-link">
+                        <i class="bi bi-grid-fill"></i>
+                        <span>İdarəetmə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transfer.html" class="sidebar-link">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Köçürmələr</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="sidebar-link">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Əməliyyatlar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="accounts.html" class="sidebar-link">
+                        <i class="bi bi-credit-card-2-front"></i>
+                        <span>Kartlar & Hesablar</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Section 2: Dəstək & Xidmətlər -->
+            <div class="sidebar-section-title mt-4">XİDMƏTLƏR & DƏSTƏK</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="loans.html" class="sidebar-link">
+                        <i class="bi bi-bank"></i>
+                        <span>Kreditlər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="savings-goal.html" class="sidebar-link active">
+                        <i class="bi bi-piggy-bank"></i>
+                        <span>Yığım Qutuları</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notifications.html" class="sidebar-link">
+                        <i class="bi bi-bell"></i>
+                        <span>Bildirişlər</span>
+                        <span class="badge-nav" id="sidebarNotificationBadge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li id="adminNavWrapper" style="display: none;">
+                    <a href="admin.html" class="sidebar-link text-warning">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Admin Paneli</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <a href="balance-alert.html" class="sidebar-link">
+                <i class="bi bi-gear"></i>
+                <span>Tənzimləmələr</span>
+            </a>
+            <a href="#" class="sidebar-link text-danger" id="dashLogoutBtn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Çıxış</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ======================================================================
+         2. MAIN CONTENT AREA: PRIME PAY SAVINGS GOALS
+         ====================================================================== -->
+    <main class="dash-main">
+
+        <!-- Topbar Toolbar -->
+        <header class="dash-topbar">
+            <!-- Header Title -->
             <div>
-                <div class="sidebar-logo mb-4">
-                    <div class="sidebar-brand-icon">🪙</div>
-                    <div class="d-flex flex-column">
-                        <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; color: #fff;">QəpikPay</span>
-                        <span style="font-size: 0.65rem; color: #f59e0b; font-weight: 600; letter-spacing: 0.2px;">"Son qəpiyinə qədər!"</span>
+                <h1 class="h4 fw-bold text-white mb-1">
+                    <i class="bi bi-piggy-bank text-success me-2"></i>Yığım Qutuları (Goals)
+                </h1>
+                <p class="text-muted small mb-0">Hər məqsədiniz üçün ayrıca qutu yaradın, vəsait toplayın və hədəfə çatın.</p>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="topbar-actions">
+                <!-- Date Pill -->
+                <div class="date-pill-btn">
+                    <i class="bi bi-calendar3"></i>
+                    <span id="currentDateDisplay">Bu ay</span>
+                </div>
+
+                <!-- Eye Toggle -->
+                <button class="icon-btn" id="toggleBalanceVisibilityBtn" title="Balansları Gizlət / Göstər">
+                    <i class="bi bi-eye" id="toggleEyeIcon"></i>
+                </button>
+
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="icon-btn" title="Bildirişlər">
+                    <i class="bi bi-bell"></i>
+                    <span class="badge-dot" id="unreadBadgeDot" style="display: none;"></span>
+                </a>
+
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <div class="user-profile-badge" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar-circle" id="userAvatar">U</div>
+                        <div class="user-meta-info d-none d-md-flex">
+                            <span class="name" id="userFullName">İstifadəçi</span>
+                            <span class="role" id="userRole">Müştəri</span>
+                        </div>
+                        <i class="bi bi-chevron-down ms-1 text-muted small"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end">
+                        <li><a class="dropdown-item-dark" href="accounts.html"><i class="bi bi-wallet2"></i> Hesablarım</a></li>
+                        <li><a class="dropdown-item-dark" href="balance-alert.html"><i class="bi bi-bell"></i> Balans Xəbərdarlıqları</a></li>
+                        <li><hr class="dropdown-divider-dark"></li>
+                        <li><a class="dropdown-item-dark text-danger" href="#" id="dropdownLogoutBtn"><i class="bi bi-box-arrow-right"></i> Sistemdən Çıxış</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Top Header Action: "+ Create Goal" -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h5 fw-bold text-white mb-0">Hədəflərim</h2>
+                <span class="text-muted small">Aktiv qutularınız və yığım irəliləyişi</span>
+            </div>
+            <!-- "+ Create Goal" CTA -->
+            <button type="button" class="btn-action-lime" data-bs-toggle="modal" data-bs-target="#createGoalModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>+ Yeni Hədəf Qutusu Aç</span>
+            </button>
+        </div>
+
+        <!-- 3 Overview Metrics Cards (Prime Pay Style) -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="tx-metric-card">
+                    <div class="tx-metric-icon bg-success-subtle text-success">
+                        <i class="bi bi-safe2"></i>
+                    </div>
+                    <div>
+                        <div class="tx-metric-val text-success" id="overviewTotalSaved">0.00 ₼</div>
+                        <div class="tx-metric-lbl">Ümumi Yığılan Məbləğ (Saved)</div>
                     </div>
                 </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> İdarəetmə Paneli</a>
-                    </li>
-                    <li class="nav-item" id="navAccounts">
-                        <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
-                    </li>
-                    <li class="nav-item" id="navTransfer">
-                        <a class="nav-link" href="transfer.html"><i class="bi bi-arrow-left-right"></i> Köçürmə</a>
-                    </li>
-                    <li class="nav-item" id="navTransactions">
-                        <a class="nav-link" href="transactions.html"><i class="bi bi-clock-history"></i> Əməliyyatlar</a>
-                    </li>
-                    <li class="nav-item" id="navLoans">
-                        <a class="nav-link" href="loans.html"><i class="bi bi-cash-coin"></i> Kreditlər</a>
-                    </li>
-                    <li class="nav-item" id="navNotifications">
-                        <a class="nav-link" href="notifications.html"><i class="bi bi-bell"></i> Bildirişlər</a>
-                    </li>
-                    <li class="nav-item" id="navBalanceAlert">
-                        <a class="nav-link" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
-                    </li>
-                    <li class="nav-item" id="navSavingsGoal">
-                        <a class="nav-link active" href="savings-goal.html"><i class="bi bi-piggy-bank"></i> Yığım Hədəfi</a>
-                    </li>
-                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
-                        <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
-                    </li>
-                </ul>
             </div>
-            
-            <!-- Sidebar profile details -->
-            <div class="sidebar-profile-card">
-                <div class="profile-avatar" id="sidebarAvatar">U</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="sidebarName">İstifadəçi</div>
-                    <div class="profile-sub" id="sidebarRole">Müştəri</div>
-                    <a href="accounts.html" class="profile-link text-decoration-none mt-1 d-block" style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">Hesablarımı İdarə et →</a>
+
+            <div class="col-md-4">
+                <div class="tx-metric-card">
+                    <div class="tx-metric-icon bg-info-subtle text-info">
+                        <i class="bi bi-flag"></i>
+                    </div>
+                    <div>
+                        <div class="tx-metric-val text-white" id="overviewTotalTarget">0.00 ₼</div>
+                        <div class="tx-metric-lbl">Ümumi Hədəf Məbləği (Target)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="tx-metric-card">
+                    <div class="tx-metric-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div>
+                        <div class="tx-metric-val text-warning" id="overviewAvgProgress">0%</div>
+                        <div class="tx-metric-lbl">Orta Tərəqqi (Progress %)</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-grow-1 main-content-wrapper">
-            
-            <!-- Top Row -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="search-container flex-grow-1">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" id="searchGoalInput" placeholder="Qutular arasında axtarış...">
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-danger btn-sm px-3 py-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
-                </div>
+        <!-- ======================================================================
+             3. PRIME PAY GOALS CARDS GRID
+             ====================================================================== -->
+        <section class="goals-cards-grid" id="goalsCardsContainer">
+            <div class="col-12 text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+                Yığım qutuları yüklənir...
             </div>
+        </section>
 
-            <!-- Header & Action -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 gap-3">
-                <div>
-                    <h2 class="fw-bold text-white mb-1">Yığım Qutuları (Banka)</h2>
-                    <p class="text-muted small mb-0">Xəyallarınız üçün virtual qumbaralar yaradın, istənilən vaxt pul atın və ya çıxarın.</p>
-                </div>
-                <button class="btn btn-primary px-4 py-2.5 d-flex align-items-center gap-2" style="border-radius: 12px; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#createGoalModal">
-                    <i class="bi bi-plus-circle"></i> Yeni Qutu Yarat
-                </button>
-            </div>
+    </main>
 
-            <!-- Alert Box -->
-            <div id="globalAlertBox" class="alert d-none" role="alert" style="border-radius: 12px;"></div>
-
-            <!-- Loading State -->
-            <div id="loadingState" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-2">Qutular yüklənir...</p>
-            </div>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="text-center text-muted py-5 d-none">
-                <div class="mb-3" style="font-size: 3.5rem;">🏦</div>
-                <h5 class="fw-bold text-white mb-2">Hələ heç bir yığım qutunuz yoxdur</h5>
-                <p class="small text-muted mb-4 col-md-6 mx-auto">Yeni bir qutu açaraq xəyallarınız (məsələn: Yeni Telefon, Avtomobil, Səyahət) üçün yığıma başlayın!</p>
-                <button class="btn btn-primary px-4 py-2.5" style="border-radius: 12px; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#createGoalModal">
-                    <i class="bi bi-plus-circle"></i> İlk Qutunu Aç
-                </button>
-            </div>
-
-            <!-- Goals Grid Container -->
-            <div id="goalsContainer" class="row g-4 d-none">
-                <!-- JavaScript ilə qutu kartları bura render olunacaq -->
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Hidden element for dashboard.js compatibility -->
-    <span id="fullNameDisplay" style="display: none;"></span>
-
-    <!-- 1. Modal: Create Savings Goal -->
+    <!-- ======================================================================
+         MODAL 1: YENİ HƏDƏF QUTUSU YARAT (+ Create Goal)
+         ====================================================================== -->
     <div class="modal fade" id="createGoalModal" tabindex="-1" aria-labelledby="createGoalModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold" id="createGoalModalLabel">🎯 Yeni Yığım Qutusu Aç</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content dark-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="createGoalModalLabel">
+                        <i class="bi bi-piggy-bank text-success me-2"></i>Yeni Yığım Qutusu Aç (Create Goal)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div id="createGoalErrorBox" class="alert alert-danger d-none" style="border-radius: 12px; font-size: 0.85rem;"></div>
-                    
-                    <form id="createGoalForm">
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-semibold">Qutunun Adı / Məqsədi</label>
-                            <input type="text" id="goalTitleInput" class="form-control py-2.5" placeholder="Məsələn: iPhone 16 Pro, Yeni Maşın" style="border-radius: 12px;" required>
+                <form id="createGoalForm">
+                    <div class="modal-body p-4">
+                        <div id="createGoalAlert" class="alert d-none mb-3" role="alert"></div>
+
+                        <!-- Preset Ideas Pills (Prime Pay Style: Vacation, Emergency, Car, etc.) -->
+                        <label class="form-label-muted">Populyar Məqsədlər (Seçə bilərsiniz)</label>
+                        <div class="quick-amt-pills-row mb-3">
+                            <button type="button" class="quick-amt-pill goal-preset-pill" data-title="Yay Tətili (Vacation)">🏖️ Tətil</button>
+                            <button type="button" class="quick-amt-pill goal-preset-pill" data-title="Yeni Avtomobil (New Car)">🚗 Avtomobil</button>
+                            <button type="button" class="quick-amt-pill goal-preset-pill" data-title="Təcili Fond (Emergency Fund)">🛡️ Təcili Fond</button>
+                            <button type="button" class="quick-amt-pill goal-preset-pill" data-title="Təhsil Haqqı (Education)">🎓 Təhsil</button>
+                            <button type="button" class="quick-amt-pill goal-preset-pill" data-title="İnvestisiya Fondu (Investments)">📈 İnvestisiya</button>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label text-muted small fw-semibold">Hədəf Məbləğ (AZN)</label>
-                            <input type="number" id="goalTargetInput" class="form-control py-2.5" min="1" step="0.01" placeholder="Məsələn: 2500" style="border-radius: 12px;" required>
+                            <label class="form-label-muted">Yığım Hədəfinin Adı (Title)</label>
+                            <input type="text" class="form-control dark-input" id="goalTitleInput" placeholder="Məsələn: Yeni Avtomobil, Tətil fondu" required>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 mt-4" style="border-radius: 12px; font-weight: 600;">
-                            <i class="bi bi-check-circle"></i> Qutunu Yarat
+
+                        <div class="mb-3">
+                            <label class="form-label-muted">Hədəf Məbləğ (Target Amount ₼)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="10" max="1000000" class="form-control dark-input font-monospace fs-5 fw-bold" id="goalTargetAmountInput" placeholder="Məs: 5000.00" required>
+                                <span class="input-group-text bg-dark border-secondary text-white fw-bold">₼ AZN</span>
+                            </div>
+                            <small class="text-muted">Toplamaq istədiyiniz yekun məbləğ.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Ləğv et</button>
+                        <button type="submit" class="btn-action-lime px-4" id="btnSubmitCreateGoal">
+                            <i class="bi bi-check2-circle"></i> Qutunu Aç
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- 2. Modal: Top-Up Goal (Pul Atmaq) -->
-    <div class="modal fade" id="topUpModal" tabindex="-1" aria-labelledby="topUpModalLabel" aria-hidden="true">
+    <!-- ======================================================================
+         MODAL 2: QUTUYA PUL ƏLAVƏ ET (Top Up Modal)
+         ====================================================================== -->
+    <div class="modal fade" id="topUpGoalModal" tabindex="-1" aria-labelledby="topUpGoalModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-success" id="topUpModalLabel">➕ Qutuya Pul Əlavə Et</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content dark-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="topUpGoalModalLabel">
+                        <i class="bi bi-plus-circle text-success me-2"></i>Qutuya Pul Əlavə Et (Top Up)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div id="topUpErrorBox" class="alert alert-danger d-none" style="border-radius: 12px; font-size: 0.85rem;"></div>
-                    
-                    <form id="topUpForm">
-                        <input type="hidden" id="topUpGoalId">
-                        
-                        <div class="mb-3 p-3 rounded-3" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
-                            <span class="text-muted small d-block">Seçilmiş Qutu:</span>
-                            <span class="fw-bold text-white fs-6" id="topUpGoalTitleDisplay">-</span>
+                <form id="topUpGoalForm">
+                    <div class="modal-body p-4">
+                        <div id="topUpGoalAlert" class="alert d-none mb-3" role="alert"></div>
+
+                        <div class="mb-3">
+                            <span class="text-muted small d-block">Seçilmiş Hədəf:</span>
+                            <h6 class="text-white fw-bold mt-1" id="topUpGoalTitleDisplay">-</h6>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-muted small fw-semibold">Ödəniş Kartı / Hesabınız</label>
-                            <select id="topUpAccountSelect" class="form-select py-2.5" style="border-radius: 12px;" required>
-                                <option value="" disabled selected>Hesab seçin</option>
+                            <label class="form-label-muted">Ödəniş Hesabı (Vəsait çıxılacaq hesab)</label>
+                            <select class="form-select dark-select" id="topUpAccountSelect" required>
+                                <!-- Populated dynamically with user accounts -->
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-muted small fw-semibold">Əlavə Ediləcək Məbləğ (AZN)</label>
-                            <input type="number" id="topUpAmountInput" class="form-control py-2.5" min="0.01" step="0.01" placeholder="Məs. 50" style="border-radius: 12px;" required>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-success w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 mt-4" style="border-radius: 12px; font-weight: 600;">
-                            <i class="bi bi-arrow-up-circle"></i> Qutuya Yüklə
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+                            <label class="form-label-muted">Məbləğ (₼)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="1" class="form-control dark-input font-monospace fs-5 fw-bold" id="topUpAmountInput" placeholder="50.00" required>
+                                <span class="input-group-text bg-dark border-secondary text-white fw-bold">₼ AZN</span>
+                            </div>
 
-    <!-- 3. Modal: Withdraw Goal (Pul Çıxarmaq) -->
-    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-warning" id="withdrawModalLabel">💸 Qutudan Pul Çıxar</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div id="withdrawErrorBox" class="alert alert-danger d-none" style="border-radius: 12px; font-size: 0.85rem;"></div>
-                    
-                    <form id="withdrawForm">
-                        <input type="hidden" id="withdrawGoalId">
-                        
-                        <div class="mb-3 p-3 rounded-3" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="text-muted small d-block">Qutu:</span>
-                                    <span class="fw-bold text-white fs-6" id="withdrawGoalTitleDisplay">-</span>
-                                </div>
-                                <div class="text-end">
-                                    <span class="text-muted small d-block">Qutudakı Vəsait:</span>
-                                    <span class="fw-bold text-warning fs-6" id="withdrawGoalCurrentDisplay">0.00 AZN</span>
-                                </div>
+                            <!-- Quick Amount Buttons -->
+                            <div class="quick-amt-pills-row mt-2">
+                                <button type="button" class="quick-amt-pill topup-quick-pill" data-amt="20">20 ₼</button>
+                                <button type="button" class="quick-amt-pill topup-quick-pill" data-amt="50">50 ₼</button>
+                                <button type="button" class="quick-amt-pill topup-quick-pill" data-amt="100">100 ₼</button>
+                                <button type="button" class="quick-amt-pill topup-quick-pill" data-amt="250">250 ₼</button>
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-semibold">Pulun Köçürüləcəyi Hesabınız</label>
-                            <select id="withdrawAccountSelect" class="form-select py-2.5" style="border-radius: 12px;" required>
-                                <option value="" disabled selected>Hesab seçin</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-semibold">Çıxarılacaq Məbləğ (AZN)</label>
-                            <input type="number" id="withdrawAmountInput" class="form-control py-2.5" min="0.01" step="0.01" placeholder="Məs. 50" style="border-radius: 12px;" required>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-warning w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 mt-4 text-dark" style="border-radius: 12px; font-weight: 600;">
-                            <i class="bi bi-arrow-down-circle"></i> Karta Köçür
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Bağla</button>
+                        <button type="submit" class="btn-action-lime px-4" id="btnSubmitTopUp">
+                            <i class="bi bi-arrow-down-circle"></i> Qutuya Köçür
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
+    <!-- ======================================================================
+         MODAL 3: QUTUDAN PUL ÇIXAR (Withdraw Modal)
+         ====================================================================== -->
+    <div class="modal fade" id="withdrawGoalModal" tabindex="-1" aria-labelledby="withdrawGoalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content dark-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="withdrawGoalModalLabel">
+                        <i class="bi bi-arrow-up-circle text-info me-2"></i>Qutudan Pul Çıxar (Withdraw)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="withdrawGoalForm">
+                    <div class="modal-body p-4">
+                        <div id="withdrawGoalAlert" class="alert d-none mb-3" role="alert"></div>
+
+                        <div class="mb-3">
+                            <span class="text-muted small d-block">Qutudakı Mövcud Vəsait:</span>
+                            <h6 class="text-success fw-bold font-monospace fs-5 mt-1" id="withdrawGoalAvailableDisplay">0.00 ₼</h6>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-muted">Köçürüləcək Hesab (Vəsait mədaxil olacaq hesab)</label>
+                            <select class="form-select dark-select" id="withdrawAccountSelect" required>
+                                <!-- Populated dynamically with user accounts -->
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-muted">Çıxarılacaq Məbləğ (₼)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="1" class="form-control dark-input font-monospace fs-5 fw-bold" id="withdrawAmountInput" placeholder="50.00" required>
+                                <span class="input-group-text bg-dark border-secondary text-white fw-bold">₼ AZN</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-2" id="btnWithdrawAll">
+                                <i class="bi bi-box-arrow-up me-1"></i> Bütün Vəsaiti Çıxar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Bağla</button>
+                        <button type="submit" class="btn-action-lime px-4" id="btnSubmitWithdraw">
+                            <i class="bi bi-arrow-up-right"></i> Hesaba Qaytar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Configuration & Helpers -->
     <script src="js/config.js"></script>
-    <script src="js/dashboard.js"></script>
+
+    <!-- Savings Goal Controller -->
     <script src="js/savings-goal.js"></script>
 </body>
 </html>

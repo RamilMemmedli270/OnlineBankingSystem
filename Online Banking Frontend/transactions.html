@@ -3,205 +3,456 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QəpikPay | Əməliyyatlar</title>
+    <title>OnlineBank | Əməliyyatlar & Hesab Çıxarışı</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Unified Project Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="dashboard-body">
 
-    <div class="d-flex">
-        <!-- QəpikPay Dark Sidebar (Fixed Width) -->
-        <div class="invest-sidebar">
-            <div>
-                <div class="sidebar-logo mb-4">
-                    <div class="sidebar-brand-icon">🪙</div>
-                    <div class="d-flex flex-column">
-                        <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; color: #fff;">QəpikPay</span>
-                        <span style="font-size: 0.65rem; color: #f59e0b; font-weight: 600; letter-spacing: 0.2px;">"Son qəpiyinə qədər!"</span>
-                    </div>
+    <!-- ======================================================================
+         1. LEFT SIDEBAR NAVIGATION (Zentro Structure)
+         ====================================================================== -->
+    <aside class="dash-sidebar" id="dashSidebar">
+        <div>
+            <!-- Brand Logo -->
+            <a href="dashboard.html" class="sidebar-brand">
+                <div class="brand-icon-box">
+                    <i class="bi bi-shield-check"></i>
                 </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> İdarəetmə Paneli</a>
-                    </li>
-                    <li class="nav-item" id="navAccounts">
-                        <a class="nav-link" href="accounts.html"><i class="bi bi-credit-card"></i> Hesablarım</a>
-                    </li>
-                    <li class="nav-item" id="navTransfer">
-                        <a class="nav-link" href="transfer.html"><i class="bi bi-arrow-left-right"></i> Köçürmə</a>
-                    </li>
-                    <li class="nav-item" id="navTransactions">
-                        <a class="nav-link active" href="transactions.html"><i class="bi bi-clock-history"></i> Əməliyyatlar</a>
-                    </li>
-                    <li class="nav-item" id="navLoans">
-                        <a class="nav-link" href="loans.html"><i class="bi bi-cash-coin"></i> Kreditlər</a>
-                    </li>
-                    <li class="nav-item" id="navNotifications">
-                        <a class="nav-link" href="notifications.html"><i class="bi bi-bell"></i> Bildirişlər</a>
-                    </li>
-                    <li class="nav-item" id="navBalanceAlert">
-                        <a class="nav-link" href="balance-alert.html"><i class="bi bi-exclamation-triangle"></i> Balans Xəbərdarlığı</a>
-                    </li>
-                    <li class="nav-item" id="navSavingsGoal">
-                        <a class="nav-link" href="savings-goal.html"><i class="bi bi-bullseye"></i> Yığım Hədəfi</a>
-                    </li>
-                    <li class="nav-item" id="adminLinkWrapper" style="display:none;">
-                        <a class="nav-link text-warning" href="admin.html"><i class="bi bi-gear"></i> Admin Panel</a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Sidebar profile details -->
-            <div class="sidebar-profile-card">
-                <div class="profile-avatar" id="sidebarAvatar">U</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="sidebarName">İstifadəçi</div>
-                    <div class="profile-sub" id="sidebarRole">Müştəri</div>
-                    <a href="accounts.html" class="profile-link text-decoration-none mt-1 d-block" style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">Hesablarımı İdarə et →</a>
-                </div>
-            </div>
+                <span>OnlineBank</span>
+            </a>
+
+            <!-- Section 1: Əsas Menyu -->
+            <div class="sidebar-section-title">ƏSAS MENYU</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="dashboard.html" class="sidebar-link">
+                        <i class="bi bi-grid-fill"></i>
+                        <span>İdarəetmə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transfer.html" class="sidebar-link">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Köçürmələr</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="sidebar-link active">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Əməliyyatlar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="accounts.html" class="sidebar-link">
+                        <i class="bi bi-credit-card-2-front"></i>
+                        <span>Kartlar & Hesablar</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Section 2: Dəstək & Xidmətlər -->
+            <div class="sidebar-section-title mt-4">XİDMƏTLƏR & DƏSTƏK</div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="loans.html" class="sidebar-link">
+                        <i class="bi bi-bank"></i>
+                        <span>Kreditlər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="savings-goal.html" class="sidebar-link">
+                        <i class="bi bi-piggy-bank"></i>
+                        <span>Yığım Qutuları</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notifications.html" class="sidebar-link">
+                        <i class="bi bi-bell"></i>
+                        <span>Bildirişlər</span>
+                        <span class="badge-nav" id="sidebarNotificationBadge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li id="adminNavWrapper" style="display: none;">
+                    <a href="admin.html" class="sidebar-link text-warning">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Admin Paneli</span>
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <!-- Flex Main Content Area -->
-        <div class="flex-grow-1 main-content-wrapper">
-            
-            <!-- Top Row: Notifications & Logout -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="search-container flex-grow-1">
-                    <!-- Placeholder search -->
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Axtarış...">
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <a href="balance-alert.html" class="sidebar-link">
+                <i class="bi bi-gear"></i>
+                <span>Tənzimləmələr</span>
+            </a>
+            <a href="#" class="sidebar-link text-danger" id="dashLogoutBtn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Çıxış</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ======================================================================
+         2. MAIN CONTENT: TRANSACTIONS & STATEMENT
+         ====================================================================== -->
+    <main class="dash-main">
+
+        <!-- Topbar Toolbar -->
+        <header class="dash-topbar">
+            <!-- Title -->
+            <div>
+                <h1 class="h4 fw-bold text-white mb-1">
+                    <i class="bi bi-clock-history text-success me-2"></i>Əməliyyat Tarixçəsi
+                </h1>
+                <p class="text-muted small mb-0">Hesablarınız üzrə bütün mədaxil, məxaric və köçürmələrin tam jurnalı.</p>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="topbar-actions">
+                <!-- Date Pill -->
+                <div class="date-pill-btn">
+                    <i class="bi bi-calendar3"></i>
+                    <span id="currentDateDisplay">Bu ay</span>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-danger btn-sm px-3 py-2" id="logoutBtn" style="border-radius: 10px;">Çıxış</button>
+
+                <!-- Eye Toggle -->
+                <button class="icon-btn" id="toggleBalanceVisibilityBtn" title="Balansları Gizlət / Göstər">
+                    <i class="bi bi-eye" id="toggleEyeIcon"></i>
+                </button>
+
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="icon-btn" title="Bildirişlər">
+                    <i class="bi bi-bell"></i>
+                    <span class="badge-dot" id="unreadBadgeDot" style="display: none;"></span>
+                </a>
+
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <div class="user-profile-badge" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar-circle" id="userAvatar">U</div>
+                        <div class="user-meta-info d-none d-md-flex">
+                            <span class="name" id="userFullName">İstifadəçi</span>
+                            <span class="role" id="userRole">Müştəri</span>
+                        </div>
+                        <i class="bi bi-chevron-down ms-1 text-muted small"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end">
+                        <li><a class="dropdown-item-dark" href="accounts.html"><i class="bi bi-wallet2"></i> Hesablarım</a></li>
+                        <li><a class="dropdown-item-dark" href="balance-alert.html"><i class="bi bi-bell"></i> Balans Xəbərdarlıqları</a></li>
+                        <li><hr class="dropdown-divider-dark"></li>
+                        <li><a class="dropdown-item-dark text-danger" href="#" id="dropdownLogoutBtn"><i class="bi bi-box-arrow-right"></i> Sistemdən Çıxış</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- 4 Metrics Summary Grid -->
+        <section class="tx-metrics-grid">
+            <div class="tx-metric-card">
+                <div class="tx-metric-icon bg-success-subtle text-success">
+                    <i class="bi bi-arrow-down-left"></i>
+                </div>
+                <div>
+                    <div class="tx-metric-val text-success" id="metricTotalIncome">+0.00 ₼</div>
+                    <div class="tx-metric-lbl">Ümumi Mədaxil</div>
                 </div>
             </div>
 
-            <!-- Header greeting -->
-            <div class="mb-4 pb-2">
-                <h2 class="fw-bold text-white mb-1">Əməliyyatlar</h2>
-                <p class="text-muted small">Hesablarınız üzrə gələn və gedən əməliyyatların ətraflı tarixçəsi.</p>
+            <div class="tx-metric-card">
+                <div class="tx-metric-icon bg-danger-subtle text-danger">
+                    <i class="bi bi-arrow-up-right"></i>
+                </div>
+                <div>
+                    <div class="tx-metric-val text-white" id="metricTotalExpense">-0.00 ₼</div>
+                    <div class="tx-metric-lbl">Ümumi Məxaric</div>
+                </div>
             </div>
 
-            <!-- Alert box for errors -->
-            <div id="alertBox" class="alert alert-danger d-none" role="alert" style="border-radius: 12px;"></div>
-
-            <!-- Hidden full name display for dashboard.js compatibility -->
-            <span id="fullNameDisplay" style="display: none;"></span>
-
-            <!-- Accounts Loading State -->
-            <div id="accountsLoading" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-2">Hesablar yüklənir...</p>
+            <div class="tx-metric-card">
+                <div class="tx-metric-icon bg-info-subtle text-info">
+                    <i class="bi bi-arrow-left-right"></i>
+                </div>
+                <div>
+                    <div class="tx-metric-val text-info" id="metricNetCashFlow">0.00 ₼</div>
+                    <div class="tx-metric-lbl">Xalis Fərq</div>
+                </div>
             </div>
 
-            <!-- No Account Alert State -->
-            <div id="noAccountState" class="alert alert-warning d-none" role="alert" style="border-radius: 12px;">
-                Hesabınız yoxdur. Əməliyyatlara baxmaq üçün əvvəlcə hesab yaradın.
+            <div class="tx-metric-card">
+                <div class="tx-metric-icon bg-secondary-subtle text-light">
+                    <i class="bi bi-receipt"></i>
+                </div>
+                <div>
+                    <div class="tx-metric-val text-white" id="metricTxCount">0</div>
+                    <div class="tx-metric-lbl">Əməliyyat Sayı</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             3. MAIN TRANSACTIONS CARD (Matches User ASCII Mockup)
+             ====================================================================== -->
+        <section class="recent-activity-card">
+            <!-- Header with Title & Export Button -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="table-title-group">
+                    <i class="bi bi-clock-history text-success fs-5"></i>
+                    <h3 class="mb-0">Əməliyyatlar (Transactions)</h3>
+                </div>
+
+                <!-- Export Button (Matches User Mockup: Export ↓) -->
+                <button type="button" class="btn-action-lime" id="btnOpenExportModal">
+                    <i class="bi bi-download"></i>
+                    <span>Export ↓ (Çıxarış Al)</span>
+                </button>
             </div>
 
-            <!-- Main Content Area -->
-            <div id="mainContent" class="d-none">
+            <!-- Search Input (Search transactions...) -->
+            <div class="search-box-wrapper max-w-100 w-100 mb-3" style="max-width: 100%;">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-input" id="txSearchInput" placeholder="Əməliyyatlarda axtarış (təyinat, nömrə, məbləğ)...">
+            </div>
 
-                <!-- Dropdown Selection & Filters Card -->
-                <div class="card p-4 mb-4 border-0 shadow-sm" style="border-radius: 20px;">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="accountSelect" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Hesab Seçin</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-wallet2"></i></span>
-                                <select class="form-select border-start-0" id="accountSelect" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px; font-weight: 500;">
-                                    <option value="" selected disabled>Hesab seçin...</option>
+            <!-- Filter Pills: [All] [Income] [Expense] [Transfer] [Payment] -->
+            <div class="tx-filter-pills">
+                <button type="button" class="tx-filter-pill active" data-type="all">Hamısı (All)</button>
+                <button type="button" class="tx-filter-pill" data-type="income">Mədaxil (Income)</button>
+                <button type="button" class="tx-filter-pill" data-type="expense">Məxaric (Expense)</button>
+                <button type="button" class="tx-filter-pill" data-type="transfer">Köçürmələr (Transfer)</button>
+                <button type="button" class="tx-filter-pill" data-type="payment">Ödənişlər (Payment)</button>
+            </div>
+
+            <!-- Toolbar Row: Date range & Status filter -->
+            <div class="tx-toolbar-row">
+                <!-- Date Range: [From] → [To] -->
+                <div class="tx-date-range-wrap">
+                    <span>Tarix aralığı:</span>
+                    <input type="date" class="tx-date-input" id="txDateFrom">
+                    <span>→</span>
+                    <input type="date" class="tx-date-input" id="txDateTo">
+                    <button type="button" class="btn-filter-pill py-1 px-3" id="btnApplyDateFilter">
+                        <i class="bi bi-check-lg"></i> Tətbiq et
+                    </button>
+                </div>
+
+                <!-- Account & Status Selects -->
+                <div class="d-flex align-items-center gap-2">
+                    <select class="tx-status-select" id="txAccountFilter">
+                        <option value="all">Bütün Hesablar</option>
+                    </select>
+
+                    <select class="tx-status-select" id="txStatusFilter">
+                        <option value="all">Status: Hamısı ▼</option>
+                        <option value="completed">Tamamlandı</option>
+                        <option value="pending">Gözləmədə</option>
+                        <option value="failed">Uğursuz</option>
+                    </select>
+
+                    <button type="button" class="btn-filter-pill py-1 px-2" id="btnResetFilters" title="Filtrləri Sıfırla">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="table-responsive mt-3">
+                <table class="custom-dash-table">
+                    <thead>
+                        <tr>
+                            <th>Tarix (Date)</th>
+                            <th>Təyinat (Description)</th>
+                            <th>Növ (Type)</th>
+                            <th>Məbləğ (Amount)</th>
+                            <th>Qalıq Balans (Snapshot)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+                                Əməliyyatlar yüklənir...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Pagination / Counter Footer -->
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary border-opacity-25 small text-muted">
+                <div id="txCounterText">Göstərilir: 0 əməliyyat</div>
+                <div id="txFilterActiveBadge" class="badge bg-secondary-subtle text-light" style="display: none;">Filtr aktivdir</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ======================================================================
+         MODAL: RƏSMİ BANK ÇIXARIŞI (Official Bank Statement & A4 Print - F5)
+         ====================================================================== -->
+    <div class="modal fade" id="statementModal" tabindex="-1" aria-labelledby="statementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content dark-modal">
+                <div class="modal-header no-print">
+                    <h5 class="modal-title fw-bold text-white" id="statementModalLabel">
+                        <i class="bi bi-file-earmark-pdf text-success me-2"></i>Rəsmi Bank Çıxarışı (Statement)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white no-print" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+
+                    <!-- Filter Bar inside Statement Modal -->
+                    <div class="card bg-dark border-secondary p-3 mb-4 no-print">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label-muted">Hesab</label>
+                                <select class="form-select dark-select" id="stmtAccountSelect">
+                                    <!-- Populated dynamically -->
                                 </select>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label-muted">Başlanğıc Tarix</label>
+                                <input type="date" class="form-control dark-input" id="stmtDateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label-muted">Son Tarix</label>
+                                <input type="date" class="form-control dark-input" id="stmtDateTo">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-action-lime w-100 py-2 justify-content-center" id="stmtGenerateBtn">
+                                    <i class="bi bi-search"></i> Gətir
+                                </button>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-3">
-                            <label for="fromDate" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Başlanğıc Tarix</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-calendar3"></i></span>
-                                <input type="date" class="form-control border-start-0" id="fromDate" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;">
+                    <!-- ==========================================================
+                         A4 PRINTABLE OFFICIAL BANK STATEMENT CONTAINER
+                         ========================================================== -->
+                    <div class="official-statement-container shadow-sm" id="officialStatementPrintArea">
+                        <!-- Top Header with Bank Logo & Official Statement Badge -->
+                        <div class="statement-header-top">
+                            <div>
+                                <div class="bank-logo-text">
+                                    <i class="bi bi-shield-check text-success"></i>
+                                    <span>OnlineBank ASC</span>
+                                </div>
+                                <div class="text-muted small mt-1">Azərbaycan Respublikasının Mərkəzi Bankının Lisenziyası № 284</div>
+                                <div class="text-muted small">Bakı şəhəri, Nizami küçəsi 142 • Tel: *8822 • www.onlinebank.az</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="statement-badge">Rəsmi Bank Çıxarışı</span>
+                                <div class="text-muted small mt-2">Çıxarış Nömrəsi: <strong id="stmtDocNumber" class="font-monospace">OB-2026/09</strong></div>
+                                <div class="text-muted small">Tarix: <span id="stmtPrintDate" class="fw-bold">08.09.2026</span></div>
                             </div>
                         </div>
 
-                        <div class="col-md-3">
-                            <label for="toDate" class="form-label text-muted small uppercase fw-bold" style="letter-spacing: 0.5px; font-size: 0.75rem;">Son Tarix</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-calendar3"></i></span>
-                                <input type="date" class="form-control border-start-0" id="toDate" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;">
+                        <!-- Client and Account Metadata Table -->
+                        <table class="statement-info-table">
+                            <tr>
+                                <td class="lbl">Müştərinin S.A.A.:</td>
+                                <td class="val" id="stmtClientName">-</td>
+                                <td class="lbl">Hesab Növü:</td>
+                                <td class="val" id="stmtAccountType">Cari Hesab</td>
+                            </tr>
+                            <tr>
+                                <td class="lbl">Hesab Nömrəsi:</td>
+                                <td class="val font-monospace" id="stmtAccountNumber">-</td>
+                                <td class="lbl">Valyuta:</td>
+                                <td class="val">AZN (₼)</td>
+                            </tr>
+                            <tr>
+                                <td class="lbl">Seçilmiş Dövr:</td>
+                                <td class="val" id="stmtPeriodDisplay">-</td>
+                                <td class="lbl">Hesabın Statusu:</td>
+                                <td class="val text-success">Aktiv</td>
+                            </tr>
+                        </table>
+
+                        <!-- Summary Period Statistics (Boxes) -->
+                        <div class="statement-summary-boxes">
+                            <div class="statement-sum-box">
+                                <div class="sum-lbl">Dövrün Əvvəlinə Qalıq</div>
+                                <div class="sum-val" id="stmtInitialBalance">0.00 ₼</div>
+                            </div>
+                            <div class="statement-sum-box">
+                                <div class="sum-lbl">Ümumi Mədaxil (+)</div>
+                                <div class="sum-val text-success" id="stmtSumIncome">0.00 ₼</div>
+                            </div>
+                            <div class="statement-sum-box">
+                                <div class="sum-lbl">Ümumi Məxaric (-)</div>
+                                <div class="sum-val text-danger" id="stmtSumExpense">0.00 ₼</div>
+                            </div>
+                            <div class="statement-sum-box">
+                                <div class="sum-lbl">Dövrün Sonuna Qalıq</div>
+                                <div class="sum-val text-primary" id="stmtFinalBalance">0.00 ₼</div>
                             </div>
                         </div>
 
-                        <div class="col-md-2 d-flex align-items-end gap-2">
-                            <button type="button" class="btn btn-primary w-100 py-2.5 d-flex align-items-center justify-content-center gap-1" id="filterBtn" style="border-radius: 12px; font-weight: 600;"><i class="bi bi-funnel"></i> Süz</button>
-                            <button type="button" class="btn btn-outline-secondary py-2.5 d-flex align-items-center justify-content-center" id="clearFilterBtn" style="border-radius: 12px;" title="Təmizlə">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search Input & Type Filter -->
-                <div id="filterSearchSection" class="row g-3 mb-4 d-none">
-                    <div class="col-md-8">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Əməliyyat axtar (Əməliyyat növü, Qarşı tərəfin kart kodu)..." style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px;">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px;"><i class="bi bi-filter"></i></span>
-                            <select class="form-select border-start-0" id="typeFilter" style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 14px; font-weight: 500;">
-                                <option value="all">Bütün əməliyyatlar</option>
-                                <option value="incoming">Gələn (+)</option>
-                                <option value="outgoing">Gedən (-)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Transactions Loading State -->
-                <div id="transactionsLoading" class="text-center py-5 d-none">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="text-muted mt-2">Əməliyyatlar yüklənir...</p>
-                </div>
-
-                <!-- Transactions Empty State -->
-                <div id="emptyState" class="text-center text-muted py-5 d-none">
-                    <div class="mb-3" style="font-size: 3rem; opacity: 0.6;"><i class="bi bi-search-heart"></i></div>
-                    <p class="fs-5 fw-semibold mb-1">Bu hesab üzrə əməliyyat tapılmadı.</p>
-                    <p class="small text-muted">Filtrləri dəyişərək yenidən axtarmağa cəhd edin.</p>
-                </div>
-
-                <!-- Transactions Table -->
-                <div id="tableContainer" class="card border-0 shadow-sm p-4 d-none" style="border-radius: 20px;">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0 8px;">
+                        <!-- Statement Transactions Table -->
+                        <table class="statement-data-table">
                             <thead>
-                                <tr class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #f1f5f9;">
-                                    <th scope="col" class="border-0 pb-3" style="padding-left: 15px;"><i class="bi bi-clock me-1"></i> Tarix</th>
-                                    <th scope="col" class="border-0 pb-3"><i class="bi bi-tag me-1"></i> Əməliyyat</th>
-                                    <th scope="col" class="border-0 pb-3"><i class="bi bi-arrow-left-right me-1"></i> Qarşı Tərəf</th>
-                                    <th scope="col" class="border-0 pb-3"><i class="bi bi-cash me-1"></i> Məbləğ</th>
-                                    <th scope="col" class="border-0 pb-3" style="padding-right: 15px;"><i class="bi bi-wallet2 me-1"></i> Balans</th>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Tarix və Saat</th>
+                                    <th>Əməliyyatın Təyinatı</th>
+                                    <th>Növ</th>
+                                    <th class="text-end">Məbləğ</th>
+                                    <th class="text-end">Qalıq Balans</th>
                                 </tr>
                             </thead>
-                            <tbody id="transactionTableBody">
-                                <!-- Dinamik əməliyyat sətirləri bura əlavə olunacaq -->
+                            <tbody id="stmtTableBody">
+                                <!-- Populated dynamically -->
                             </tbody>
                         </table>
-                    </div>
-                </div>
 
+                        <!-- Official Seal & Signatures -->
+                        <div class="statement-seal-row">
+                            <div>
+                                <div class="small text-muted mb-1">Məsul Əməkdaş: <strong>Əməliyyat Şöbəsi</strong></div>
+                                <div class="small text-muted">Sənəd elektron sistem vasitəsilə avtomatik formalaşdırılmışdır və möhürsüz etibarlıdır.</div>
+                            </div>
+                            <div class="bank-seal-stamp">
+                                <div>OnlineBank</div>
+                                <div style="font-size: 0.55rem;">TƏSDİQ EDİLDİ</div>
+                                <div>★ 2026 ★</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer no-print">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Bağla</button>
+                    <button type="button" class="btn-action-lime px-4" id="btnPrintStatement" onclick="printOfficialStatement()">
+                        <i class="bi bi-printer me-1"></i> PDF Yüklə / Çap Et
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Configuration & Helpers -->
     <script src="js/config.js"></script>
-    <script src="js/dashboard.js"></script>
+
+    <!-- Transactions Controller -->
     <script src="js/transactions.js"></script>
 </body>
 </html>
