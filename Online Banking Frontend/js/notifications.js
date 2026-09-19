@@ -324,7 +324,8 @@ async function markAsRead(id, cardElement) {
 
 function formatDate(dateString) {
     if (!dateString) return "";
-    const dateObj = new Date(dateString);
+    const dateObj = typeof parseUtcDate === "function" ? parseUtcDate(dateString) : new Date(dateString);
+    if (!dateObj || isNaN(dateObj.getTime())) return "";
     return dateObj.toLocaleDateString("az-AZ", {
         day: "2-digit",
         month: "2-digit",

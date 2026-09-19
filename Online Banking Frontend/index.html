@@ -496,7 +496,7 @@
                                     Məni xatırla
                                 </label>
                             </div>
-                            <a href="#" class="text-decoration-none small hover-lime">Şifrəni unutmusunuz?</a>
+                            <a href="#" class="text-decoration-none small hover-lime" id="forgotPasswordLink">Şifrəni unutmusunuz?</a>
                         </div>
 
                         <button type="submit" class="btn-pill-lime w-100 py-3" id="loginSubmitBtn">
@@ -610,6 +610,105 @@
                         <span class="text-muted small">Artıq qeydiyyatınız var?</span>
                         <a href="#" class="text-decoration-none fw-bold small ms-1 hover-lime" data-bs-toggle="modal" data-bs-target="#loginModal">
                             Daxil Olun
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================
+         MODAL 3: FORGOT PASSWORD (Şifrənin Bərpası)
+         ====================================================================== -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content custom-auth-modal">
+                
+                <div class="modal-header auth-modal-header">
+                    <div>
+                        <h4 class="modal-title fw-bold text-white mb-1" id="forgotPasswordModalLabel">
+                            <i class="bi bi-shield-lock text-success me-2"></i>Şifrənin Bərpası
+                        </h4>
+                        <div class="text-muted small" id="forgotModalSubtitle">Hesabınızın şifrəsini 2 sadə addımda yeniləyin</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bağla"></button>
+                </div>
+
+                <div class="modal-body auth-modal-body">
+                    <!-- Error / Success Alert -->
+                    <div id="forgotAlert" class="alert auth-alert-box d-none" role="alert"></div>
+
+                    <!-- STEP 1: Enter Email -->
+                    <div id="forgotStep1">
+                        <p class="text-muted small mb-3">
+                            Narahat olmayın! Qeydiyyatdan keçdiyiniz email ünvanını yazın, sizə şifrəni yeniləmək üçün 6 rəqəmli təsdiq kodu göndərək.
+                        </p>
+
+                        <form id="forgotSendCodeForm">
+                            <div class="mb-4">
+                                <label for="forgotEmail" class="form-label-custom">
+                                    <i class="bi bi-envelope"></i> Email Ünvanı
+                                </label>
+                                <input type="email" class="form-control form-control-custom" id="forgotEmail" placeholder="adınız@example.com" required>
+                            </div>
+
+                            <button type="submit" class="btn-pill-lime w-100 py-3" id="forgotSendCodeBtn">
+                                <span>Kodu Göndər</span>
+                                <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- STEP 2: Enter OTP & New Password -->
+                    <div id="forgotStep2" class="d-none">
+                        <div class="alert alert-info py-2 px-3 small mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <span>Təsdiq kodu email ünvanınıza göndərildi. Gələn 6 rəqəmli kodu və yeni şifrənizi daxil edin.</span>
+                        </div>
+
+                        <form id="forgotResetPasswordForm">
+                            <div class="mb-3">
+                                <label for="resetOtpCode" class="form-label-custom">
+                                    <i class="bi bi-shield-check"></i> 6 Rəqəmli Təsdiq Kodu
+                                </label>
+                                <input type="text" maxlength="6" class="form-control form-control-custom text-center font-monospace fs-5" id="resetOtpCode" placeholder="••••••" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="resetNewPassword" class="form-label-custom">
+                                    <i class="bi bi-lock"></i> Yeni Şifrə
+                                </label>
+                                <div class="input-group input-group-custom">
+                                    <input type="password" class="form-control form-control-custom" id="resetNewPassword" placeholder="Ən azı 6 simvol" required minlength="6">
+                                    <button type="button" class="btn btn-toggle-pwd" id="toggleResetPwd">
+                                        <i class="bi bi-eye" id="toggleResetPwdIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="resetConfirmPassword" class="form-label-custom">
+                                    <i class="bi bi-shield-lock"></i> Yeni Şifrənin Təkrarı
+                                </label>
+                                <div class="input-group input-group-custom">
+                                    <input type="password" class="form-control form-control-custom" id="resetConfirmPassword" placeholder="Şifrəni təkrar daxil edin" required minlength="6">
+                                    <button type="button" class="btn btn-toggle-pwd" id="toggleResetConfirmPwd">
+                                        <i class="bi bi-eye" id="toggleResetConfirmPwdIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-pill-lime w-100 py-3" id="resetPasswordSubmitBtn">
+                                <span>Şifrəni Yenilə</span>
+                                <i class="bi bi-check2-circle ms-1"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-center mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <a href="#" class="text-decoration-none small hover-lime" id="backToLoginFromForgot">
+                            <i class="bi bi-arrow-left me-1"></i> Giriş ekranına qayıt
                         </a>
                     </div>
                 </div>
@@ -819,6 +918,203 @@
                     } finally {
                         regSubmitBtn.disabled = false;
                         regSubmitBtn.innerHTML = originalBtnHtml;
+                    }
+                });
+            }
+
+            // ======================================================================
+            // FORGOT & RESET PASSWORD CONTROLLER
+            // ======================================================================
+            setupPwdToggle("toggleResetPwd", "resetNewPassword", "toggleResetPwdIcon");
+            setupPwdToggle("toggleResetConfirmPwd", "resetConfirmPassword", "toggleResetConfirmPwdIcon");
+
+            const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+            const forgotModalEl = document.getElementById("forgotPasswordModal");
+            const loginModalEl = document.getElementById("loginModal");
+            const backToLoginFromForgot = document.getElementById("backToLoginFromForgot");
+
+            const forgotStep1 = document.getElementById("forgotStep1");
+            const forgotStep2 = document.getElementById("forgotStep2");
+            const forgotAlert = document.getElementById("forgotAlert");
+            const forgotEmailInput = document.getElementById("forgotEmail");
+            const resetOtpCodeInput = document.getElementById("resetOtpCode");
+            const resetNewPasswordInput = document.getElementById("resetNewPassword");
+            const resetConfirmPasswordInput = document.getElementById("resetConfirmPassword");
+
+            const forgotSendCodeForm = document.getElementById("forgotSendCodeForm");
+            const forgotSendCodeBtn = document.getElementById("forgotSendCodeBtn");
+            const forgotResetPasswordForm = document.getElementById("forgotResetPasswordForm");
+            const resetPasswordSubmitBtn = document.getElementById("resetPasswordSubmitBtn");
+
+            let activeRecoveryEmail = "";
+
+            function showForgotAlert(msg, type = "danger") {
+                if (!forgotAlert) return;
+                forgotAlert.className = `alert alert-${type} auth-alert-box`;
+                forgotAlert.textContent = msg;
+                forgotAlert.classList.remove("d-none");
+            }
+
+            function hideForgotAlert() {
+                if (forgotAlert) forgotAlert.classList.add("d-none");
+            }
+
+            // 1. Open Forgot Password Modal
+            if (forgotPasswordLink && forgotModalEl && loginModalEl) {
+                forgotPasswordLink.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    hideForgotAlert();
+
+                    const loginModalInstance = bootstrap.Modal.getInstance(loginModalEl);
+                    if (loginModalInstance) loginModalInstance.hide();
+
+                    // Pre-fill email if entered in login
+                    const loginEmailVal = document.getElementById("loginEmail")?.value.trim() || "";
+                    if (forgotEmailInput && loginEmailVal) {
+                        forgotEmailInput.value = loginEmailVal;
+                    }
+
+                    // Reset to Step 1
+                    if (forgotStep1) forgotStep1.classList.remove("d-none");
+                    if (forgotStep2) forgotStep2.classList.add("d-none");
+
+                    const forgotModalInstance = bootstrap.Modal.getOrCreateInstance(forgotModalEl);
+                    forgotModalInstance.show();
+                });
+            }
+
+            // 2. Back to Login
+            if (backToLoginFromForgot && forgotModalEl && loginModalEl) {
+                backToLoginFromForgot.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const forgotModalInstance = bootstrap.Modal.getInstance(forgotModalEl);
+                    if (forgotModalInstance) forgotModalInstance.hide();
+
+                    const loginModalInstance = bootstrap.Modal.getOrCreateInstance(loginModalEl);
+                    loginModalInstance.show();
+                });
+            }
+
+            // 3. Step 1: Send OTP Code
+            if (forgotSendCodeForm) {
+                forgotSendCodeForm.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    hideForgotAlert();
+
+                    const email = forgotEmailInput.value.trim();
+                    if (!email) {
+                        showForgotAlert("Zəhmət olmasa email ünvanınızı daxil edin.");
+                        return;
+                    }
+
+                    activeRecoveryEmail = email;
+                    const originalBtnHtml = forgotSendCodeBtn.innerHTML;
+                    forgotSendCodeBtn.disabled = true;
+                    forgotSendCodeBtn.innerHTML = `<span>Kod göndərilir...</span> <span class="spinner-border spinner-border-sm ms-2"></span>`;
+
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email })
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok) {
+                            throw new Error(data.message || "Təsdiq kodu göndərilərkən xəta baş verdi.");
+                        }
+
+                        // Switch to Step 2
+                        forgotStep1.classList.add("d-none");
+                        forgotStep2.classList.remove("d-none");
+
+                        if (resetOtpCodeInput) {
+                            resetOtpCodeInput.value = "";
+                            resetOtpCodeInput.focus();
+                        }
+
+                    } catch (err) {
+                        showForgotAlert(err.message);
+                    } finally {
+                        forgotSendCodeBtn.disabled = false;
+                        forgotSendCodeBtn.innerHTML = originalBtnHtml;
+                    }
+                });
+            }
+
+            // 4. Step 2: Reset Password with OTP
+            if (forgotResetPasswordForm) {
+                forgotResetPasswordForm.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    hideForgotAlert();
+
+                    const otpCode = resetOtpCodeInput.value.trim();
+                    const newPassword = resetNewPasswordInput.value;
+                    const confirmPassword = resetConfirmPasswordInput.value;
+
+                    if (!otpCode || otpCode.length < 6) {
+                        showForgotAlert("Zəhmət olmasa 6 rəqəmli təsdiq kodunu tam daxil edin.");
+                        return;
+                    }
+
+                    if (newPassword.length < 6) {
+                        showForgotAlert("Yeni şifrə ən azı 6 simvoldan ibarət olmalıdır.");
+                        return;
+                    }
+
+                    if (newPassword !== confirmPassword) {
+                        showForgotAlert("Daxil edilən yeni şifrələr bir-biri ilə uyğun gəlmir.");
+                        return;
+                    }
+
+                    const originalBtnHtml = resetPasswordSubmitBtn.innerHTML;
+                    resetPasswordSubmitBtn.disabled = true;
+                    resetPasswordSubmitBtn.innerHTML = `<span>Yenilənir...</span> <span class="spinner-border spinner-border-sm ms-2"></span>`;
+
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                email: activeRecoveryEmail,
+                                otpCode,
+                                newPassword
+                            })
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok) {
+                            throw new Error(data.message || "Şifrə yenilənərkən xəta baş verdi.");
+                        }
+
+                        showForgotAlert(data.message || "Şifrəniz uğurla yeniləndi! Giriş ekranına yönləndirilirsiniz...", "success");
+
+                        // Pre-populate login form
+                        const loginEmailInput = document.getElementById("loginEmail");
+                        const loginPasswordInput = document.getElementById("loginPassword");
+                        if (loginEmailInput) loginEmailInput.value = activeRecoveryEmail;
+                        if (loginPasswordInput) loginPasswordInput.value = newPassword;
+
+                        // After 1.2 seconds, close modal and open Login Modal
+                        setTimeout(() => {
+                            const forgotModalInstance = bootstrap.Modal.getInstance(forgotModalEl);
+                            if (forgotModalInstance) forgotModalInstance.hide();
+
+                            const loginModalInstance = bootstrap.Modal.getOrCreateInstance(loginModalEl);
+                            loginModalInstance.show();
+
+                            if (loginAlert) {
+                                loginAlert.className = "alert alert-success auth-alert-box";
+                                loginAlert.textContent = "Şifrəniz uğurla yeniləndi! Daxil ol düyməsini sıxın.";
+                                loginAlert.classList.remove("d-none");
+                            }
+                        }, 1300);
+
+                    } catch (err) {
+                        showForgotAlert(err.message);
+                    } finally {
+                        resetPasswordSubmitBtn.disabled = false;
+                        resetPasswordSubmitBtn.innerHTML = originalBtnHtml;
                     }
                 });
             }

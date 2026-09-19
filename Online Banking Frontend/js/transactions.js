@@ -457,13 +457,22 @@ function updateMetrics(transactions) {
     const netEl = document.getElementById("metricNetCashFlow");
     const countEl = document.getElementById("metricTxCount");
 
-    if (incEl) incEl.textContent = `+ ${formatMoney(income)} ₼`;
-    if (expEl) expEl.textContent = `- ${formatMoney(expense)} ₼`;
+    if (incEl) {
+        incEl.textContent = `+ ${formatMoney(income)} ₼`;
+        incEl.className = "tx-metric-val text-success";
+    }
+    if (expEl) {
+        expEl.textContent = `- ${formatMoney(expense)} ₼`;
+        expEl.className = "tx-metric-val text-danger";
+    }
     if (netEl) {
         netEl.textContent = `${net >= 0 ? '+' : ''}${formatMoney(net)} ₼`;
         netEl.className = `tx-metric-val ${net >= 0 ? 'text-success' : 'text-danger'}`;
     }
-    if (countEl) countEl.textContent = transactions.length;
+    if (countEl) {
+        countEl.textContent = transactions.length;
+        countEl.className = "tx-metric-val text-dark";
+    }
 
     const counter = document.getElementById("txCounterText");
     if (counter) counter.textContent = `Göstərilir: ${transactions.length} əməliyyat`;
@@ -743,7 +752,8 @@ function formatMoney(val) {
 
 function formatDate(iso) {
     if (!iso) return "-";
-    const d = new Date(iso);
+    const d = typeof parseUtcDate === "function" ? parseUtcDate(iso) : new Date(iso);
+    if (!d || isNaN(d.getTime())) return "-";
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
@@ -757,8 +767,8 @@ function formatDateShort(iso) {
     if (typeof iso === "string" && iso.length === 10 && iso.includes("-")) {
         iso = iso + "T00:00:00";
     }
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return "-";
+    const d = typeof parseUtcDate === "function" ? parseUtcDate(iso) : new Date(iso);
+    if (!d || isNaN(d.getTime())) return "-";
     const months = ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"];
     const day = String(d.getDate()).padStart(2, '0');
     return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
@@ -766,7 +776,8 @@ function formatDateShort(iso) {
 
 function formatTime(iso) {
     if (!iso) return "";
-    const d = new Date(iso);
+    const d = typeof parseUtcDate === "function" ? parseUtcDate(iso) : new Date(iso);
+    if (!d || isNaN(d.getTime())) return "";
     const hour = String(d.getHours()).padStart(2, '0');
     const min = String(d.getMinutes()).padStart(2, '0');
     return `${hour}:${min}`;

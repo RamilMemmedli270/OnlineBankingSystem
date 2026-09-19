@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineBankingSystem.Application.Mapper;
 using OnlineBankingSystem.Application.Services;
@@ -118,6 +118,7 @@ namespace OnlineBankingSystem.WebApi
             builder.Services.AddScoped<IBalanceAlertSettingService, BalanceAlertSettingService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ISavingsGoalService, SavingsGoalService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             // JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");

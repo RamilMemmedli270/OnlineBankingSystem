@@ -13,11 +13,22 @@ function formatCardNumber(accountNumber) {
     return clean.replace(/(.{4})/g, '$1 ').trim();
 }
 
+function parseUtcDate(dateInput) {
+    if (!dateInput) return null;
+    if (dateInput instanceof Date) return dateInput;
+    let s = String(dateInput).trim();
+    if (s.includes("T") && !s.endsWith("Z") && !s.includes("+") && !s.slice(10).includes("-")) {
+        s += "Z";
+    }
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+}
+
 function formatDateAz(dateInput, includeTime = true) {
     if (!dateInput) return "—";
     try {
-        const d = new Date(dateInput);
-        if (isNaN(d.getTime())) return "—";
+        const d = parseUtcDate(dateInput);
+        if (!d || isNaN(d.getTime())) return "—";
 
         const monthsAz = [
             "Yan", "Fev", "Mar", "Apr", "May", "İyn", 
